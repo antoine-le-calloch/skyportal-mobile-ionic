@@ -90,6 +90,7 @@
  * @property {Candidate[]} notAssigned
  */
 
+import config from "../config.js";
 import { Clipboard } from "@capacitor/clipboard";
 import { useIonToast } from "@ionic/react";
 import { useCallback } from "react";
@@ -459,10 +460,6 @@ export const parseIntList = (intListString) => {
  * @returns {string}
  */
 export const getStartDate = (scanningProfile) => {
-  if (import.meta.env.MODE === "development") {
-    return moment("2022-07-26T16:43:00-07:00").format();
-  }
-
   return moment()
     .subtract(parseInt(scanningProfile.timeRange), "hours")
     .format();
@@ -541,10 +538,7 @@ export const computeSavedStatus = ({
 };
 
 export const getDefaultValues = () => ({
-  startDate:
-    import.meta.env.MODE === "development"
-      ? moment("2022-07-26T16:43:00-07:00").format()
-      : moment().format(),
+  startDate: config.SCANNING_START_DATE || moment().format(),
   endDate: moment().format(),
   filterCandidates: false,
   filteringType: "include",
