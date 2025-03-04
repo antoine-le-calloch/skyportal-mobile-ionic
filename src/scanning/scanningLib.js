@@ -95,6 +95,7 @@ import { useIonToast } from "@ionic/react";
 import { useCallback } from "react";
 import moment from "moment-timezone";
 import { SAVED_STATUS } from "../common/constants.js";
+import config from "../config.js";
 
 /**
  * @type {Object<ThumbnailType, ThumbnailType>}
@@ -534,7 +535,7 @@ export const computeSavedStatus = ({
 };
 
 export const getDefaultValues = () => ({
-  startDate: import.meta.env.VITE_SCANNING_START_DATE || moment().format(),
+  startDate: config.SCANNING_START_DATE || moment().format(),
   endDate: moment().format(),
   filterCandidates: false,
   filteringType: "include",
