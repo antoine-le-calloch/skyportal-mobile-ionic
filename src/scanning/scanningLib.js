@@ -456,10 +456,6 @@ export const parseIntList = (intListString) => {
  * @returns {string}
  */
 export const getStartDate = (scanningProfile) => {
-  if (import.meta.env.MODE === "development") {
-    return moment("2022-07-26T16:43:00-07:00").format();
-  }
-
   return moment()
     .subtract(parseInt(scanningProfile.timeRange), "hours")
     .format();
