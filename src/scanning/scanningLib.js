@@ -534,10 +534,7 @@ export const computeSavedStatus = ({
 };
 
 export const getDefaultValues = () => ({
-  startDate:
-    import.meta.env.MODE === "development"
-      ? moment("2022-07-26T16:43:00-07:00").format()
-      : moment().format(),
+  startDate: import.meta.env.VITE_SCANNING_START_DATE || moment().format(),
   endDate: moment().format(),
   filterCandidates: false,
   filteringType: "include",
