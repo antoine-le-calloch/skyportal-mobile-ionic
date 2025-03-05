@@ -122,7 +122,6 @@ the [vite documentation](https://vitejs.dev/guide/env-and-mode).
 | `VITE_CLEAR_AUTH`              | `boolean` | `false`     | Clears the authentication token and instance URL from the local storage. This is useful when you want to reset the app to the onboarding state each time you start the development server. |
 | `VITE_SCANNING_START_DATE`     | `string`  | `undefined` | The pre-filled start date on the scanning form. This is useful when you want to test the scanning feature with a specific date.                                                            |
 
-
 ## Directory structure
 
 ### `src/`
@@ -152,7 +151,7 @@ This directory contains documentation and images related to the project.
 The React components are all located inside modules, in a `components` directory. If a component is being used in
 multiple modules, it should be in
 the `common/` directory.
-The only naming convention for the components of this repository is to use Pascal-case. To create a new
+The only naming convention for the components of this repository is to use Pascal case. To create a new
 component, one should first create a directory with the name and the component and put the actual component file inside
 of this directory. They can also add a sass style file with the same name as the component in this directory like so:
 
@@ -174,8 +173,19 @@ export const NewComponent = ({ paramA, paramB }) => {
 
 #### Styling
 
-This project uses Sass for styling components. Although you should strive to use Ionic components as most as you can. As
-they come with built-in styles that will integrate smoothly with the rest of the UI. You should try to write as little
+This project uses Sass for styling components. Sass supports two different syntaxes. Each one can load the other:
+- Sass (Indented Syntax): 
+    Uses indentation instead of `{}` and `;`, making it more concise but less familiar for those used to CSS.
+    Files use the `.sass` extension. 
+- SCSS (Sassy CSS): Fully compatible with CSS, using `{}` and `;` like regular stylesheets.
+    It allows nesting and variables while keeping a familiar structure.
+    Files use the `.scss` extension.
+
+This project uses SCSS, which is more commonly used today due to its familiarity with CSS.
+You can find more about this on the [Sass documentation](https://sass-lang.com/documentation).
+
+Although you should strive to use Ionic components as much as you can.
+As they come with built-in styles that will integrate smoothly with the rest of the UI, you should try to write as little
 styling code as you can and rely more on Ionic components. If you do need some custom styles, a good practice is to
 always give a style class to your component's top-level element. For example in the CandidateScanner component:
 
@@ -224,7 +234,7 @@ values by providing your own. This is how the color theme for this application h
 theme colors in the `theme/variables.scss` file. You should only use theme colors in your components as they will also
 automatically adapt to dark theme. The theme colors in this project have been generated using
 the [Material Theme Builder](https://www.figma.com/community/plugin/1034969338659738588/material-theme-builder) Figma
-plugin. So they respect accessibility standards and also just work well together.
+plugin, so they respect accessibility standards and also just work well together.
 
 #### Screen components
 
@@ -263,7 +273,7 @@ with `Screen`.
 
 Ionic provides an easy way to create skeletons. This offers a better experience than a basic loader as users can have an
 idea
-of what is gonna be displayed. A good practice is that, if you have a loading delay and you already know what is going
+of what is going to be displayed. A good practice is that, if you have a loading delay and you already know what is going
 to be displayed after it,
 you can create a skeleton for this content instead of displaying a loader. You can use the same styling file as the real
 component for this and
@@ -280,8 +290,8 @@ if you do, you should include the skeleton file in the same directory as your co
 
 ### Modules
 
-Modules help keeping the code base organized and enhance scalability. The contain components and code that are related
-together. The naming convention for modules is to use camel-case. Module names should be short and descriptive. They
+Modules help keep the code base organized and enhance scalability. They contain components and code that are related
+together. The naming convention for modules is to use camel case. Module names should be short and descriptive. They
 usually
 refer to a specific part of the application or a group of related functionalities. A module in this repository
 has the following structure:
@@ -304,7 +314,7 @@ Other than the component directories, there are three files that can be added to
 
 - `myModule.lib.js` contains all the business logic of the module. Here you can put functions, constants and types that
   are being used by the components of this module.
-- `myModule.hooks.js` contains all the hooks being used in this module. Every TanStack queries should be defined
+- `myModule.hooks.js` contains all the hooks being used in this module. Each TanStack queries should be defined
   there
   as well as other needed hooks.
 - `myModule.requests.js` contains all the network requests of this module.
@@ -318,7 +328,7 @@ the `myModule.hooks.js` and that all the logic is in `myModule.lib.js`.
 
 ### State
 
-There is no state management library in this repository. The app only relies on TanStack Query to get the state from the
+There is no state management library in this repository. The app only relies on TanStack Query technology to get the state from the
 SkyPortal instance backend. This allows for less code to write and requires that every piece of data needed by a
 component be made available through a TanStack query.
 
@@ -413,5 +423,5 @@ return (
 ### Typings
 
 The project does not use TypeScript which is the default for Ionic React applications. Instead, it uses JavaScript, just
-like in the web version and it relies on jsdoc when types are needed. The jsdoc types are located close to the code that
+like in the web version, it relies on jsdoc when types are needed. The jsdoc types are located close to the code that
 uses them. You can check types in the whole repository by running `tsc --noEmit`.
