@@ -272,7 +272,6 @@ export const CandidateScanner = () => {
       return;
     }
     if (scanningConfig.saveGroupIds.length > 1) {
-      // @ts-ignore
       let groupIds = await promptUserForGroupSelection("save");
       saveSourceMutation.mutate({
         sourceId: currentCandidate.id,
@@ -356,9 +355,6 @@ export const CandidateScanner = () => {
       case SCANNING_TOOLBAR_ACTION.EXIT:
         await handleExit();
         break;
-      case SCANNING_TOOLBAR_ACTION.SAVE:
-        await handleSave();
-        break;
       case SCANNING_TOOLBAR_ACTION.DISCARD:
         await handleDiscard();
         break;
@@ -369,6 +365,9 @@ export const CandidateScanner = () => {
       case SCANNING_TOOLBAR_ACTION.ADD_REDSHIFT:
         break;
       case SCANNING_TOOLBAR_ACTION.SHOW_SURVEYS:
+        break;
+      case SCANNING_TOOLBAR_ACTION.SAVE:
+        await handleSave();
         break;
     }
   };
