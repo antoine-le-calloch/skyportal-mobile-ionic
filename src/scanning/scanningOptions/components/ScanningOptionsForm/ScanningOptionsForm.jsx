@@ -10,7 +10,7 @@ import {
   useUserAccessibleGroups,
   useUserProfile,
 } from "../../../../common/common.hooks.js";
-import { useHistory, useParams } from "react-router";
+import { useHistory, useLocation } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 import { searchCandidates } from "../../../scanning.requests.js";
 import {
@@ -22,11 +22,13 @@ import {
 import { ScanningOptionsPinnedAnnotations } from "../ScanningOptionsPinnedAnnotations/ScanningOptionsPinnedAnnotations.jsx";
 import { UserContext } from "../../../../common/common.context.js";
 
-export const ScanningOptionsForm = () => {
-  const { userInfo } = useContext(UserContext);
+const useQuery = () => new URLSearchParams(useLocation().search);
 
-  /** @type {any} */
-  const { /** @type {string|undefined} */ profile: profileName } = useParams();
+export const ScanningOptionsForm = () => {
+  const query = useQuery();
+  const { userInfo } = useContext(UserContext);
+  const profileName = query.get("profile");
+
   const { userProfile } = useUserProfile();
   /** @type {import("../../../../onboarding/onboarding.lib.js").ScanningProfile|undefined}*/
   const scanningProfile = userProfile?.preferences?.scanningProfiles?.find(
