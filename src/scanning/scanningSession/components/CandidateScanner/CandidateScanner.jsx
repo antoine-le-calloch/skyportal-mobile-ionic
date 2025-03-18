@@ -279,6 +279,26 @@ export const CandidateScanner = () => {
         groupIds,
       });
     } else {
+      const areYouSure = await new Promise((resolve) => {
+        presentAlert({
+          header: "Are you sure?",
+          message: "Do you want to save this source?",
+          buttons: [
+            {
+              text: "Cancel",
+              role: "cancel",
+            },
+            {
+              text: "Save",
+              role: "confirm",
+              handler: () => resolve(true),
+            },
+          ],
+        });
+      });
+      if (!areYouSure) {
+        return;
+      }
       saveSourceMutation.mutate({
         sourceId: currentCandidate.id,
         groupIds: scanningConfig.saveGroupIds,
