@@ -57,7 +57,7 @@ export const ScanningToolbar = ({ onAction, isDiscardingEnabled }) => {
   return (
     <>
       <div className="scanning-toolbar">
-        {isDiscardingEnabled && (
+        {isDiscardingEnabled ? (
           <IonButton
             fill="clear"
             color="secondary"
@@ -75,9 +75,7 @@ export const ScanningToolbar = ({ onAction, isDiscardingEnabled }) => {
               icon={isMenuOpen ? ellipsisHorizontal : ellipsisHorizontalOutline}
             />
           </IonButton>
-        )}
-
-        {!isDiscardingEnabled && (
+        ) : (
           <IonButton
             fill="clear"
             color="danger"
