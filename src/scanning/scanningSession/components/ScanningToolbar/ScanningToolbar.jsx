@@ -101,19 +101,19 @@ export const ScanningToolbar = ({ onAction, isDiscardingEnabled }) => {
         >
           <IonIcon slot="icon-only" icon={locateOutline} />
         </IonButton>
-        <IonButton fill="clear" color="secondary">
-          <IonIcon
-            slot="icon-only"
-            icon={planetOutline}
-            onClick={() => onAction(SCANNING_TOOLBAR_ACTION.SHOW_SURVEYS)}
-          />
+        <IonButton
+          fill="clear"
+          color="secondary"
+          onClick={() => onAction(SCANNING_TOOLBAR_ACTION.SHOW_SURVEYS)}
+        >
+          <IonIcon slot="icon-only" icon={planetOutline} />
         </IonButton>
-        <IonButton fill="clear" color="success">
-          <IonIcon
-            slot="icon-only"
-            icon={bookmarkOutline}
-            onClick={() => onAction(SCANNING_TOOLBAR_ACTION.SAVE)}
-          />
+        <IonButton
+          fill="clear"
+          color="success"
+          onClick={() => onAction(SCANNING_TOOLBAR_ACTION.SAVE)}
+        >
+          <IonIcon slot="icon-only" icon={bookmarkOutline}/>
         </IonButton>
       </div>
     </>
