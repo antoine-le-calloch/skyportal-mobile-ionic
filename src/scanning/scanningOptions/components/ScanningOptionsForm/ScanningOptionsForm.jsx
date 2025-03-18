@@ -5,7 +5,7 @@ import { ScanningOptionsDiscarding } from "../ScanningOptionsDiscarding/Scanning
 import { IonButton, IonLoading, useIonAlert } from "@ionic/react";
 import { useForm } from "react-hook-form";
 import moment from "moment-timezone";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import {
   useUserAccessibleGroups,
   useUserProfile,
@@ -25,29 +25,33 @@ import { UserContext } from "../../../../common/common.context.js";
 const useQuery = () => new URLSearchParams(useLocation().search);
 
 export const ScanningOptionsForm = () => {
-  const query = useQuery();
+  const profileName = useQuery().get("profile");
   const { userInfo } = useContext(UserContext);
-  const profileName = query.get("profile");
 
   const { userProfile } = useUserProfile();
-  /** @type {import("../../../../onboarding/onboarding.lib.js").ScanningProfile|undefined}*/
-  const scanningProfile = userProfile?.preferences?.scanningProfiles?.find(
-    (profile) => profile.name === profileName,
-  );
   const history = useHistory();
   const [presentAlert] = useIonAlert();
   const [loading, setLoading] = useState(false);
-  let defaultValues = getDefaultValues();
+  const scanningProfile = useMemo(
+    () =>
+      userProfile?.preferences?.scanningProfiles?.find(
+        (profile) => profile.name === profileName
+      ),
+    [userProfile, profileName]
+  );
 
-  if (scanningProfile) {
-    defaultValues = {
-      ...defaultValues,
-      startDate: getStartDate(scanningProfile),
-      ...getFiltering(scanningProfile),
-      // @ts-ignore
-      selectedGroups: scanningProfile.groupIDs,
-    };
-  }
+  const defaultValues = useMemo(
+    () => ({
+      ...getDefaultValues(),
+      ...(scanningProfile ?
+        {
+          startDate: getStartDate(scanningProfile),
+          ...getFiltering(scanningProfile),
+          selectedGroups: scanningProfile.groupIDs,
+        } : {}),
+    }),
+    [scanningProfile]
+  );
 
   const {
     register,
@@ -57,7 +61,14 @@ export const ScanningOptionsForm = () => {
     getValues,
     watch,
     control,
+    reset,
   } = useForm({ defaultValues });
+
+  useEffect(() => {
+    if (scanningProfile) {
+      reset(defaultValues);
+    }
+  }, [scanningProfile]);
 
   const searchCandidatesMutation = useMutation({
     /**
@@ -91,21 +102,14 @@ export const ScanningOptionsForm = () => {
     },
     onError: (error) => {
       setLoading(false);
-      if (error.message === "No candidates found") {
-        presentAlert({
-          header: "No candidates found",
-          message:
-            "No candidates were found with the selected options. Please try again with different options.",
-          buttons: ["OK"],
-        });
-      } else {
-        presentAlert({
-          header: "Error",
-          message:
-            "An error occurred while searching for candidates. Please try again.",
-          buttons: ["OK"],
-        });
-      }
+      presentAlert({
+        header: error.message === "No candidates found" ? "No candidates found" : "Error",
+        message:
+          error.message === "No candidates found"
+            ? "No candidates were found with the selected options. Please try again."
+            : "An error occurred while searching for candidates. Please try again.",
+        buttons: ["OK"],
+      });
     },
   });
 
