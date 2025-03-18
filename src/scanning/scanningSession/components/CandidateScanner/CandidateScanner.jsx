@@ -313,7 +313,7 @@ export const CandidateScanner = () => {
     }
   }, [presentAlert]);
 
-  const isDiscardingEnabled = (scanningConfig?.junkGroups?.length ?? 0) > 0;
+  const isDiscardingEnabled = (scanningConfig?.junkGroupIDs?.length ?? 0) > 0;
 
   scanningRecap.current.queryId = scanningConfig?.queryID ?? "";
   scanningRecap.current.totalMatches = totalMatches ?? 0;
