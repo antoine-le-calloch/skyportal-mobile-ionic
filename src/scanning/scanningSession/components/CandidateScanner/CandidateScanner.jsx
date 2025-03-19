@@ -273,10 +273,20 @@ export const CandidateScanner = () => {
     }
     if (scanningConfig.saveGroupIds.length > 1) {
       let groupIds = await promptUserForGroupSelection("save");
-      saveSourceMutation.mutate({
-        sourceId: currentCandidate.id,
-        groupIds,
-      });
+      if (groupIds.length > 0) {
+        saveSourceMutation.mutate({
+          sourceId: currentCandidate.id,
+          groupIds,
+        });
+      }else{
+        presentToast({
+          message: "No group selected, please select at least one group",
+          duration: 2000,
+          position: "top",
+          color: "danger",
+          icon: warningOutline,
+        });
+      }
     } else {
       const areYouSure = await new Promise((resolve) => {
         presentAlert({
