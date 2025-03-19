@@ -8,7 +8,7 @@ import {
   concat,
 } from "../../../scanning.lib.js";
 import { copyOutline } from "ionicons/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * @param {Object} props
@@ -37,33 +37,30 @@ export const PinnedAnnotations = ({
       .filter((annotationItem) => annotationItem.value),
   );
 
-  if (pinnedAnnotations.length < 3) {
-    /** @type {{id: string, value: string|number|Array<any>}[]} */
-    let otherAnnotationIds = [];
-    outerLoop: for (let annotation of candidate.annotations) {
-      for (let [key, value] of Object.entries(annotation.data)) {
-        const annotationId = getAnnotationId(annotation.origin, key);
-        if (
-          value &&
-          !otherAnnotationIds.find(
-            (annotationItem) => annotationItem.id === annotationId,
-          ) &&
-          !pinnedAnnotations.find(
-            (annotationItem) => annotationItem.id === annotationId,
-          )
-        ) {
-          otherAnnotationIds.push({
-            id: key,
-            value,
-          });
-          if (otherAnnotationIds.length === 3 - pinnedAnnotations.length) {
-            break outerLoop;
+  useEffect(() => {
+    setPinnedAnnotations((prev) => {
+      if (prev.length >= 3) return prev;
+
+      /** @type {{id: string, value: string|number|Array<any>}[]} */
+      const otherAnnotationIds = [];
+      for (const annotation of candidate.annotations) {
+        for (const [key, value] of Object.entries(annotation.data)) {
+          const annotationId = getAnnotationId(annotation.origin, key);
+          if (
+            value &&
+            !otherAnnotationIds.some((item) => item.id === annotationId) &&
+            !prev.some((item) => item.id === annotationId)
+          ) {
+            otherAnnotationIds.push({ id: key, value });
+            if (otherAnnotationIds.length === 3 - prev.length) {
+              return [...prev, ...otherAnnotationIds];
+            }
           }
         }
       }
-    }
-    setPinnedAnnotations((prev) => [...prev, ...otherAnnotationIds]);
-  }
+      return prev;
+    });
+  }, [candidate.annotations]);
 
   return (
     <div className="pinned-annotations">
