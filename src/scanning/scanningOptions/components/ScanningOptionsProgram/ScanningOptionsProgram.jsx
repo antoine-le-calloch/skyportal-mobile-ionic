@@ -48,17 +48,19 @@ export const ScanningOptionsProgram = ({
         </IonItem>
         {watch("selectedGroups").length > 0 && (
           <IonItem>
-            {watch("selectedGroups")
-              .map((/** @type {string} */ groupId) =>
-                userAccessibleGroups.find((group) => group.id === +groupId),
-              )
-              .map(
-                (
-                  /** @type {import("../../../scanning.lib.js").Group} */ group,
-                ) => (
-                  <IonChip key={group.id}>{group.name}</IonChip>
-                ),
-              )}
+            <div>
+              {watch("selectedGroups")
+                .map((/** @type {string} */ groupId) =>
+                  userAccessibleGroups.find((group) => group.id === +groupId),
+                )
+                .map(
+                  (
+                    /** @type {import("../../../scanning.lib.js").Group} */ group,
+                  ) => (
+                    <IonChip key={group.id}>{group.name}</IonChip>
+                  ),
+                )}
+            </div>
           </IonItem>
         )}
         <IonItem>

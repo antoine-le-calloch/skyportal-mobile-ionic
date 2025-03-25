@@ -272,13 +272,42 @@ export const CandidateScanner = () => {
       return;
     }
     if (scanningConfig.saveGroupIds.length > 1) {
-      // @ts-ignore
       let groupIds = await promptUserForGroupSelection("save");
-      saveSourceMutation.mutate({
-        sourceId: currentCandidate.id,
-        groupIds,
-      });
+      if (groupIds.length > 0) {
+        saveSourceMutation.mutate({
+          sourceId: currentCandidate.id,
+          groupIds,
+        });
+      }else{
+        presentToast({
+          message: "No group selected, please select at least one group",
+          duration: 2000,
+          position: "top",
+          color: "danger",
+          icon: warningOutline,
+        });
+      }
     } else {
+      const areYouSure = await new Promise((resolve) => {
+        presentAlert({
+          header: "Are you sure?",
+          message: "Do you want to save this source?",
+          buttons: [
+            {
+              text: "Cancel",
+              role: "cancel",
+            },
+            {
+              text: "Save",
+              role: "confirm",
+              handler: () => resolve(true),
+            },
+          ],
+        });
+      });
+      if (!areYouSure) {
+        return;
+      }
       saveSourceMutation.mutate({
         sourceId: currentCandidate.id,
         groupIds: scanningConfig.saveGroupIds,
@@ -313,7 +342,7 @@ export const CandidateScanner = () => {
     }
   }, [presentAlert]);
 
-  const isDiscardingEnabled = (scanningConfig?.junkGroups?.length ?? 0) > 0;
+  const isDiscardingEnabled = (scanningConfig?.junkGroupIDs?.length ?? 0) > 0;
 
   scanningRecap.current.queryId = scanningConfig?.queryID ?? "";
   scanningRecap.current.totalMatches = totalMatches ?? 0;
@@ -336,9 +365,6 @@ export const CandidateScanner = () => {
       case SCANNING_TOOLBAR_ACTION.EXIT:
         await handleExit();
         break;
-      case SCANNING_TOOLBAR_ACTION.SAVE:
-        await handleSave();
-        break;
       case SCANNING_TOOLBAR_ACTION.DISCARD:
         await handleDiscard();
         break;
@@ -349,6 +375,9 @@ export const CandidateScanner = () => {
       case SCANNING_TOOLBAR_ACTION.ADD_REDSHIFT:
         break;
       case SCANNING_TOOLBAR_ACTION.SHOW_SURVEYS:
+        break;
+      case SCANNING_TOOLBAR_ACTION.SAVE:
+        await handleSave();
         break;
     }
   };
