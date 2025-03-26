@@ -25,12 +25,23 @@
  */
 
 /**
+ * @typedef {Object} CandidateClassification
+ * @property {string} modified - Modified date
+ * @property {boolean} ml - Is the classification from machine learning
+ * @property {number} probability - Probability of the classification
+ * @property {string} classification - Classification
+ */
+
+/**
  * @typedef {Object} Candidate
  * @property {number} ra - Right ascension
  * @property {number} dec - Declination
  * @property {string} id - Source id
  * @property {CandidateThumbnail[]} thumbnails - Thumbnails of the candidate
  * @property {CandidateAnnotation[]} annotations - Annotations of the candidate
+ * @property {boolean} is_source - Is the candidate has been saved
+ * @property {Group[]} saved_groups - Groups the candidate has been saved to
+ * @property {CandidateClassification[]} classifications - Classifications of the candidate
  */
 
 /**
