@@ -621,6 +621,8 @@ export const concat = (value, length) => {
 export const sanitizeAnnotationData = (data) => {
   if (Array.isArray(data)) {
     data = JSON.stringify(data, null, 2)
+  }else if (typeof data === "boolean") {
+    data = data ? "true" : "false";
   }
   return data;
 }
