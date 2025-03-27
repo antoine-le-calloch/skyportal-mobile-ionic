@@ -38,27 +38,21 @@ export const PinnedAnnotations = ({
   );
 
   useEffect(() => {
-    setPinnedAnnotations((prev) => {
-      if (prev.length >= 3) return prev;
+    setPinnedAnnotations((pinnedAnnotations) => {
+      if (pinnedAnnotations.length >= 3) return pinnedAnnotations;
 
-      /** @type {{id: string, value: string|number|Array<any>}[]} */
-      const otherAnnotationIds = [];
-      for (const annotation of candidate.annotations) {
-        for (const [key, value] of Object.entries(annotation.data)) {
-          const annotationId = getAnnotationId(annotation.origin, key);
-          if (
-            value &&
-            !otherAnnotationIds.some((item) => item.id === annotationId) &&
-            !prev.some((item) => item.id === annotationId)
-          ) {
-            otherAnnotationIds.push({ id: key, value });
-            if (otherAnnotationIds.length === 3 - prev.length) {
-              return [...prev, ...otherAnnotationIds];
-            }
-          }
-        }
-      }
-      return prev;
+      const otherAnnotations = candidate.annotations.flatMap((annotation) =>
+        Object.entries(annotation.data)
+          .map(([key, value]) => ({
+            id: getAnnotationId(annotation.origin, key),
+            value,
+          }))
+          .filter(({ id, value }) =>
+            value && !pinnedAnnotations.some((item) => item.id === id)
+          )
+      );
+
+      return [...pinnedAnnotations, ...otherAnnotations].slice(0, 3);
     });
   }, [candidate.annotations]);
 
