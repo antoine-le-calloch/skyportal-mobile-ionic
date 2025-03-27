@@ -182,7 +182,8 @@ export function getThumbnailImageUrl(instanceUrl, candidate, type) {
   if (type === "new" || type === "ref" || type === "sub") {
     res = instanceUrl + res;
   }
-  if (res.startsWith("http:")) {  // force https
+  // force https for urls that are not from the instance
+  if (!res.startsWith(instanceUrl) && res.startsWith("http:")) {
     res = res.replace(/^http:/, "https:");
   }
   return res;
