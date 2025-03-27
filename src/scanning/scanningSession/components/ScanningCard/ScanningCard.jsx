@@ -3,8 +3,18 @@ import { THUMBNAIL_TYPES } from "../../../scanning.lib.js";
 import { Thumbnail } from "../Thumbnail/Thumbnail.jsx";
 import { PinnedAnnotations } from "../PinnedAnnotations/PinnedAnnotations.jsx";
 import { CandidatePhotometryChart } from "../CandidatePhotometryChart/CandidatePhotometryChart.jsx";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { ScanningCardSkeleton } from "./ScanningCardSkeleton.jsx";
+import {
+  IonButton, IonButtons,
+  IonChip,
+  IonContent,
+  IonHeader,
+  IonModal,
+  IonTitle,
+  IonToolbar
+} from "@ionic/react";
+import { Classification } from "../Classification/Classification.jsx";
 
 /**
  * Scanning card component
@@ -25,14 +35,24 @@ const ScanningCardBase = ({
   isInView,
   pinnedAnnotations,
 }) => {
+  const [showGroupsSaveTo, setShowGroupsSaveTo] = useState(false);
   return (
     <div className="scanning-card-container">
       <div
         className="scanning-card"
         style={{ visibility: isInView ? "visible" : "hidden" }}
       >
-        <div className="candidate-name">
+        <div className="candidate-header">
           <h1>{candidate.id}</h1>
+          <IonChip
+            className="is-saved"
+            color={candidate.is_source ? "primary" : "secondary"}
+            onClick={() => {
+              if (candidate.is_source) setShowGroupsSaveTo(true);
+            }}
+          >
+            {candidate.is_source ? "Previously Saved" : "Not saved"}
+          </IonChip>
           <div className="pagination-indicator">
             {currentIndex + 1}/{nbCandidates}
           </div>
@@ -53,8 +73,31 @@ const ScanningCardBase = ({
             isInView={isInView}
           />
         </div>
+        <Classification candidate={candidate} />
       </div>
       <ScanningCardSkeleton visible={!isInView} />
+      {/* Saved groups modal */}
+      <IonModal isOpen={showGroupsSaveTo} onDidDismiss={() => setShowGroupsSaveTo(false)}>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>Saved Groups</IonTitle>
+            <IonButtons slot="end">
+              <IonButton onClick={() => setShowGroupsSaveTo(false)}>Close</IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          {candidate.saved_groups?.length ? (
+            candidate.saved_groups.map((group) => (
+              <IonChip key={group.name} color="secondary">
+                {group.name}
+              </IonChip>
+            ))
+          ) : (
+            <p>No saved groups</p>
+          )}
+        </IonContent>
+      </IonModal>
     </div>
   );
 };
