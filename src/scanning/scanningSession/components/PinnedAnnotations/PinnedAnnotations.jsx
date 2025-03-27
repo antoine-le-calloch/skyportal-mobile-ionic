@@ -23,37 +23,46 @@ export const PinnedAnnotations = ({
   pinnedAnnotationIds = [],
 }) => {
   const handleTextCopied = useCopyAnnotationLineOnClick();
-  const [pinnedAnnotations, setPinnedAnnotations] = useState(
-    pinnedAnnotationIds
+  /**
+   * @type {[{ id: string; origin: string; value: any; }[], React.Dispatch<React.SetStateAction<{ id: string; origin: string; value: any; }[]>>]}
+   */
+  // @ts-ignore
+  const [pinnedAnnotations, setPinnedAnnotations] = useState([]);
+
+  useEffect(() => {
+    const pinnedAnnotations = pinnedAnnotationIds
       .map((id) => {
         const { key, origin } = extractAnnotationOriginAndKey(id);
         return {
           id: key,
+          origin,
           value: candidate.annotations.find(
-            (annotation) => annotation.origin === origin,
+            (annotation) => annotation.origin === origin
           )?.data[key],
         };
       })
-      .filter((annotationItem) => annotationItem.value),
-  );
+      .filter((annotation) => annotation.value);
 
-  useEffect(() => {
-    setPinnedAnnotations((pinnedAnnotations) => {
-      if (pinnedAnnotations.length >= 3) return pinnedAnnotations;
+    if (pinnedAnnotations.length >= 3) {
+      setPinnedAnnotations(pinnedAnnotations);
+      return;
+    }
 
-      const otherAnnotations = candidate.annotations.flatMap((annotation) =>
-        Object.entries(annotation.data)
-          .map(([key, value]) => ({
-            id: getAnnotationId(annotation.origin, key),
+    for (const annotation of candidate.annotations) {
+      for (const [key, value] of Object.entries(annotation.data)) {
+        if (pinnedAnnotations.length >= 3) {
+          break;
+        }
+        if ( value && !pinnedAnnotations.some((item) => item.id === key && item.origin === annotation.origin)) {
+          pinnedAnnotations.push({
+            id: key,
+            origin: annotation.origin,
             value,
-          }))
-          .filter(({ id, value }) =>
-            value && !pinnedAnnotations.some((item) => item.id === id)
-          )
-      );
-
-      return [...pinnedAnnotations, ...otherAnnotations].slice(0, 3);
-    });
+          });
+        }
+      }
+    }
+    setPinnedAnnotations([...pinnedAnnotations].slice(0, 3));
   }, [candidate.annotations]);
 
   return (
@@ -61,7 +70,7 @@ export const PinnedAnnotations = ({
       <div className="annotations">
         {pinnedAnnotations.map((annotationLine) => (
           <IonItem
-            key={annotationLine.id}
+            key={getAnnotationId(annotationLine.origin, annotationLine.id)}
             className="annotation-line"
             lines="none"
             onClick={() =>
@@ -71,7 +80,7 @@ export const PinnedAnnotations = ({
             button
           >
             <IonText className="name" color="secondary">
-              {annotationLine.id}:
+              {annotationLine.id}
             </IonText>
             {"\u00A0"}
             {annotationLine.value ? (
