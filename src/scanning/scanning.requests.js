@@ -55,6 +55,7 @@ export async function searchCandidates({
       startDate,
       endDate: endDate || "",
       queryID: queryID || "",
+      includeFollowupRequests: "true",
     },
   });
   return {
