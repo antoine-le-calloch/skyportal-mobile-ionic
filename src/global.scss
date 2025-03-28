@@ -21,6 +21,11 @@ ion-skeleton-text {
   background-color: var(--ion-background-color);
 }
 
+.section-title {
+  font-size: 0.9rem;
+  color: var(--ion-color-secondary);
+}
+
 form {
   .form-section {
     margin-bottom: 1rem;

@@ -17,7 +17,9 @@ export const Classification = ({candidate}) => {
 
   return (
     <div className="classification">
-      Latest classification
+      <div className="section-title">
+        Latest classification
+      </div>
       <div>
         <IonChip color="primary">
           {mostRecentHumanClassification}
