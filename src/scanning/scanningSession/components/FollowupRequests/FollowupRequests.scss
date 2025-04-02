@@ -1,0 +1,23 @@
+.followup-requests {
+  .instrument-name{
+    font-size: 0.9rem;
+    font-weight: 400;
+  }
+
+  .followup-request {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    width: 100%;
+    .username {
+      color: var(--ion-color-secondary);
+    }
+  }
+
+  .no-followup-requests {
+    text-align: center;
+    font-size: 0.9rem;
+    padding: 0.5rem 0 1rem 0;
+  }
+}

@@ -1,5 +1,5 @@
 import "./PinnedAnnotations.scss";
-import { IonButton, IonIcon, IonItem, IonText } from "@ionic/react";
+import { IonButton, IonIcon, IonItem, IonLabel, IonList } from "@ionic/react";
 import {
   extractAnnotationOriginAndKey,
   getAnnotationId,
@@ -23,87 +23,88 @@ export const PinnedAnnotations = ({
   pinnedAnnotationIds = [],
 }) => {
   const handleTextCopied = useCopyAnnotationLineOnClick();
-  const [pinnedAnnotations, setPinnedAnnotations] = useState(
-    pinnedAnnotationIds
+  /**
+   * @type {[{ id: string; origin: string; value: any; }[], React.Dispatch<React.SetStateAction<{ id: string; origin: string; value: any; }[]>>]}
+   */
+  // @ts-ignore
+  const [pinnedAnnotations, setPinnedAnnotations] = useState([]);
+
+  useEffect(() => {
+    const annotations = pinnedAnnotationIds
       .map((id) => {
         const { key, origin } = extractAnnotationOriginAndKey(id);
         return {
           id: key,
+          origin,
           value: candidate.annotations.find(
-            (annotation) => annotation.origin === origin,
+            (annotation) => annotation.origin === origin
           )?.data[key],
         };
       })
-      .filter((annotationItem) => annotationItem.value),
-  );
+      .filter((annotation) => annotation.value);
 
-  useEffect(() => {
-    setPinnedAnnotations((prev) => {
-      if (prev.length >= 3) return prev;
+    if (annotations.length >= 3) {
+      setPinnedAnnotations(annotations);
+      return;
+    }
 
-      /** @type {{id: string, value: string|number|Array<any>}[]} */
-      const otherAnnotationIds = [];
-      for (const annotation of candidate.annotations) {
-        for (const [key, value] of Object.entries(annotation.data)) {
-          const annotationId = getAnnotationId(annotation.origin, key);
-          if (
-            value &&
-            !otherAnnotationIds.some((item) => item.id === annotationId) &&
-            !prev.some((item) => item.id === annotationId)
-          ) {
-            otherAnnotationIds.push({ id: key, value });
-            if (otherAnnotationIds.length === 3 - prev.length) {
-              return [...prev, ...otherAnnotationIds];
-            }
-          }
+    for (const annotation of candidate.annotations) {
+      for (const [key, value] of Object.entries(annotation.data)) {
+        if (annotations.length >= 3) {
+          break;
+        }
+        if ( value && !annotations.some((item) => item.id === key && item.origin === annotation.origin)) {
+          annotations.push({
+            id: key,
+            origin: annotation.origin,
+            value,
+          });
         }
       }
-      return prev;
-    });
+    }
+    setPinnedAnnotations([...annotations].slice(0, 3));
   }, [candidate.annotations]);
 
   return (
-    <div className="pinned-annotations">
+    <div className="pinned-annotations section">
       <div className="annotations">
-        {pinnedAnnotations.map((annotationLine) => (
-          <IonItem
-            key={annotationLine.id}
-            className="annotation-line"
-            lines="none"
-            onClick={() =>
-              handleTextCopied(annotationLine.id, sanitizeAnnotationData(annotationLine.value))
-            }
-            detail={false}
-            button
-          >
-            <IonText className="name" color="secondary">
-              {annotationLine.id}:
-            </IonText>
-            {"\u00A0"}
-            {annotationLine.value ? (
-              <div className="annotation-line-content">
-                <span className="annotation-value">
-                  {concat(sanitizeAnnotationData(annotationLine.value), 20)}
-                </span>
-                <IonIcon icon={copyOutline} size="small" color="secondary" />
-              </div>
-            ) : (
-              <>
-                <IonText color="warning" className="no-value">
-                  No value
-                </IonText>
-              </>
-            )}
-          </IonItem>
-        ))}
+        <IonList>
+          {pinnedAnnotations.map((annotationLine) => (
+            <IonItem
+              key={getAnnotationId(annotationLine.origin, annotationLine.id)}
+              onClick={() =>
+                handleTextCopied(
+                  annotationLine.id,
+                  sanitizeAnnotationData(annotationLine.value, true)
+                )
+              }
+              color="light"
+              lines="none"
+            >
+              <IonLabel color="secondary" className="annotation-id">
+                {annotationLine.id}:
+              </IonLabel>
+              {annotationLine.value ? (
+                <IonLabel className="annotation-value">
+                  {concat(sanitizeAnnotationData(annotationLine.value,false), 15)}
+                  <IonIcon icon={copyOutline} size="small" color="secondary"></IonIcon>
+                </IonLabel>
+              ) : (
+                <IonLabel color="warning" className="no-value">
+                  no value
+                </IonLabel>
+              )}
+            </IonItem>
+          ))}
+        </IonList>
       </div>
       <div className="button-container">
         <IonButton
           onClick={onButtonClick}
           color="secondary"
-          expand="block"
           size="small"
           fill="clear"
+          className="ion-text-nowrap"
         >
           Show all
         </IonButton>

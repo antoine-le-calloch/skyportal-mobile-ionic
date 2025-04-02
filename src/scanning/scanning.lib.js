@@ -42,6 +42,72 @@
  * @property {boolean} is_source - Is the candidate has been saved
  * @property {Group[]} saved_groups - Groups the candidate has been saved to
  * @property {CandidateClassification[]} classifications - Classifications of the candidate
+ * @property {FollowupRequest[]} followup_requests - Follow-up requests
+ * @property {Comment[]} comments - Comments on the follow-up request
+ * @property {string} tns_name - TNS name
+ * @property {Spectra[]} spectra - Spectra of the candidate
+ */
+
+/**
+ * @typedef {Object} Spectra
+ * @property {string} id - Spectra ID
+ * @property {string} observed_at - Observed date
+ * @property {Instrument} instrument - Instrument details
+ * @property {Group[]} groups - Groups the spectra belongs to
+ * @property {string} instrument_name - Instrument name
+ * @property {User} owner - Owner details
+ * @property {User[]} pis - Principal investigators
+ * @property {User[]} reducers - Reducers
+ * @property {User[]} observers - Observers
+ * @property {string} type - Type of the spectra
+ */
+
+/**
+ * @typedef {Object} FollowupRequest
+ * @property {string} id - Follow-up request ID
+ * @property {string} created_at - Created date
+ * @property {Allocation} allocation - Allocation details
+ * @property {Payload} payload - Payload of the follow-up request
+ * @property {User} requester - Requester details
+ * @property {string} status - Status of the follow-up request
+ */
+
+/**
+ * @typedef {Object} Comment
+ * @property {string} id - Comment ID
+ * @property {string} text - Comment text
+ * @property {User} author - Author of the comment
+ * @property {string} created_at - Created date
+ */
+
+/**
+ * @typedef {Object} User
+ * @property {string} id - User ID
+ * @property {string} username - Username
+ */
+
+/**
+ * @typedef {Object} Payload
+ * @property {string} request_type - Type of the request
+ * @property {string} start_date - Start date of the request
+ * @property {string} end_date - End date of the request
+ * @property {string[]} filters - Filters of the request
+ * @property {string} priority - Priority of the request
+ */
+
+/**
+ * @typedef {Object} Allocation
+ * @property {string} id - Allocation ID
+ * @property {string} pi - Principal investigator
+ * @property {Group} group - Group details
+ * @property {string[]} types - Types of the allocation
+ * @property {Instrument} instrument - Instrument details
+ */
+
+/**
+ * @typedef {Object} Instrument
+ * @property {string} id - Instrument ID
+ * @property {string} name - Instrument name
  */
 
 /**
@@ -193,7 +259,8 @@ export function getThumbnailImageUrl(instanceUrl, candidate, type) {
   if (type === "new" || type === "ref" || type === "sub") {
     res = instanceUrl + res;
   }
-  if (res.startsWith("http:")) {  // force https
+  // force https for urls that are not from the instance
+  if (!res.startsWith(instanceUrl) && res.startsWith("http:")) {
     res = res.replace(/^http:/, "https:");
   }
   return res;
@@ -608,18 +675,50 @@ export const extractAnnotationOriginAndKey = (annotationId) => {
  */
 export const concat = (value, length) => {
   if (typeof value === "string" && value.length > length) {
-    value = value.slice(0, length) + "..."
+    value = value.slice(0, length) + ".."
   }
   return value;
 }
 
 /**
  * @param {string|number|Array<any>|undefined} data
+ * @param {boolean} withIndentation
  * @returns {string|number|undefined}
  */
-export const sanitizeAnnotationData = (data) => {
+export const sanitizeAnnotationData = (data, withIndentation) => {
   if (Array.isArray(data)) {
-    data = JSON.stringify(data, null, 2)
+    data = JSON.stringify(data, null, withIndentation ? 2 : 0);
+  }else if (typeof data === "boolean") {
+    data = data ? "true" : "false";
   }
   return data;
+}
+
+/**
+ * @param {string} stringUTCDate
+ * @returns {string}
+ */
+export const getDateDiff = (/** @type {string} */stringUTCDate) => {
+  const date = new Date(stringUTCDate + "Z"); // Add 'Z' to indicate that the date is in UTC
+  if (isNaN(date.getTime())) {
+    return "...";
+  }
+  const diff = new Date().getTime() - date.getTime();
+  const diffInMinutes = Math.floor(diff / (1000 * 60));
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
+  }
+
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
+  }
+
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 365) {
+    return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
+  }
+
+  const diffInYears = Math.floor(diffInDays / 365);
+  return `${diffInYears} year${diffInYears > 1 ? "s" : ""} ago`;
 }

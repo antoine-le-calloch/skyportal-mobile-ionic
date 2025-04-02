@@ -14,7 +14,10 @@ import {
   IonTitle,
   IonToolbar
 } from "@ionic/react";
-import { Classification } from "../Classification/Classification.jsx";
+import { FollowupRequests } from "../FollowupRequests/FollowupRequests.jsx";
+import { Comments } from "../Comments/Comments.jsx";
+import { CandidateSourceInfo } from "../CandidateSourceInfo/CandidateSourceInfo.jsx";
+import { SpectraList } from "../Spectra/SpectraList.jsx";
 
 /**
  * Scanning card component
@@ -73,7 +76,11 @@ const ScanningCardBase = ({
             isInView={isInView}
           />
         </div>
-        <Classification candidate={candidate} />
+        <CandidateSourceInfo candidate={candidate} />
+        <Comments comments={candidate.comments} />
+        <SpectraList candidate={candidate} />
+        <FollowupRequests candidate={candidate} requestType={"triggered"} />
+        <FollowupRequests candidate={candidate} requestType={"forced_photometry"}/>
       </div>
       <ScanningCardSkeleton visible={!isInView} />
       {/* Saved groups modal */}
