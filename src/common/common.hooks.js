@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import config from "../config.js";
 import { fetchUserProfile } from "../onboarding/onboarding.lib.js";
-import { fetchConfig } from "./common.requests.js";
+import { fetchAllocations, fetchAllocationsApiClassname, fetchConfig } from "./common.requests.js";
 import { fetchGroups } from "./common.requests.js";
 import { useContext } from "react";
 import { UserContext } from "./common.context.js";
@@ -131,3 +131,35 @@ export const useUserProfile = () => {
     error,
   };
 };
+
+/**
+ * @returns {{allocations: import("./common.lib.js").Allocation[]|undefined, status: QueryStatus, error: any|undefined}}
+ */
+export const useAllocations = () => {
+  const { userInfo } = useContext(UserContext);
+  const { data, status, error } = useQuery({
+    queryKey: [QUERY_KEYS.ALLOCATIONS],
+    queryFn: () => fetchAllocations(userInfo),
+  });
+  return {
+    allocations: data,
+    status,
+    error,
+  };
+};
+
+/**
+ * @returns {{allocationsApiClassname: import("./common.lib.js").AllocationApiClassname[]|undefined, status: QueryStatus, error: any|undefined}}
+ */
+export const useAllocationsApiClassname = () => {
+  const { userInfo } = useContext(UserContext);
+  const { data, status, error } = useQuery({
+    queryKey: [QUERY_KEYS.ALLOCATIONS_API_CLASSNAME],
+    queryFn: () => fetchAllocationsApiClassname(userInfo),
+  });
+  return {
+    allocationsApiClassname: data,
+    status,
+    error,
+  };
+}

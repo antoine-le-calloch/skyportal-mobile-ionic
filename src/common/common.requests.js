@@ -41,3 +41,32 @@ export async function fetchGroups(userInfo) {
   });
   return response.data.data;
 }
+
+/**
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} userInfo
+ */
+export async function fetchAllocations(userInfo) {
+  let response = await CapacitorHttp.get({
+    url: `${userInfo.instance.url}/api/allocation`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+    },
+  });
+  return response.data.data;
+}
+
+/**
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} userInfo
+ * @param {Record<string, string>} params
+ */
+export async function fetchAllocationsApiClassname(userInfo, params = {}) {
+  const apiQueryDefaults = { apiType: "api_classname" };
+  let response = await CapacitorHttp.get({
+    url: `${userInfo.instance.url}/api/allocation`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+    },
+    params: { ...apiQueryDefaults, ...params },
+  });
+  return response.data.data;
+}

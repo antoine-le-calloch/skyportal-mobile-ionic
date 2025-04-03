@@ -23,9 +23,24 @@ import { Preferences } from "@capacitor/preferences";
  */
 
 /**
+ * @typedef {Object} AllocationApiClassname
+ * @property {string} id - Allocation ID
+ * @property {Instrument} instrument - Instrument details
+ * @property {string} pi - Principal investigator
+ * @property {number} group_id - Group ID
+ */
+
+/**
  * @typedef {Object} Instrument
  * @property {string} id - Instrument ID
  * @property {string} name - Instrument name
+ * @property {Telescope} telescope - Telescope details
+ */
+
+/**
+ * @typedef {Object} Telescope
+ * @property {string} id - Telescope ID
+ * @property {string} name - Telescope name
  */
 
 /**
@@ -206,6 +221,8 @@ export const QUERY_KEYS = {
   ANNOTATIONS_INFO: "annotationsInfo",
   APP_PREFERENCES: "appPreferences",
   SOURCE_SPECTRA: "sourceSpectra",
+  ALLOCATIONS: "allocations",
+  ALLOCATIONS_API_CLASSNAME: "allocationsApiClassname",
 };
 /**
  * @type {Object.<SavedStatus, string>}
