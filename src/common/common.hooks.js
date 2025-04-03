@@ -1,9 +1,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchSources } from "../sources/sources.lib.js";
 import config from "../config.js";
 import { fetchUserProfile } from "../onboarding/onboarding.lib.js";
 import { fetchConfig } from "./common.requests.js";
-import { fetchGroups } from "../scanning/scanning.requests.js";
+import { fetchGroups } from "./common.requests.js";
 import { useContext } from "react";
 import { UserContext } from "./common.context.js";
 import { clearPreference, getPreference, QUERY_KEYS, setPreference } from "./common.lib.js";
@@ -11,37 +10,6 @@ import { clearPreference, getPreference, QUERY_KEYS, setPreference } from "./com
 /**
  * @typedef {"success" | "error" | "pending"} QueryStatus
  */
-
-/**
- * @param {Object} props
- * @param {number} props.page
- * @param {number} props.numPerPage
- * @returns {{sources: import("../sources/sources.lib.js").Source[]|undefined, status: QueryStatus, error: any|undefined}}
- */
-export const useFetchSources = ({ page, numPerPage }) => {
-  const { userInfo } = useContext(UserContext);
-
-  const {
-    /** @type {import("../sources/sources.lib.js").Source[]} */ data: sources,
-    status,
-    error,
-  } = useQuery({
-    queryKey: [QUERY_KEYS.SOURCES, page, numPerPage],
-    queryFn: () =>
-      fetchSources({
-        userInfo,
-        page,
-        numPerPage,
-      }),
-    // @ts-ignore
-    suspense: true,
-  });
-  return {
-    sources,
-    status,
-    error,
-  };
-};
 
 /**
  * @typedef {Object} AppPreferences

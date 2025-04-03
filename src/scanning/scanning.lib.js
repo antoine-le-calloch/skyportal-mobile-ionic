@@ -1,17 +1,25 @@
-/**
- * @typedef {Object} CandidateThumbnail
- * @property {string} type - Thumbnail type
- * @property {string} public_url - URL of the thumbnail
- */
+/** @typedef {import("../common/common.lib.js").Group} Group */
+/** @typedef {import("../sources/sources.lib.js").Source} Source */
+/** @typedef {import("../sources/sources.lib.js").FollowupRequest} FollowupRequest */
+/** @typedef {import("../sources/sources.lib.js").Comment} Comment */
+/** @typedef {import("../sources/sources.lib.js").Thumbnail} Thumbnail */
+/** @typedef {import("../sources/sources.lib.js").Spectra} Spectra */
+/** @typedef {import("../sources/sources.lib.js").Photometry} Photometry */
 
 /**
- * @typedef {Object} Group
- * @property {number} id - Group ID
- * @property {string|null} [nickname] - Group nickname
- * @property {string} name - Group name
- * @property {string|null} [description] - Group description
- * @property {boolean} private - Is the group private
- * @property {boolean} single_user_group - Is the group a single user group
+ * @typedef {Object} Candidate
+ * @property {number} ra - Right ascension
+ * @property {number} dec - Declination
+ * @property {string} id - Source id
+ * @property {Thumbnail[]} thumbnails - Thumbnails of the candidate
+ * @property {CandidateAnnotation[]} annotations - Annotations of the candidate
+ * @property {boolean} is_source - Is the candidate has been saved
+ * @property {Group[]} saved_groups - Groups the candidate has been saved to
+ * @property {CandidateClassification[]} classifications - Classifications of the candidate
+ * @property {FollowupRequest[]} followup_requests - Follow-up requests
+ * @property {Comment[]} comments - Comments on the follow-up request
+ * @property {string} tns_name - TNS name
+ * @property {Spectra[]} spectra - Spectra of the candidate
  */
 
 /**
@@ -33,115 +41,7 @@
  */
 
 /**
- * @typedef {Object} Candidate
- * @property {number} ra - Right ascension
- * @property {number} dec - Declination
- * @property {string} id - Source id
- * @property {CandidateThumbnail[]} thumbnails - Thumbnails of the candidate
- * @property {CandidateAnnotation[]} annotations - Annotations of the candidate
- * @property {boolean} is_source - Is the candidate has been saved
- * @property {Group[]} saved_groups - Groups the candidate has been saved to
- * @property {CandidateClassification[]} classifications - Classifications of the candidate
- * @property {FollowupRequest[]} followup_requests - Follow-up requests
- * @property {Comment[]} comments - Comments on the follow-up request
- * @property {string} tns_name - TNS name
- * @property {Spectra[]} spectra - Spectra of the candidate
- */
-
-/**
- * @typedef {Object} Spectra
- * @property {string} id - Spectra ID
- * @property {string} observed_at - Observed date
- * @property {Instrument} instrument - Instrument details
- * @property {Group[]} groups - Groups the spectra belongs to
- * @property {string} instrument_name - Instrument name
- * @property {User} owner - Owner details
- * @property {User[]} pis - Principal investigators
- * @property {User[]} reducers - Reducers
- * @property {User[]} observers - Observers
- * @property {string} type - Type of the spectra
- */
-
-/**
- * @typedef {Object} FollowupRequest
- * @property {string} id - Follow-up request ID
- * @property {string} created_at - Created date
- * @property {Allocation} allocation - Allocation details
- * @property {Payload} payload - Payload of the follow-up request
- * @property {User} requester - Requester details
- * @property {string} status - Status of the follow-up request
- */
-
-/**
- * @typedef {Object} Comment
- * @property {string} id - Comment ID
- * @property {string} text - Comment text
- * @property {User} author - Author of the comment
- * @property {string} created_at - Created date
- */
-
-/**
- * @typedef {Object} User
- * @property {string} id - User ID
- * @property {string} username - Username
- */
-
-/**
- * @typedef {Object} Payload
- * @property {string} request_type - Type of the request
- * @property {string} start_date - Start date of the request
- * @property {string} end_date - End date of the request
- * @property {string[]} filters - Filters of the request
- * @property {string} priority - Priority of the request
- */
-
-/**
- * @typedef {Object} Allocation
- * @property {string} id - Allocation ID
- * @property {string} pi - Principal investigator
- * @property {Group} group - Group details
- * @property {string[]} types - Types of the allocation
- * @property {Instrument} instrument - Instrument details
- */
-
-/**
- * @typedef {Object} Instrument
- * @property {string} id - Instrument ID
- * @property {string} name - Instrument name
- */
-
-/**
- * @typedef {Object} GroupsResponse - Response from the /groups endpoint
- * @property {Group[]} user_groups - User groups
- * @property {Group[]} user_accessible_groups - User accessible groups
- * @property {Group[]} all_groups - All groups
- */
-
-/**
- * @typedef {Object} Photometry
- * @property {number} id - Photometry ID
- * @property {string} obj_id - Object ID
- * @property {string} instrument_id - Instrument ID
- * @property {string} filter - Filter
- * @property {number} mjd - Modified Julian Date
- * @property {number} mag - Magnitude
- * @property {number} magerr - Magnitude error
- * @property {string} limiting_mag - Limiting magnitude
- * @property {string} magsys - Magnitude system
- * @property {string} origin - Origin
- * @property {string|null} ra - Right ascension
- * @property {string|null} dec - Declination
- * @property {string|null} altdata - Alternative data
- * @property {string|null} ra_unc - Right ascension uncertainty
- * @property {string|null} dec_unc - Declination uncertainty
- */
-
-/**
  * @typedef {"specific"|"all"|"ask"} DiscardBehavior
- */
-
-/**
- * @typedef {"new" | "ref" | "sub" | "sdss" | "ls" | "ps1"} ThumbnailType
  */
 
 /**
@@ -174,97 +74,6 @@ import { useCallback } from "react";
 import moment from "moment-timezone";
 
 import { SAVED_STATUS } from "../common/common.lib.js";
-
-/**
- * @type {Object<ThumbnailType, ThumbnailType>}
- */
-export const THUMBNAIL_TYPES = {
-  new: "new",
-  ref: "ref",
-  sub: "sub",
-  sdss: "sdss",
-  ls: "ls",
-  ps1: "ps1",
-};
-
-/**
- * Get the link for the survey and alt text for thumbnail
- * @param {string} instanceUrl - Instance URL
- * @param {string} name - Thumbnail type
- * @param {number} ra - Right ascension
- * @param {number} dec - Declination
- * @returns {{alt: string, link: string}}
- */
-export const getThumbnailAltAndSurveyLink = (instanceUrl, name, ra, dec) => {
-  let alt = "";
-  let link = "";
-  switch (name) {
-    case "new":
-      alt = `discovery image`;
-      break;
-    case "ref":
-      alt = `pre-discovery (reference) image`;
-      break;
-    case "sub":
-      alt = `subtracted image`;
-      break;
-    case "sdss":
-      alt = "Link to SDSS Navigate tool";
-      link = `https://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?opt=G&ra=${ra}&dec=${dec}&scale=0.25`;
-      break;
-    case "ls":
-      alt = "Link to Legacy Survey DR9 Image Access";
-      link = `https://www.legacysurvey.org/viewer?ra=${ra}&dec=${dec}&layer=ls-dr9&photoz-dr9&zoom=16&mark=${ra},${dec}`;
-      break;
-    case "ps1":
-      alt = "Link to PanSTARRS-1 Image Access";
-      link = `https://ps1images.stsci.edu/cgi-bin/ps1cutouts?pos=${ra}+${dec}&filter=color&filter=g&filter=r&filter=i&filter=z&filter=y&filetypes=stack&auxiliary=data&size=240&output_size=0&verbose=0&autoscale=99.500000&catlist=`;
-      break;
-    default:
-      link = `${instanceUrl}/static/images/outside_survey.png`;
-      break;
-  }
-  return { alt, link };
-};
-
-/**
- * Get the header for the thumbnail
- * @param {string} type - Thumbnail type
- * @returns {string}
- */
-export const getThumbnailHeader = (type) => {
-  switch (type) {
-    case "ls":
-      return "LEGACY SURVEY DR9";
-    case "ps1":
-      return "PANSTARRS DR2";
-    default:
-      return type.toUpperCase();
-  }
-};
-
-/**
- * Get the URL of the thumbnail image
- * @param {string} instanceUrl
- * @param {Candidate} candidate
- * @param {string} type
- * @returns {string|null}
- */
-export function getThumbnailImageUrl(instanceUrl, candidate, type) {
-  let thumbnail = candidate.thumbnails.find((t) => t.type === type);
-  if (!thumbnail) {
-    return null;
-  }
-  let res = thumbnail.public_url;
-  if (type === "new" || type === "ref" || type === "sub") {
-    res = instanceUrl + res;
-  }
-  // force https for urls that are not from the instance
-  if (!res.startsWith(instanceUrl) && res.startsWith("http:")) {
-    res = res.replace(/^http:/, "https:");
-  }
-  return res;
-}
 
 /**
  * @param {Object} params
@@ -692,33 +501,4 @@ export const sanitizeAnnotationData = (data, withIndentation) => {
     data = data ? "true" : "false";
   }
   return data;
-}
-
-/**
- * @param {string} stringUTCDate
- * @returns {string}
- */
-export const getDateDiff = (/** @type {string} */stringUTCDate) => {
-  const date = new Date(stringUTCDate + "Z"); // Add 'Z' to indicate that the date is in UTC
-  if (isNaN(date.getTime())) {
-    return "...";
-  }
-  const diff = new Date().getTime() - date.getTime();
-  const diffInMinutes = Math.floor(diff / (1000 * 60));
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
-  }
-
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
-  }
-
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 365) {
-    return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
-  }
-
-  const diffInYears = Math.floor(diffInDays / 365);
-  return `${diffInYears} year${diffInYears > 1 ? "s" : ""} ago`;
 }

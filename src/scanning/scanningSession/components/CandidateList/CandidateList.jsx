@@ -1,6 +1,15 @@
 import "./CandidateList.scss";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { IonModal, useIonAlert, useIonToast } from "@ionic/react";
+import {
+  IonButton,
+  IonButtons, IonContent,
+  IonHeader,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+  useIonAlert,
+  useIonToast
+} from "@ionic/react";
 import { useMutation } from "@tanstack/react-query";
 import useEmblaCarousel from "embla-carousel-react";
 import { checkmarkCircleOutline, warningOutline } from "ionicons/icons";
@@ -9,7 +18,7 @@ import { CandidateAnnotationsViewer } from "../CandidateAnnotationsViewer/Candid
 import { ScanningCard } from "../ScanningCard/ScanningCard.jsx";
 import { ScanningCardSkeleton } from "../ScanningCard/ScanningCardSkeleton.jsx";
 import { useSearchCandidates } from "../../../scanning.hooks.js";
-import { addSourceToGroups } from "../../../scanning.requests.js";
+import { addSourceToGroups } from "../../../../sources/sources.requests.js";
 import {
   parseIntList,
   SCANNING_TOOLBAR_ACTION,
@@ -248,24 +257,6 @@ export const CandidateList = () => {
     [state, currentCandidate, presentAlert],
   );
 
-  const handleDiscard = useCallback(async () => {
-    if (!currentCandidate || !scanningConfig) {
-      return;
-    }
-    if (scanningConfig.discardBehavior === "ask") {
-      let groupIds = await promptUserForGroupSelection("discard");
-      discardSourceMutation.mutate({
-        sourceId: currentCandidate.id,
-        groupIds,
-      });
-    } else {
-      discardSourceMutation.mutate({
-        sourceId: currentCandidate.id,
-        groupIds: scanningConfig.junkGroupIDs,
-      });
-    }
-  }, [currentCandidate, state]);
-
   const handleSave = useCallback(async () => {
     if (!currentCandidate || !scanningConfig) {
       return;
@@ -318,6 +309,24 @@ export const CandidateList = () => {
     };
   }, [currentCandidate, state]);
 
+  const handleDiscard = useCallback(async () => {
+    if (!currentCandidate || !scanningConfig) {
+      return;
+    }
+    if (scanningConfig.discardBehavior === "ask") {
+      let groupIds = await promptUserForGroupSelection("discard");
+      discardSourceMutation.mutate({
+        sourceId: currentCandidate.id,
+        groupIds,
+      });
+    } else {
+      discardSourceMutation.mutate({
+        sourceId: currentCandidate.id,
+        groupIds: scanningConfig.junkGroupIDs,
+      });
+    }
+  }, [currentCandidate, state]);
+
   const handleExit = useCallback(async () => {
     const areYouSure = await new Promise((resolve) => {
       presentAlert({
@@ -366,8 +375,6 @@ export const CandidateList = () => {
         break;
       case SCANNING_TOOLBAR_ACTION.DISCARD:
         await handleDiscard();
-        break;
-      case SCANNING_TOOLBAR_ACTION.REQUEST_OBSERVING_RUN:
         break;
       case SCANNING_TOOLBAR_ACTION.REQUEST_FOLLOW_UP:
         break;

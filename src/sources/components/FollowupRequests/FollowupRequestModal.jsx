@@ -1,5 +1,5 @@
 import "./FollowupRequestModal.scss";
-import { formatDateTime } from "../../../../common/common.lib.js";
+import { formatDateTime } from "../../../common/common.lib.js";
 import {
   IonButton,
   IonButtons, IonChip,
@@ -13,7 +13,7 @@ import {
 } from "@ionic/react";
 import {IonList} from "@ionic/react";
 
-/** @typedef {import("../../../scanning.lib.js").FollowupRequest} FollowupRequest */
+/** @typedef {import("../../sources.lib.js").FollowupRequest} FollowupRequest */
 
 /**
  * Followup request modal component

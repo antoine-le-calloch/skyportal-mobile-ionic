@@ -3,13 +3,13 @@ import {
   IonItem, IonList,
   IonText
 } from "@ionic/react";
-import { formatDateTime } from "../../../../common/common.lib.js";
+import { formatDateTime } from "../../../common/common.lib.js";
 import { SpectraModal } from "./SpectraModal.jsx";
 import { useState } from "react";
-import { useSourceSpectra } from "../../../scanning.hooks.js";
+import { useSourceSpectra } from "../../sources.hooks.js";
 
-/** @typedef {import("../../../scanning.lib.js").Spectra} Spectra */
-/** @typedef {import("../../../scanning.lib.js").Candidate} Candidate */
+/** @typedef {import("../../sources.lib.js").Spectra} Spectra */
+/** @typedef {import("../../../scanning/scanning.lib.js").Candidate} Candidate */
 
 
 /**
@@ -36,7 +36,7 @@ export const SpectraList = ({candidate}) => {
       </div>
       {candidate.spectra && candidate.spectra.length > 0 ? (
         <IonList lines="full" color="light">
-          {candidate.spectra.map((/** @type {import("../../../scanning.lib.js").Spectra} */ spectra) => (
+          {candidate.spectra.map((/** @type {Spectra} */ spectra) => (
             <IonItem key={spectra.id}
                      onClick={() => handleSpectraClick(spectra.id)}
                      color="light">

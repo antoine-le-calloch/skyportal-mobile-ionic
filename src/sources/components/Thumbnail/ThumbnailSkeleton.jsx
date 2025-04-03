@@ -1,6 +1,6 @@
 import "../Thumbnail/Thumbnail.scss";
 import { IonSkeletonText } from "@ionic/react";
-import { getThumbnailHeader } from "../../../scanning.lib.js";
+import { getThumbnailHeader } from "../../sources.lib.js";
 
 /**
  * @param {Object} props

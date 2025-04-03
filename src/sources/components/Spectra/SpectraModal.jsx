@@ -1,5 +1,5 @@
 import "./SpectraModal.scss"
-import { formatDateTime } from "../../../../common/common.lib.js";
+import { formatDateTime } from "../../../common/common.lib.js";
 import {
   IonButton,
   IonButtons,
@@ -14,7 +14,7 @@ import {
 } from "@ionic/react";
 import {IonList} from "@ionic/react";
 
-/** @typedef {import("../../../scanning.lib.js").Spectra} Spectra */
+/** @typedef {import("../../../scanning/scanning.lib.js").Spectra} Spectra */
 
 /**
  * Followup request modal component

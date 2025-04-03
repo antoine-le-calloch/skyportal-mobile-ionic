@@ -109,7 +109,7 @@ export const ScanningOptionsForm = () => {
             ? "No candidates were found with the selected options. Please try again."
             : "An error occurred while searching for candidates. Please try again.",
         buttons: ["OK"],
-      });
+      }).then();
     },
   });
 

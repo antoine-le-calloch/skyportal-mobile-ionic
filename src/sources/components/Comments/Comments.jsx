@@ -1,10 +1,10 @@
 import "./Comments.scss"
 import { IonAccordion, IonAccordionGroup, IonItem, IonLabel, IonText } from "@ionic/react";
-import { getDateDiff } from "../../../scanning.lib.js";
+import { getDateDiff } from "../../../common/common.lib.js";
 
 /**
  * @param {Object} props
- * @param {import("../../../scanning.lib.js").Comment[]} props.comments
+ * @param {import("../../sources.lib.js").Comment[]} props.comments
  */
 export const Comments = ({comments}) => {
   return (
