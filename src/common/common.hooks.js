@@ -1,7 +1,13 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import config from "../config.js";
 import { fetchUserProfile } from "../onboarding/onboarding.lib.js";
-import { fetchAllocations, fetchAllocationsApiClassname, fetchConfig } from "./common.requests.js";
+import {
+  fetchAllocations,
+  fetchAllocationsApiClassname,
+  fetchConfig,
+  fetchFollowupApis,
+  fetchInstrumentForms
+} from "./common.requests.js";
 import { fetchGroups } from "./common.requests.js";
 import { useContext } from "react";
 import { UserContext } from "./common.context.js";
@@ -159,6 +165,32 @@ export const useAllocationsApiClassname = () => {
   });
   return {
     allocationsApiClassname: data,
+    status,
+    error,
+  };
+}
+
+export const useFollowupApis = () => {
+  const { userInfo } = useContext(UserContext);
+  const { data, status, error } = useQuery({
+    queryKey: [QUERY_KEYS.FOLLOWUP_APIS],
+    queryFn: () => fetchFollowupApis(userInfo),
+  });
+  return {
+    followupApis: data,
+    status,
+    error,
+  };
+}
+
+export const useInstrumentForms = () => {
+  const { userInfo } = useContext(UserContext);
+  const { data, status, error } = useQuery({
+    queryKey: [QUERY_KEYS.INSTRUMENT_FORMS],
+    queryFn: () => fetchInstrumentForms(userInfo),
+  });
+  return {
+    instrumentForms: data,
     status,
     error,
   };

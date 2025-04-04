@@ -223,6 +223,8 @@ export const QUERY_KEYS = {
   SOURCE_SPECTRA: "sourceSpectra",
   ALLOCATIONS: "allocations",
   ALLOCATIONS_API_CLASSNAME: "allocationsApiClassname",
+  FOLLOWUP_APIS: "followupApis",
+  INSTRUMENT_FORMS: "instrumentForms",
 };
 /**
  * @type {Object.<SavedStatus, string>}
