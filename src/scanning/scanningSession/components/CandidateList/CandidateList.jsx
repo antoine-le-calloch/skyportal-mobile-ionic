@@ -28,7 +28,7 @@ import { ScanningToolbar } from "../ScanningToolbar/ScanningToolbar.jsx";
 import { useLocation } from "react-router";
 import { UserContext } from "../../../../common/common.context.js";
 import { CANDIDATES_PER_PAGE } from "../../../../common/common.lib.js";
-import { RequestFollowup } from "../RequestFollowup/RequestFollowup.jsx";
+import { RequestFollowup } from "../../../../sources/components/RequestFollowup/RequestFollowup.jsx";
 
 export const CandidateList = () => {
   const { userInfo } = useContext(UserContext);
