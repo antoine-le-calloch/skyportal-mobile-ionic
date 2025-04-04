@@ -17,7 +17,7 @@ PODS:
     - Capacitor
   - CapacitorStatusBar (6.0.0):
     - Capacitor
-  - OSBarcodeLib (1.1.0)
+  - OSBarcodeLib (1.1.3)
 
 DEPENDENCIES:
   - "Capacitor (from `../../node_modules/@capacitor/ios`)"
@@ -64,7 +64,7 @@ SPEC CHECKSUMS:
   CapacitorKeyboard: dc97fe50dcfdcbe12af56c49bbed150077d08043
   CapacitorPreferences: 97d529423bb7c1196455e9a1b6dd1074625c78bd
   CapacitorStatusBar: 129c68650d3f950e080e8e7e03d69c3b361dbe52
-  OSBarcodeLib: ced133bc1ec073636e18c6a0553d0a5c4b90cf17
+  OSBarcodeLib: f2e981270a64faf476cb790864262b29ab8cd68a
 
 PODFILE CHECKSUM: 6a9f53183aa90676d438891a00d6e846bcf6c48e
 
