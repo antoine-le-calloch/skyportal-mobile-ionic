@@ -1,6 +1,6 @@
 import "./ScanningCard.scss";
-import { THUMBNAIL_TYPES } from "../../../scanning.lib.js";
-import { Thumbnail } from "../Thumbnail/Thumbnail.jsx";
+import { THUMBNAIL_TYPES } from "../../../../sources/sources.lib.js";
+import { Thumbnail } from "../../../../sources/components/Thumbnail/Thumbnail.jsx";
 import { PinnedAnnotations } from "../PinnedAnnotations/PinnedAnnotations.jsx";
 import { CandidatePhotometryChart } from "../CandidatePhotometryChart/CandidatePhotometryChart.jsx";
 import { memo, useState } from "react";
@@ -14,10 +14,10 @@ import {
   IonTitle,
   IonToolbar
 } from "@ionic/react";
-import { FollowupRequests } from "../FollowupRequests/FollowupRequests.jsx";
-import { Comments } from "../Comments/Comments.jsx";
 import { CandidateSourceInfo } from "../CandidateSourceInfo/CandidateSourceInfo.jsx";
-import { SpectraList } from "../Spectra/SpectraList.jsx";
+import { FollowupRequests } from "../../../../sources/components/FollowupRequests/FollowupRequests.jsx";
+import { Comments } from "../../../../sources/components/Comments/Comments.jsx";
+import { SpectraList } from "../../../../sources/components/Spectra/SpectraList.jsx";
 
 /**
  * Scanning card component

@@ -4,7 +4,7 @@ import embed from "vega-embed";
 import { getVegaPlotSpec } from "../../../scanning.lib.js";
 import { useBandpassesColors } from "../../../../common/common.hooks.js";
 import { IonSkeletonText } from "@ionic/react";
-import { fetchSourcePhotometry } from "../../../scanning.requests.js";
+import { fetchSourcePhotometry } from "../../../../sources/sources.requests.js";
 import { useMutation } from "@tanstack/react-query";
 import { UserContext } from "../../../../common/common.context.js";
 

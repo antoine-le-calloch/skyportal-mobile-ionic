@@ -1,12 +1,12 @@
 import "./Thumbnail.scss";
-import { getThumbnailAltAndSurveyLink, getThumbnailHeader, getThumbnailImageUrl } from "../../../scanning.lib.js";
+import { getThumbnailAltAndSurveyLink, getThumbnailHeader, getThumbnailImageUrl } from "../../sources.lib.js";
 import { useContext, useState } from "react";
-import { UserContext } from "../../../../common/common.context.js";
+import { UserContext } from "../../../common/common.context.js";
 
 /**
  * Thumbnail component
  * @param {Object} props
- * @param {import("../../../scanning.lib.js").Candidate} props.candidate
+ * @param {import("../../../scanning/scanning.lib.js").Candidate} props.candidate
  * @param {string} props.type
  */
 export const Thumbnail = ({ candidate, type }) => {

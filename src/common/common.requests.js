@@ -27,3 +27,17 @@ export const fetchConfig = async (userInfo) => {
   });
   return response.data.data;
 };
+
+/**
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} userInfo
+ * @returns {Promise<import("./common.lib.js").GroupsResponse>}
+ */
+export async function fetchGroups(userInfo) {
+  let response = await CapacitorHttp.get({
+    url: `${userInfo.instance.url}/api/groups`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+    },
+  });
+  return response.data.data;
+}

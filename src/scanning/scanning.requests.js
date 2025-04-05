@@ -69,73 +69,6 @@ export async function searchCandidates({
 }
 
 /**
- * @param {import("../onboarding/onboarding.lib.js").UserInfo} userInfo
- * @returns {Promise<import("./scanning.lib.js").GroupsResponse>}
- */
-export async function fetchGroups(userInfo) {
-  let response = await CapacitorHttp.get({
-    url: `${userInfo.instance.url}/api/groups`,
-    headers: {
-      Authorization: `token ${userInfo.token}`,
-    },
-  });
-  return response.data.data;
-}
-
-/**
- * Fetch the photometry of a source
- * @param {Object} params
- * @param {string} params.sourceId - The source ID
- * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo - The user info
- * @param {string} [params.includeOwnerInfo="true"] - Include owner info
- * @param {string} [params.includeStreamInfo="true"] - Include stream info
- * @param {string} [params.includeValidationInfo="true"] - Include validation info
- * @returns {Promise<import("./scanning.lib.js").Photometry[]>}
- */
-export const fetchSourcePhotometry = async ({
-  sourceId,
-  userInfo,
-  includeOwnerInfo = "true",
-  includeStreamInfo = "true",
-  includeValidationInfo = "true",
-}) => {
-  let response = await CapacitorHttp.get({
-    url: `${userInfo.instance.url}/api/sources/${sourceId}/photometry`,
-    headers: {
-      Authorization: `token ${userInfo.token}`,
-    },
-    params: {
-      includeOwnerInfo,
-      includeStreamInfo,
-      includeValidationInfo,
-    },
-  });
-  return response.data.data;
-};
-
-/**
- * @param {Object} params
- * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo
- * @param {string} params.sourceId
- * @param {number[]} params.groupIds
- * @returns {Promise<any>}
- */
-export const addSourceToGroups = async ({ userInfo, sourceId, groupIds }) => {
-  let response = await CapacitorHttp.post({
-    url: `${userInfo.instance.url}/api/source_groups`,
-    headers: {
-      Authorization: `token ${userInfo.token}`,
-      "Content-Type": "application/json",
-    },
-    data: {
-      objId: sourceId,
-      inviteGroupIds: groupIds,
-    },
-  });
-  return response.data.data;
-};
-
-/**
  * @param {Object} params
  * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo
  * @param {import("../onboarding/onboarding.lib.js").ScanningProfile} params.profile
@@ -179,21 +112,3 @@ export const fetchAnnotationInfo = async ({ userInfo }) => {
   });
   return response.data.data;
 };
-
-/**
- * Fetch all spectra for a source
- * @param {Object} params
- * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo
- * @param {string} params.sourceId - The source ID
- * @returns {Promise<import("./scanning.lib.js").Spectra[]>}
- */
-export const fetchSourceSpectra = async ({ userInfo, sourceId }) => {
-  let response = await CapacitorHttp.get({
-    url: `${userInfo.instance.url}/api/sources/${sourceId}/spectra`,
-    headers: {
-      Authorization: `token ${userInfo.token}`,
-      "Content-Type": "application/json",
-    },
-  });
-  return response.data.data?.spectra;
-}

@@ -87,9 +87,9 @@ export const ScanningToolbar = ({ onAction, isDiscardingEnabled }) => {
 
         <IonButton
           fill="clear"
-          color="secondary"
+          color="primary"
           onClick={() =>
-            onAction(SCANNING_TOOLBAR_ACTION.REQUEST_OBSERVING_RUN)
+            onAction(SCANNING_TOOLBAR_ACTION.REQUEST_FOLLOW_UP)
           }
         >
           <IonIcon slot="icon-only" icon={telescopeOutline} />

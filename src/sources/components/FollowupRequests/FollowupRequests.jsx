@@ -6,12 +6,12 @@ import {
   IonLabel,
   IonText
 } from "@ionic/react";
-import { formatDateTime } from "../../../../common/common.lib.js";
+import { formatDateTime } from "../../../common/common.lib.js";
 import { FollowupRequestModal } from "./FollowupRequestModal.jsx";
 import { useState } from "react";
 
-/** @typedef {import("../../../scanning.lib.js").FollowupRequest} FollowupRequest */
-/** @typedef {import("../../../scanning.lib.js").Candidate} Candidate */
+/** @typedef {import("../../sources.lib.js").FollowupRequest} FollowupRequest */
+/** @typedef {import("../../../scanning/scanning.lib.js").Candidate} Candidate */
 
 
 /**
@@ -26,7 +26,7 @@ export const FollowupRequests = ({candidate, requestType = "triggered"}) => {
   const [openFollowupRequest, setOpenFollowupRequest] = useState(null);
 
   const requestsByInstrument = candidate.followup_requests?.reduce((
-    /** @type {Record<string, import("../../../scanning.lib.js").FollowupRequest[]>} */ acc,
+    /** @type {Record<string, FollowupRequest[]>} */ acc,
     followupRequest) => {
     const { payload, allocation } = followupRequest;
 
@@ -42,7 +42,7 @@ export const FollowupRequests = ({candidate, requestType = "triggered"}) => {
     return acc;
   }, {});
 
-  const handleFollowupRequestClick = (/** @type {import("../../../scanning.lib.js").FollowupRequest} */ followupRequest) => {
+  const handleFollowupRequestClick = (/** @type {FollowupRequest} */ followupRequest) => {
     setOpenFollowupRequest(followupRequest);
   }
 
@@ -61,7 +61,7 @@ export const FollowupRequests = ({candidate, requestType = "triggered"}) => {
                   <IonLabel className="instrument-name">{instrumentName}</IonLabel>
                 </h6>
               </IonItem>
-              {followupRequests.map((/** @type {import("../../../scanning.lib.js").FollowupRequest} */ followupRequest) => (
+              {followupRequests.map((/** @type {FollowupRequest} */ followupRequest) => (
                   <IonItem key={followupRequest.id}
                            onClick={() => handleFollowupRequestClick(followupRequest)}
                        slot="content">

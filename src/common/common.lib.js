@@ -8,6 +8,44 @@ import { Preferences } from "@capacitor/preferences";
  */
 
 /**
+ * @typedef {Object} User
+ * @property {string} id - User ID
+ * @property {string} username - Username
+ */
+
+/**
+ * @typedef {Object} Allocation
+ * @property {string} id - Allocation ID
+ * @property {string} pi - Principal investigator
+ * @property {Group} group - Group details
+ * @property {string[]} types - Types of the allocation
+ * @property {Instrument} instrument - Instrument details
+ */
+
+/**
+ * @typedef {Object} Instrument
+ * @property {string} id - Instrument ID
+ * @property {string} name - Instrument name
+ */
+
+/**
+ * @typedef {Object} Group
+ * @property {number} id - Group ID
+ * @property {string|null} [nickname] - Group nickname
+ * @property {string} name - Group name
+ * @property {string|null} [description] - Group description
+ * @property {boolean} private - Is the group private
+ * @property {boolean} single_user_group - Is the group a single user group
+ */
+
+/**
+ * @typedef {Object} GroupsResponse - Response from the /groups endpoint
+ * @property {Group[]} user_groups - User groups
+ * @property {Group[]} user_accessible_groups - User accessible groups
+ * @property {Group[]} all_groups - All groups
+ */
+
+/**
  * @typedef {"all" | "savedToAllSelected" | "savedToAnySelected" | "savedToAnyAccessible" | "notSavedToAnyAccessible" | "notSavedToAnySelected" | "notSavedToAllSelected"} SavedStatus
  */
 
@@ -111,6 +149,35 @@ export const formatDateTime = (dateTime) => {
     timeZoneName: "short",
   });
 };
+
+/**
+ * @param {string} stringUTCDate
+ * @returns {string}
+ */
+export const getDateDiff = (/** @type {string} */stringUTCDate) => {
+  const date = new Date(stringUTCDate + "Z"); // Add 'Z' to indicate that the date is in UTC
+  if (isNaN(date.getTime())) {
+    return "...";
+  }
+  const diff = new Date().getTime() - date.getTime();
+  const diffInMinutes = Math.floor(diff / (1000 * 60));
+  if (diffInMinutes < 60) {
+    return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
+  }
+
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
+  }
+
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays < 365) {
+    return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
+  }
+
+  const diffInYears = Math.floor(diffInDays / 365);
+  return `${diffInYears} year${diffInYears > 1 ? "s" : ""} ago`;
+}
 
 /**
  * The instances that are available for login
