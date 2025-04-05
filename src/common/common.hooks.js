@@ -2,13 +2,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import config from "../config.js";
 import { fetchUserProfile } from "../onboarding/onboarding.lib.js";
 import {
+  fetchConfig,
+  fetchGroups,
   fetchAllocations,
   fetchAllocationsApiClassname,
-  fetchConfig,
   fetchFollowupApis,
   fetchInstrumentForms
 } from "./common.requests.js";
-import { fetchGroups } from "./common.requests.js";
 import { useContext } from "react";
 import { UserContext } from "./common.context.js";
 import { clearPreference, getPreference, QUERY_KEYS, setPreference } from "./common.lib.js";
