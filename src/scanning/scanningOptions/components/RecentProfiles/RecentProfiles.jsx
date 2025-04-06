@@ -10,8 +10,8 @@ import { chevronForwardOutline } from "ionicons/icons";
 
 export const RecentProfiles = () => {
   const history = useHistory();
-  const { profiles } = useScanningProfiles();
-  const { userAccessibleGroups } = useUserAccessibleGroups();
+  const { profiles, status: profilesStatus } = useScanningProfiles();
+  const { userAccessibleGroups, status: groupsStatus } = useUserAccessibleGroups();
 
   const defaultProfileIndex = profiles?.findIndex((profile) => profile.default);
 
@@ -90,7 +90,7 @@ export const RecentProfiles = () => {
             </div>
           )
         )}
-        <IonLoading isOpen={!profiles || !userAccessibleGroups} />
+        <IonLoading isOpen={profilesStatus === "pending" || groupsStatus === "pending"} />
       </div>
       <div className="buttons-container">
         <IonButton
