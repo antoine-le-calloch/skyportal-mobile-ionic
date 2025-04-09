@@ -1,6 +1,6 @@
 import "./RequestFollowup.scss";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import Form from "@rjsf/core";
 import validator from "@rjsf/validator-ajv8";
@@ -24,7 +24,10 @@ import {
   FieldTemplate,
   ErrorListTemplate, DateWidget
 } from "../../../common/components/CustomForm/CustomForm.jsx";
-import { warningOutline } from "ionicons/icons";
+import { checkmarkCircleOutline, warningOutline } from "ionicons/icons";
+import { useMutation } from "@tanstack/react-query";
+import { submitFollowupRequest } from "../../sources.requests.js";
+import { UserContext } from "../../../common/common.context.js";
 
 /**
  * @param {object} props - The component props.
@@ -44,7 +47,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
   /** @type {[number[], React.Dispatch<React.SetStateAction<number[]>>]} */
   // @ts-ignore
   const [selectedGroupIds, setSelectedGroupIds] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   /** @type {[import("../../../common/common.lib.js").AllocationApiClassname[], React.Dispatch<React.SetStateAction<import("../../../common/common.lib.js").AllocationApiClassname[]>>]} */
   // @ts-ignore
@@ -55,7 +58,58 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
   let schema = null;
   let uiSchema = null;
 
+  const { userInfo } = useContext(UserContext);
   const [presentToast] = useIonToast();
+
+  const submitFollowupRequestMutation = useMutation({
+    /**
+     * @param {Object} params
+     * @param {string} params.sourceId
+     * @param {string} params.allocationId
+     * @param {number[]} params.groupIds
+     * @param {Object} params.payload
+     * @returns {Promise<*>}
+     */
+    mutationFn: ({ sourceId, allocationId, groupIds, payload }) =>
+      submitFollowupRequest({ userInfo, sourceId, allocationId, groupIds, payload }),
+    onSuccess: (response) => {
+      if (response.status === 200) {
+        presentToast({
+          message: response.message,
+          position: "top",
+          color: "success",
+          icon: checkmarkCircleOutline,
+          buttons: [
+            {
+              text: "Close",
+              role: "cancel"
+            }
+          ]
+        }).then()
+      }else{
+        presentToast({
+          message: response.data.message,
+          position: "top",
+          color: "danger",
+          icon: warningOutline,
+          buttons: [
+            {
+              text: "Close",
+              role: "cancel"
+            }
+          ]
+        }).then()
+      }
+    },
+    onError: () =>
+      presentToast({
+        message: "Failed to submit request",
+        duration: 2000,
+        position: "top",
+        color: "danger",
+        icon: warningOutline,
+      }),
+  });
 
   useEffect(() => {
     const displayError = async () => {
@@ -187,14 +241,24 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
    * @param {object} props.formData
    */
   const handleSubmit = async ({ formData }) => {
-    setIsSubmitting(true);
-    const json = {
-      obj_id,
-      allocation_id: selectedAllocationId,
-      target_group_ids: selectedGroupIds,
-      payload: formData,
-    };
-    setIsSubmitting(false);
+    setLoading(true);
+    if (obj_id && selectedAllocationId) {
+      submitFollowupRequestMutation.mutateAsync({
+        sourceId: obj_id,
+        allocationId: selectedAllocationId,
+        groupIds: selectedGroupIds,
+        payload: formData,
+      })
+    }else{
+      await presentToast({
+        message: "No allocation selected, please select one.",
+        duration: 2000,
+        position: "top",
+        color: "danger",
+        icon: warningOutline,
+      });
+    }
+    setLoading(false);
   };
 
   /**
@@ -336,10 +400,13 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
         <Form
           schema={schema || {}}
           validator={validator}
-          uiSchema={uiSchema || {}}
+          uiSchema={{
+            ...uiSchema,
+            "ui:submitButtonOptions": { norender: true },
+          }}
           customValidate={validate}
           onSubmit={handleSubmit}
-          disabled={isSubmitting}
+          disabled={loading}
           className="form"
           widgets={{
             SelectWidget: SelectWidget,
@@ -353,7 +420,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
           ref={formRef}
         />
       )}
-      <IonLoading isOpen={isSubmitting} message={"Submitting..."} />
+      <IonLoading isOpen={loading} message={"Submitting..."} />
     </div>
   );
 };
