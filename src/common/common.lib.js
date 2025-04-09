@@ -28,6 +28,9 @@ import { Preferences } from "@capacitor/preferences";
  * @property {Instrument} instrument - Instrument details
  * @property {string} pi - Principal investigator
  * @property {number} group_id - Group ID
+ * @property {number[]} default_share_group_ids - Default share group IDs
+ * @property {string} instrument_id - Instrument ID
+ * @property {string[]} types - Types of the allocation
  */
 
 /**

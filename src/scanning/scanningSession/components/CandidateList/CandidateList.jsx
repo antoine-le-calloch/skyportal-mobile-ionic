@@ -75,7 +75,8 @@ export const CandidateList = () => {
   /** @type {React.MutableRefObject<any>} */
   const annotationsModal = useRef(null);
   /** @type {React.MutableRefObject<any>} */
-  const followupModal = useRef(null);
+  const RequestFollowupModal = useRef(null);
+  const [submitRequest, setSubmitRequest] = useState(false);
 
   const [isLastBatch, setIsLastBatch] = useState(false);
 
@@ -380,7 +381,7 @@ export const CandidateList = () => {
         await handleDiscard();
         break;
       case SCANNING_TOOLBAR_ACTION.REQUEST_FOLLOW_UP:
-        followupModal.current?.present();
+        RequestFollowupModal.current?.present();
         break;
       case SCANNING_TOOLBAR_ACTION.ADD_REDSHIFT:
         break;
@@ -431,7 +432,6 @@ export const CandidateList = () => {
           isDiscardingEnabled={isDiscardingEnabled}
         />
       )}
-
       <IonModal
         ref={annotationsModal}
         isOpen={false}
@@ -443,17 +443,27 @@ export const CandidateList = () => {
           candidate={currentCandidate}
         />
       </IonModal>
-      <IonModal ref={followupModal} isOpen={false} onDidDismiss={() => followupModal.current?.dismiss()}>
+      <IonModal ref={RequestFollowupModal} isOpen={false} onDidDismiss={() => RequestFollowupModal.current?.dismiss()}>
         <IonHeader>
           <IonToolbar>
+            <IonButtons slot="start">
+              <IonButton onClick={() => RequestFollowupModal.current?.dismiss()}>Close</IonButton>
+            </IonButtons>
             <IonTitle slot="start">Request Follow-Up</IonTitle>
-            <IonButtons slot="end">
-              <IonButton onClick={() => followupModal.current?.dismiss()}>Close</IonButton>
+            <IonButtons slot="primary">
+              <IonButton
+                fill="solid"
+                onClick={() => setSubmitRequest(true)}>
+                Submit
+              </IonButton>
             </IonButtons>
           </IonToolbar>
         </IonHeader>
         <IonContent>
-          <RequestFollowup candidate={currentCandidate} modal={followupModal} />
+          <RequestFollowup obj_id={currentCandidate?.id}
+                           requestType={"triggered"}
+                           submitRequest={submitRequest}
+                           submitRequestCallback={() => setSubmitRequest(false)}/>
         </IonContent>
       </IonModal>
     </div>
