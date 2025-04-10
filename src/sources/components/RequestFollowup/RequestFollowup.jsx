@@ -196,8 +196,8 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
         allocationId: selectedAllocationId,
         groupIds: selectedGroupIds,
         payload: formData,
-      })
-    }else{
+      });
+    } else {
       await presentToast({
         message: "No allocation selected, please select one.",
         duration: 2000,
@@ -247,7 +247,9 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
     } else {
       if (requestType === "forced_photometry") {
         const endDate = new Date();
-        const startDate = new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const startDate = new Date(
+          endDate.getTime() - 30 * 24 * 60 * 60 * 1000,
+        );
         if (schema.properties.start_date) {
           schema.properties.start_date.default = startDate
             .toISOString()
@@ -275,7 +277,9 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
             .split(".")[0];
 
           if (end_date) {
-            const range = new Date(end_date.default).getTime() - new Date(start_date.default).getTime();
+            const range =
+              new Date(end_date.default).getTime() -
+              new Date(start_date.default).getTime();
             const newEndDate =
               end_date.format === "date"
                 ? new Date(new Date().getTime() + range)
@@ -335,9 +339,10 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
             interface="popover"
             value={selectedGroupIds}
             onIonChange={(e) => setSelectedGroupIds(e.detail.value)}
-            selectedText={selectedGroupIds.length > 3 ?
-              selectedGroupIds.length + " groups" :
-              selectedGroupIds.map((id) => groupLookUp[id]?.name).join(", ")
+            selectedText={
+              selectedGroupIds.length > 3
+                ? selectedGroupIds.length + " groups"
+                : selectedGroupIds.map((id) => groupLookUp[id]?.name).join(", ")
             }
           >
             {userAccessibleGroups?.map((group) => (
