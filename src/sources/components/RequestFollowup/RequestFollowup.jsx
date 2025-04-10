@@ -1,6 +1,6 @@
 import "./RequestFollowup.scss";
 
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import Form from "@rjsf/core";
 import validator from "@rjsf/validator-ajv8";
@@ -24,10 +24,8 @@ import {
   FieldTemplate,
   ErrorListTemplate, DateWidget
 } from "../../../common/components/CustomForm/CustomForm.jsx";
-import { checkmarkCircleOutline, warningOutline } from "ionicons/icons";
-import { useMutation } from "@tanstack/react-query";
-import { submitFollowupRequest } from "../../sources.requests.js";
-import { UserContext } from "../../../common/common.context.js";
+import { warningOutline } from "ionicons/icons";
+import { useSubmitFollowupRequest } from "../../sources.hooks.js";
 
 /**
  * @param {object} props - The component props.
@@ -58,58 +56,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
   let schema = null;
   let uiSchema = null;
 
-  const { userInfo } = useContext(UserContext);
   const [presentToast] = useIonToast();
-
-  const submitFollowupRequestMutation = useMutation({
-    /**
-     * @param {Object} params
-     * @param {string} params.sourceId
-     * @param {string} params.allocationId
-     * @param {number[]} params.groupIds
-     * @param {Object} params.payload
-     * @returns {Promise<*>}
-     */
-    mutationFn: ({ sourceId, allocationId, groupIds, payload }) =>
-      submitFollowupRequest({ userInfo, sourceId, allocationId, groupIds, payload }),
-    onSuccess: (response) => {
-      if (response.status === 200) {
-        presentToast({
-          message: response.message,
-          position: "top",
-          color: "success",
-          icon: checkmarkCircleOutline,
-          buttons: [
-            {
-              text: "Close",
-              role: "cancel"
-            }
-          ]
-        }).then()
-      }else{
-        presentToast({
-          message: response.data.message,
-          position: "top",
-          color: "danger",
-          icon: warningOutline,
-          buttons: [
-            {
-              text: "Close",
-              role: "cancel"
-            }
-          ]
-        }).then()
-      }
-    },
-    onError: () =>
-      presentToast({
-        message: "Failed to submit request",
-        duration: 2000,
-        position: "top",
-        color: "danger",
-        icon: warningOutline,
-      }),
-  });
 
   useEffect(() => {
     const displayError = async () => {
@@ -243,7 +190,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
   const handleSubmit = async ({ formData }) => {
     setLoading(true);
     if (obj_id && selectedAllocationId) {
-      submitFollowupRequestMutation.mutateAsync({
+      useSubmitFollowupRequest().mutate({
         sourceId: obj_id,
         allocationId: selectedAllocationId,
         groupIds: selectedGroupIds,
