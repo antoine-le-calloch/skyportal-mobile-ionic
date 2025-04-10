@@ -52,6 +52,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
   const [filteredAllocations, setFilteredAllocations] = useState([]);
   const [settingFilteredList, setSettingFilteredList] = useState(false);
   const formRef = useRef(null);
+  const submitFollowupRequestMutation = useSubmitFollowupRequest();
 
   let schema = null;
   let uiSchema = null;
@@ -191,7 +192,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
   const handleSubmit = async ({ formData }) => {
     setLoading(true);
     if (obj_id && selectedAllocationId) {
-      useSubmitFollowupRequest().mutate({
+      await submitFollowupRequestMutation.mutateAsync({
         sourceId: obj_id,
         allocationId: selectedAllocationId,
         groupIds: selectedGroupIds,
