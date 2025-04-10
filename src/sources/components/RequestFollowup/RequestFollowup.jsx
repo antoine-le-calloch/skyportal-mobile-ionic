@@ -172,14 +172,15 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
     allocationLookUp[allocation.id] = allocation;
   });
 
-  const handleSelectedAllocationChange = (e) => {
-    setSelectedAllocationId(e.target.value);
-    if (allocationLookUp[e.target.value]?.default_share_group_ids?.length > 0) {
+  /** @param {string} allocationId */
+  const handleSelectedAllocationChange = (allocationId) => {
+    setSelectedAllocationId(allocationId);
+    if (allocationLookUp[allocationId]?.default_share_group_ids?.length > 0) {
       setSelectedGroupIds(
-        allocationLookUp[e.target.value]?.default_share_group_ids,
+        allocationLookUp[allocationId]?.default_share_group_ids,
       );
     } else {
-      setSelectedGroupIds([allocationLookUp[e.target.value]?.group_id]);
+      setSelectedGroupIds([allocationLookUp[allocationId]?.group_id]);
     }
   };
 
@@ -306,7 +307,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
               expandToScroll: false,
             }}
             value={selectedAllocationId}
-            onIonChange={handleSelectedAllocationChange}
+            onIonChange={(e) => handleSelectedAllocationChange(e.target.value)}
           >
             {filteredAllocations?.map((allocation) => (
               <IonSelectOption
@@ -333,7 +334,11 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
             labelPlacement="stacked"
             interface="popover"
             value={selectedGroupIds}
-            onChange={(e) => setSelectedGroupIds(e)}
+            onIonChange={(e) => setSelectedGroupIds(e.detail.value)}
+            selectedText={selectedGroupIds.length > 3 ?
+              selectedGroupIds.length + " groups" :
+              selectedGroupIds.map((id) => groupLookUp[id]?.name).join(", ")
+            }
           >
             {userAccessibleGroups?.map((group) => (
               <IonSelectOption value={group.id} key={group.id}>
