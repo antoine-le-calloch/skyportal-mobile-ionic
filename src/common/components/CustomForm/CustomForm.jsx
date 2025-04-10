@@ -35,7 +35,6 @@ export const SelectWidget = ({id, options, value, required, disabled, readonly, 
       onIonChange={(e) => onChange(e.detail.value)}
       disabled={disabled || readonly}
       interface="popover"
-      className="ion-margin-bottom"
       required={required}
     >
       {enumOptions.map((opt) => (
@@ -58,7 +57,6 @@ export const SelectWidget = ({id, options, value, required, disabled, readonly, 
 export const TextWidget = ({ value, onChange, schema, id, label }) => {
   return (
     <IonInput
-      className="ion-margin-bottom"
       label={label}
       labelPlacement="stacked"
       id={id}
@@ -81,10 +79,7 @@ export const DateWidget = ({ value, onChange, id, label }) => {
   return (
     <>
       <IonLabel position="stacked">{label}</IonLabel>
-      <IonDatetimeButton
-        className="ion-margin-bottom"
-        datetime={id + "-datetime"}
-      />
+      <IonDatetimeButton datetime={id + "-datetime"}/>
       <IonModal>
         <IonDatetime
           id={id + "-datetime"}
@@ -113,9 +108,11 @@ export const FieldTemplate = ({ id, classNames, label, errors, children }) => {
     </div>
   ) : (
       <IonItem className={classNames} id={id} color="light">
-        {isArray && <IonLabel className="" position="stacked">{label}</IonLabel>}
-        {children}
-        {errors && <IonNote color="danger">{errors}</IonNote>}
+        <div className="field-template-item">
+          {isArray && <IonLabel position="stacked">{label}</IonLabel>}
+          {children}
+          {errors && <IonNote color="danger">{errors}</IonNote>}
+        </div>
       </IonItem>
   );
 };
