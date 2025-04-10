@@ -12,6 +12,17 @@ import {
 import React from "react";
 
 
+/**
+ * @param {object} props
+ * @param {string} props.id - The id of the widget
+ * @param {{ enumOptions: { label: string, value: string }[] }} props.options - The options for the widget
+ * @param {any} props.value - The value of the widget
+ * @param {boolean} props.required - Whether the widget is required
+ * @param {boolean} props.disabled - Whether the widget is disabled
+ * @param {boolean} props.readonly - Whether the widget is readonly
+ * @param {string} props.label - The label of the widget
+ * @param {function} props.onChange - The function to call when the value changes
+ */
 export const SelectWidget = ({id, options, value, required, disabled, readonly, label, onChange}) => {
   const { enumOptions } = options;
 
@@ -24,6 +35,8 @@ export const SelectWidget = ({id, options, value, required, disabled, readonly, 
       onIonChange={(e) => onChange(e.detail.value)}
       disabled={disabled || readonly}
       interface="popover"
+      className="ion-margin-bottom"
+      required={required}
     >
       {enumOptions.map((opt) => (
         <IonSelectOption key={opt.value} value={opt.value}>
@@ -34,10 +47,18 @@ export const SelectWidget = ({id, options, value, required, disabled, readonly, 
   );
 };
 
-
+/**
+ * @param {object} props
+ * @param {any} props.value - The value of the widget
+ * @param {function} props.onChange - The function to call when the value changes
+ * @param {{ title: string }} props.schema - The schema of the widget with the placeholder
+ * @param {string} props.id - The id of the widget
+ * @param {string} props.label - The label of the widget
+ */
 export const TextWidget = ({ value, onChange, schema, id, label }) => {
   return (
     <IonInput
+      className="ion-margin-bottom"
       label={label}
       labelPlacement="stacked"
       id={id}
@@ -49,14 +70,22 @@ export const TextWidget = ({ value, onChange, schema, id, label }) => {
 };
 
 
-export const DateWidget = ({ value, onChange, schema, id, label }) => {
+/**
+ * @param {object} props
+ * @param {any} props.value - The value of the widget
+ * @param {function} props.onChange - The function to call when the value changes
+ * @param {string} props.id - The id of the widget
+ * @param {string} props.label - The label of the widget
+ */
+export const DateWidget = ({ value, onChange, id, label }) => {
   return (
-    <div className="ion-padding-vertical">
+    <>
       <IonLabel position="stacked">{label}</IonLabel>
       <IonDatetimeButton
+        className="ion-margin-bottom"
         datetime={id + "-datetime"}
       />
-      <IonModal keepContentsMounted={true}>
+      <IonModal>
         <IonDatetime
           id={id + "-datetime"}
           value={value || ""}
@@ -64,11 +93,19 @@ export const DateWidget = ({ value, onChange, schema, id, label }) => {
           presentation="date"
         />
       </IonModal>
-    </div>
+    </>
   );
 };
 
-export const FieldTemplate = ({ id, classNames, label, required, description, errors, children }) => {
+/**
+ * @param {object} props
+ * @param {string} props.id - The id of the field
+ * @param {string} props.classNames - The class names of the field
+ * @param {string} props.label - The label of the field
+ * @param {string} props.errors - The errors of the field
+ * @param {React.ReactNode} props.children - The children of the field
+ */
+export const FieldTemplate = ({ id, classNames, label, errors, children }) => {
   const isArray = classNames.includes("field-array");
   return id === "root" ? (
     <div className={classNames} id={id}>
@@ -76,13 +113,11 @@ export const FieldTemplate = ({ id, classNames, label, required, description, er
     </div>
   ) : (
       <IonItem className={classNames} id={id} color="light">
-        {isArray && <IonLabel className="ion-margin-top" position="stacked">{label}</IonLabel>}
+        {isArray && <IonLabel className="" position="stacked">{label}</IonLabel>}
         {children}
         {errors && <IonNote color="danger">{errors}</IonNote>}
       </IonItem>
   );
 };
 
-export const ErrorListTemplate = (props) => {
-  return null
-}
+export const ErrorListTemplate = () => null;
