@@ -443,16 +443,17 @@ export const CandidateList = () => {
           candidate={currentCandidate}
         />
       </IonModal>
-      <IonModal ref={RequestFollowupModal} isOpen={false} onDidDismiss={() => RequestFollowupModal.current?.dismiss()}>
+      <IonModal ref={RequestFollowupModal} isOpen={false} onDidDismiss={() => RequestFollowupModal.current?.dismiss()} keepContentsMounted={true}>
         <IonHeader>
           <IonToolbar>
             <IonButtons slot="start">
-              <IonButton onClick={() => RequestFollowupModal.current?.dismiss()}>Close</IonButton>
+              <IonButton color="secondary" onClick={() => RequestFollowupModal.current?.dismiss()}>Close</IonButton>
             </IonButtons>
             <IonTitle slot="start">Request Follow-Up</IonTitle>
             <IonButtons slot="primary">
               <IonButton
                 fill="solid"
+                color="primary"
                 onClick={() => setSubmitRequest(true)}>
                 Submit
               </IonButton>
