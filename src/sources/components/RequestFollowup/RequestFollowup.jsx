@@ -347,6 +347,13 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
             ))}
           </IonSelect>
         </IonItem>
+        {selectedAllocationId && (
+          <IonItem>
+            <IonLabel color="secondary">
+              {allocationLookUp[selectedAllocationId].instrument.name} instrument form
+            </IonLabel>
+          </IonItem>
+        )}
       </IonList>
       {selectedAllocationId && (
         <Form
