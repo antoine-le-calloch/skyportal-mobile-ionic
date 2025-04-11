@@ -30,16 +30,16 @@ import { useSubmitFollowupRequest } from "../../sources.hooks.js";
 /**
  * @param {object} props - The component props.
  * @param {string | undefined} props.obj_id - The object ID.
- * @param {string} props.requestType - The type of request, either "triggered" or "forced_photometry".
  * @param {boolean} props.submitRequest - The flag to submit the request.
  * @param {function} props.submitRequestCallback - The callback function to handle when the request is submitted.
  */
-export const RequestFollowup = ({ obj_id, requestType= "triggered", submitRequest, submitRequestCallback }) => {
+export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }) => {
   const { allocationsApiClassname } = useAllocationsApiClassname();
   const { userAccessibleGroups } = useUserAccessibleGroups();
   const { instrumentForms } = useInstrumentForms();
   const defaultAllocationId = null;
 
+  const [selectedRequestType, setSelectedRequestType] = useState("triggered");
   const [selectedAllocationId, setSelectedAllocationId] =
     useState(defaultAllocationId);
   /** @type {[number[], React.Dispatch<React.SetStateAction<number[]>>]} */
@@ -80,6 +80,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
     submitRequestCallback();
   }, [submitRequest]);
 
+  // Set default group ids based on the selected allocation
   useEffect(() => {
     const getAllocations = async () => {
       if (!allocationsApiClassname) return;
@@ -111,13 +112,14 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
       }
     };
 
-    getAllocations();
+    getAllocations().then();
   }, [setSelectedAllocationId, setSelectedGroupIds]);
 
+  // Filter allocations based on the selected request type
   useEffect(() => {
     async function filterAllocations() {
       setSettingFilteredList(true);
-      if (requestType === "triggered") {
+      if (selectedRequestType === "triggered") {
         const filtered = (allocationsApiClassname || []).filter(
           (allocation) =>
             instrumentForms[allocation.instrument_id]?.formSchema !== null &&
@@ -126,7 +128,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
             allocation.types.includes("triggered"),
         );
         setFilteredAllocations(filtered);
-      } else if (requestType === "forced_photometry") {
+      } else if (selectedRequestType === "forced_photometry") {
         const filtered = (allocationsApiClassname || []).filter(
           (allocation) =>
             instrumentForms[allocation.instrument_id]
@@ -142,7 +144,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
     if (settingFilteredList === false && instrumentForms) {
       filterAllocations();
     }
-  }, [allocationsApiClassname, instrumentForms, settingFilteredList]);
+  }, [allocationsApiClassname, instrumentForms, settingFilteredList, selectedRequestType]);
 
   if (filteredAllocations.length === 0) {
     return (
@@ -150,8 +152,8 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
         <IonItem lines="none">
           <IonLabel color="secondary">
             {`No allocations with an API class ${
-              requestType === "forced_photometry"
-                ? "(for forced photometry) "
+              selectedRequestType === "forced_photometry"
+                ? "(forced photometry) "
                 : ""
             } where found..`}
             .
@@ -226,7 +228,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
 
   if (selectedAllocationId) {
     schema =
-      requestType === "forced_photometry"
+      selectedRequestType === "forced_photometry"
         ? instrumentForms[allocationLookUp[selectedAllocationId].instrument_id]
             .formSchemaForcedPhotometry
         : instrumentForms[allocationLookUp[selectedAllocationId].instrument_id]
@@ -246,7 +248,7 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
         </IonList>
       );
     } else {
-      if (requestType === "forced_photometry") {
+      if (selectedRequestType === "forced_photometry") {
         const endDate = new Date();
         const startDate = new Date(
           endDate.getTime() - 30 * 24 * 60 * 60 * 1000,
@@ -300,6 +302,24 @@ export const RequestFollowup = ({ obj_id, requestType= "triggered", submitReques
   return (
     <div className="request-followup">
       <IonList>
+        <IonItem color="light">
+          <IonSelect
+            label="Request Type"
+            labelPlacement="stacked"
+            interface="popover"
+            value={selectedRequestType}
+            onIonChange={(e) => {
+              setSelectedRequestType(e.target.value);
+              setSelectedAllocationId(defaultAllocationId);
+              setFilteredAllocations([]);
+            }}
+            >
+            <IonSelectOption value="triggered">Followup</IonSelectOption>
+            <IonSelectOption value="forced_photometry">
+              Forced Photometry
+            </IonSelectOption>
+          </IonSelect>
+        </IonItem>
         <IonItem color="light">
           <IonSelect
             label="Allocation"

@@ -462,7 +462,6 @@ export const CandidateList = () => {
         </IonHeader>
         <IonContent>
           <RequestFollowup obj_id={currentCandidate?.id}
-                           requestType={"triggered"}
                            submitRequest={submitRequest}
                            submitRequestCallback={() => setSubmitRequest(false)}/>
         </IonContent>
