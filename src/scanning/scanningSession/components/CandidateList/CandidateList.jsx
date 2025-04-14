@@ -28,6 +28,7 @@ import { ScanningToolbar } from "../ScanningToolbar/ScanningToolbar.jsx";
 import { useLocation } from "react-router";
 import { UserContext } from "../../../../common/common.context.js";
 import { CANDIDATES_PER_PAGE } from "../../../../common/common.lib.js";
+import { RequestFollowup } from "../../../../sources/components/RequestFollowup/RequestFollowup.jsx";
 
 export const CandidateList = () => {
   const { userInfo } = useContext(UserContext);
@@ -72,8 +73,11 @@ export const CandidateList = () => {
   const [slidesInView, setSlidesInView] = useState([]);
 
   /** @type {React.MutableRefObject<any>} */
-  const modal = useRef(null);
+  const annotationsModal = useRef(null);
+  /** @type {React.MutableRefObject<any>} */
+  const requestFollowupModal = useRef(null);
 
+  const [submitRequest, setSubmitRequest] = useState(false);
   const [isLastBatch, setIsLastBatch] = useState(false);
 
   /** @type {React.MutableRefObject<import("../../../scanning.lib.js").ScanningRecap>} */
@@ -377,6 +381,7 @@ export const CandidateList = () => {
         await handleDiscard();
         break;
       case SCANNING_TOOLBAR_ACTION.REQUEST_FOLLOW_UP:
+        requestFollowupModal.current?.present();
         break;
       case SCANNING_TOOLBAR_ACTION.ADD_REDSHIFT:
         break;
@@ -398,7 +403,7 @@ export const CandidateList = () => {
                 <div key={candidate.id} className="embla__slide">
                   <ScanningCard
                     candidate={candidate}
-                    modal={modal}
+                    modal={annotationsModal}
                     currentIndex={index}
                     isInView={slidesInView.includes(index)}
                     // @ts-ignore
@@ -427,9 +432,8 @@ export const CandidateList = () => {
           isDiscardingEnabled={isDiscardingEnabled}
         />
       )}
-
       <IonModal
-        ref={modal}
+        ref={annotationsModal}
         isOpen={false}
         initialBreakpoint={0.75}
         breakpoints={[0, 0.25, 0.5, 0.75]}
@@ -438,6 +442,29 @@ export const CandidateList = () => {
           // @ts-ignore
           candidate={currentCandidate}
         />
+      </IonModal>
+      <IonModal ref={requestFollowupModal} isOpen={false} onDidDismiss={() => requestFollowupModal.current?.dismiss()} keepContentsMounted={true}>
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonButton color="secondary" onClick={() => requestFollowupModal.current?.dismiss()}>Close</IonButton>
+            </IonButtons>
+            <IonTitle slot="start">Request Follow-Up</IonTitle>
+            <IonButtons slot="primary">
+              <IonButton
+                fill="solid"
+                color="primary"
+                onClick={() => setSubmitRequest(true)}>
+                Submit
+              </IonButton>
+            </IonButtons>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <RequestFollowup obj_id={currentCandidate?.id}
+                           submitRequest={submitRequest}
+                           submitRequestCallback={() => setSubmitRequest(false)}/>
+        </IonContent>
       </IonModal>
     </div>
   );

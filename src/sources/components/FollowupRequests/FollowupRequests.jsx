@@ -28,9 +28,11 @@ export const FollowupRequests = ({candidate, requestType = "triggered"}) => {
   const requestsByInstrument = candidate.followup_requests?.reduce((
     /** @type {Record<string, FollowupRequest[]>} */ acc,
     followupRequest) => {
-    const { payload, allocation } = followupRequest;
+    const { payload, allocation, status } = followupRequest;
 
-    if ( (payload?.request_type && payload.request_type === requestType) ||
+    if (status === "deleted") return acc;
+
+    if ((payload?.request_type && payload.request_type === requestType) ||
       (allocation?.types && allocation.types.includes(requestType))) {
       const instrument_name = allocation?.instrument?.name;
       if (instrument_name) {

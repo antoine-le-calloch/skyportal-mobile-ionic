@@ -97,3 +97,32 @@ export const fetchSourcePhotometry = async ({
   });
   return response.data.data;
 };
+
+/**
+ * @param {Object} params
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo
+ * @param {string} params.sourceId
+ * @param {number} params.allocationId
+ * @param {number[]} params.groupIds
+ * @param {Object} params.payload
+ * @returns {Promise<any>}
+ */
+export const submitFollowupRequest = async ({ userInfo,
+                                              sourceId,
+                                              allocationId,
+                                              groupIds,
+                                              payload }) => {
+  return CapacitorHttp.post({
+    url: `${userInfo.instance.url}/api/followup_request`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+      "Content-Type": "application/json",
+    },
+    data: {
+      obj_id: sourceId,
+      allocation_id: allocationId,
+      target_group_ids: groupIds,
+      payload: payload
+    },
+  });
+};

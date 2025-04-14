@@ -23,9 +23,27 @@ import { Preferences } from "@capacitor/preferences";
  */
 
 /**
+ * @typedef {Object} AllocationApiClassname
+ * @property {string} id - Allocation ID
+ * @property {Instrument} instrument - Instrument details
+ * @property {string} pi - Principal investigator
+ * @property {number} group_id - Group ID
+ * @property {number[]} default_share_group_ids - Default share group IDs
+ * @property {string} instrument_id - Instrument ID
+ * @property {string[]} types - Types of the allocation
+ */
+
+/**
  * @typedef {Object} Instrument
  * @property {string} id - Instrument ID
  * @property {string} name - Instrument name
+ * @property {Telescope} telescope - Telescope details
+ */
+
+/**
+ * @typedef {Object} Telescope
+ * @property {string} id - Telescope ID
+ * @property {string} name - Telescope name
  */
 
 /**
@@ -151,6 +169,21 @@ export const formatDateTime = (dateTime) => {
 };
 
 /**
+ * @param {Date} dateTime
+ * @param {"date"|"datetime"} format
+ */
+export const formatIsoDateString = (dateTime, format="datetime") => {
+  const date = dateTime.toISOString()
+  if (format === "date") {
+    return date.split("T")[0]
+
+  }
+  return date.replace("Z", "")
+    .replace("T", " ")
+    .split(".")[0];
+}
+
+/**
  * @param {string} stringUTCDate
  * @returns {string}
  */
@@ -206,6 +239,10 @@ export const QUERY_KEYS = {
   ANNOTATIONS_INFO: "annotationsInfo",
   APP_PREFERENCES: "appPreferences",
   SOURCE_SPECTRA: "sourceSpectra",
+  ALLOCATIONS: "allocations",
+  ALLOCATIONS_API_CLASSNAME: "allocationsApiClassname",
+  FOLLOWUP_APIS: "followupApis",
+  INSTRUMENT_FORMS: "instrumentForms",
 };
 /**
  * @type {Object.<SavedStatus, string>}
