@@ -10,7 +10,7 @@ import {
   useIonAlert,
   useIonToast
 } from "@ionic/react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useEmblaCarousel from "embla-carousel-react";
 import { checkmarkCircleOutline, warningOutline } from "ionicons/icons";
 import { useUserAccessibleGroups } from "../../../../common/common.hooks.js";
@@ -18,7 +18,7 @@ import { CandidateAnnotationsViewer } from "../CandidateAnnotationsViewer/Candid
 import { ScanningCard } from "../ScanningCard/ScanningCard.jsx";
 import { ScanningCardSkeleton } from "../ScanningCard/ScanningCardSkeleton.jsx";
 import { useSearchCandidates } from "../../../scanning.hooks.js";
-import { addSourceToGroups } from "../../../../sources/sources.requests.js";
+import { addSourceToGroups, fetchFollowupRequest } from "../../../../sources/sources.requests.js";
 import {
   parseIntList,
   SCANNING_TOOLBAR_ACTION,
@@ -27,11 +27,12 @@ import { ScanningEnd } from "../ScanningEnd/ScanningEnd.jsx";
 import { ScanningToolbar } from "../ScanningToolbar/ScanningToolbar.jsx";
 import { useLocation } from "react-router";
 import { UserContext } from "../../../../common/common.context.js";
-import { CANDIDATES_PER_PAGE } from "../../../../common/common.lib.js";
+import { CANDIDATES_PER_PAGE, QUERY_KEYS } from "../../../../common/common.lib.js";
 import { RequestFollowup } from "../../../../sources/components/RequestFollowup/RequestFollowup.jsx";
 
 export const CandidateList = () => {
   const { userInfo } = useContext(UserContext);
+  const queryClient = useQueryClient();
   const { userAccessibleGroups } = useUserAccessibleGroups();
 
   /** @type {{state: any}} */
@@ -370,6 +371,50 @@ export const CandidateList = () => {
   };
 
   /**
+   * @param {boolean} isSubmitted
+   */
+  const handleFollowupRequestSubmitted = async (isSubmitted) => {
+    setSubmitRequest(false);
+
+    if (!isSubmitted || !state || !currentCandidate) return
+
+    // Update the list of followup requests for the current candidate
+    const { followup_requests } = await fetchFollowupRequest({
+      userInfo,
+      sourceId: currentCandidate.id,
+    });
+    queryClient.setQueryData(
+      [
+        QUERY_KEYS.CANDIDATES,
+        state.startDate,
+        state.endDate,
+        state.savedStatus,
+        state.saveGroupIds,
+      ],
+      (
+        /** @type {{ pages: { candidates: import("../../../scanning.lib.js").Candidate[]}[] }} */
+        oldData,
+      ) => {
+        if (!oldData) {
+          return oldData;
+        }
+
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            candidates: page.candidates.map((candidate) =>
+              candidate.id === currentCandidate.id
+                ? { ...candidate, followup_requests }
+                : candidate,
+            ),
+          })),
+        };
+      },
+    );
+  };
+
+  /**
    * @param {import("../../../scanning.lib.js").ScanningToolbarAction} action
    */
   const handleToolbarAction = async (action) => {
@@ -465,7 +510,8 @@ export const CandidateList = () => {
         <IonContent>
           <RequestFollowup obj_id={currentCandidate?.id}
                            submitRequest={submitRequest}
-                           submitRequestCallback={() => setSubmitRequest(false)}/>
+                           submitRequestCallback={(/** @type {boolean} */ isSubmitted) => handleFollowupRequestSubmitted(isSubmitted)}
+          />
         </IonContent>
       </IonModal>
     </div>

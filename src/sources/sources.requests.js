@@ -102,6 +102,24 @@ export const fetchSourcePhotometry = async ({
  * @param {Object} params
  * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo
  * @param {string} params.sourceId
+ */
+export const fetchFollowupRequest = async ({ userInfo, sourceId }) => {
+  let response = await CapacitorHttp.get({
+    url: `${userInfo.instance.url}/api/followup_request`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+    },
+    params: {
+      sourceID: sourceId,
+    },
+  });
+  return response.data.data;
+}
+
+/**
+ * @param {Object} params
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo
+ * @param {string} params.sourceId
  * @param {number} params.allocationId
  * @param {number[]} params.groupIds
  * @param {Object} params.payload

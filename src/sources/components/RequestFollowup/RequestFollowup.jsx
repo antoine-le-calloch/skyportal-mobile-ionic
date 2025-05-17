@@ -83,11 +83,11 @@ export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }
     if (submitRequest) {
       if (selectedAllocationId === null) {
         noAllocationToast().then();
+        submitRequestCallback(false);
       } else {
         formRef.current?.submit();
       }
     }
-    submitRequestCallback();
   }, [submitRequest]);
 
   // Set default group ids based on the selected allocation
@@ -202,8 +202,10 @@ export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }
         groupIds: selectedGroupIds,
         payload: formData,
       });
+      submitRequestCallback(true);
     } else {
       noAllocationToast().then();
+      submitRequestCallback(false);
     }
     setLoading(false);
   };
@@ -411,6 +413,7 @@ export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }
               color: "danger",
               icon: warningOutline,
             }).then();
+            submitRequestCallback(false);
           }}
         />
       ))}
