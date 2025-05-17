@@ -68,6 +68,54 @@ import { Preferences } from "@capacitor/preferences";
  */
 
 /**
+ * The instances that are available for login
+ * @type {SkyPortalInstance[]}
+ */
+export const INSTANCES = [
+  { name: "ICARE", url: "https://skyportal-icare.ijclab.in2p3.fr" },
+  { name: "FRITZ", url: "https://fritz.science" },
+  { name: "FRITZ preview", url: "https://preview.fritz.science" },
+];
+export const QUERY_PARAMS = {
+  TOKEN: "token",
+  INSTANCE: "instance",
+};
+export const QUERY_KEYS = {
+  CANDIDATES: "candidates",
+  SOURCES: "sources",
+  USER_PROFILE: "user",
+  USER_INFO: "userInfo",
+  GROUPS: "groups",
+  SOURCE_PHOTOMETRY: "sourcePhotometry",
+  CONFIG: "config",
+  APP_START: "appStart",
+  BANDPASS_COLORS: "bandpassColors",
+  SCANNING_PROFILES: "scanningProfiles",
+  ANNOTATIONS_INFO: "annotationsInfo",
+  APP_PREFERENCES: "appPreferences",
+  SOURCE_SPECTRA: "sourceSpectra",
+  ALLOCATIONS: "allocations",
+  ALLOCATIONS_API_CLASSNAME: "allocationsApiClassname",
+  FOLLOWUP_APIS: "followupApis",
+  INSTRUMENT_FORMS: "instrumentForms",
+  FAVORITE_SOURCES: "favoriteSources",
+  FAVORITE_SOURCE_IDS: "favoriteSourceIds",
+};
+/**
+ * @type {Object.<SavedStatus, string>}
+ */
+export const SAVED_STATUS = {
+  ALL: "all",
+  SAVED_TO_ALL_SELECTED: "savedToAllSelected",
+  SAVED_TO_ANY_SELECTED: "savedToAnySelected",
+  SAVED_TO_ANY_ACCESSIBLE: "savedToAnyAccessible",
+  NOT_SAVED_TO_ANY_ACCESSIBLE: "notSavedToAnyAccessible",
+  NOT_SAVED_TO_ANY_SELECTED: "notSavedToAnySelected",
+  NOT_SAVED_TO_ALL_SELECTED: "notSavedToAllSelected",
+};
+export const CANDIDATES_PER_PAGE = 50;
+
+/**
  * Navigate to a new path with params
  * @param {import("history").History} history
  * @param {string} path
@@ -211,49 +259,3 @@ export const getDateDiff = (/** @type {string} */stringUTCDate) => {
   const diffInYears = Math.floor(diffInDays / 365);
   return `${diffInYears} year${diffInYears > 1 ? "s" : ""} ago`;
 }
-
-/**
- * The instances that are available for login
- * @type {SkyPortalInstance[]}
- */
-export const INSTANCES = [
-  { name: "ICARE", url: "https://skyportal-icare.ijclab.in2p3.fr" },
-  { name: "FRITZ", url: "https://fritz.science" },
-  { name: "FRITZ preview", url: "https://preview.fritz.science" },
-];
-export const QUERY_PARAMS = {
-  TOKEN: "token",
-  INSTANCE: "instance",
-};
-export const QUERY_KEYS = {
-  CANDIDATES: "candidates",
-  SOURCES: "sources",
-  USER_PROFILE: "user",
-  USER_INFO: "userInfo",
-  GROUPS: "groups",
-  SOURCE_PHOTOMETRY: "sourcePhotometry",
-  CONFIG: "config",
-  APP_START: "appStart",
-  BANDPASS_COLORS: "bandpassColors",
-  SCANNING_PROFILES: "scanningProfiles",
-  ANNOTATIONS_INFO: "annotationsInfo",
-  APP_PREFERENCES: "appPreferences",
-  SOURCE_SPECTRA: "sourceSpectra",
-  ALLOCATIONS: "allocations",
-  ALLOCATIONS_API_CLASSNAME: "allocationsApiClassname",
-  FOLLOWUP_APIS: "followupApis",
-  INSTRUMENT_FORMS: "instrumentForms",
-};
-/**
- * @type {Object.<SavedStatus, string>}
- */
-export const SAVED_STATUS = {
-  ALL: "all",
-  SAVED_TO_ALL_SELECTED: "savedToAllSelected",
-  SAVED_TO_ANY_SELECTED: "savedToAnySelected",
-  SAVED_TO_ANY_ACCESSIBLE: "savedToAnyAccessible",
-  NOT_SAVED_TO_ANY_ACCESSIBLE: "notSavedToAnyAccessible",
-  NOT_SAVED_TO_ANY_SELECTED: "notSavedToAnySelected",
-  NOT_SAVED_TO_ALL_SELECTED: "notSavedToAllSelected",
-};
-export const CANDIDATES_PER_PAGE = 50;
