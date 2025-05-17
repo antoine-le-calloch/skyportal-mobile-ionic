@@ -1,7 +1,10 @@
 import {
   IonContent,
-  IonHeader, IonLabel,
-  IonLoading, IonSegment, IonSegmentButton,
+  IonHeader,
+  IonLabel,
+  IonLoading,
+  IonSegment,
+  IonSegmentButton,
   IonTitle,
   IonToolbar
 } from "@ionic/react";
