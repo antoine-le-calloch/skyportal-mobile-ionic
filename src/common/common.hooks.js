@@ -12,6 +12,8 @@ import {
 import { useContext } from "react";
 import { UserContext } from "./common.context.js";
 import { clearPreference, getPreference, QUERY_KEYS, setPreference } from "./common.lib.js";
+import { warningOutline } from "ionicons/icons";
+import { useIonToast } from "@ionic/react";
 
 /**
  * @typedef {"success" | "error" | "pending"} QueryStatus
@@ -195,3 +197,34 @@ export const useInstrumentForms = () => {
     error,
   };
 }
+
+/**
+ * Custom hook to show error toast with optional infinite duration.
+ * @returns {(message: string, isInfinite?: boolean) => void}
+ */
+export const useErrorToast = () => {
+  const [presentToast] = useIonToast();
+
+  /**
+   * Display an error toast message
+   * @param {string} message - The error message to display.
+   * @param {boolean} [isInfinite=false] - Whether the toast should stay until manually dismissed.
+   */
+  return (message, isInfinite = false) => {
+    presentToast({
+      message,
+      position: "top",
+      color: "danger",
+      icon: warningOutline,
+      duration: isInfinite ? 0 : 2000,
+      buttons: isInfinite
+        ? [
+          {
+            text: "Close",
+            role: "cancel",
+          },
+        ]
+        : undefined,
+    }).then();
+  };
+};
