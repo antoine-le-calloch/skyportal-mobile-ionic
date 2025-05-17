@@ -1,14 +1,31 @@
 import { formatDateTime } from "../../../common/common.lib.js";
 import "./SourceListItem.scss";
 import { IonIcon } from "@ionic/react";
-import { starOutline } from "ionicons/icons";
+import { starOutline, star } from "ionicons/icons";
+import { useState } from "react";
+import { useAddSourceToFavorites, useRemoveSourceFromFavorites } from "../../sources.hooks.js";
 
 /**
  * @param {Object} props
  * @param {import("../../sources.lib.js").Source} props.source
+ * @param {boolean} props.isFavorite
  * @returns {JSX.Element}
  */
-export const SourceListItem = ({ source }) => {
+export const SourceListItem = ({ source, isFavorite }) => {
+  const [favorite, setFavorite] = useState(isFavorite);
+  const useAddToFavorites = useAddSourceToFavorites();
+  const useRemoveFromFavorites = useRemoveSourceFromFavorites();
+
+  const handleToggleFavorite = () => {
+    if (isFavorite) {
+      useRemoveFromFavorites.mutate({ sourceId: source.id });
+      setFavorite(false);
+    }else{
+      useAddToFavorites.mutate({ sourceId: source.id });
+      setFavorite(true);
+    }
+  }
+
   return (
     <div className="source-list-item">
       <div className="header">
@@ -16,7 +33,9 @@ export const SourceListItem = ({ source }) => {
           <div className="sky-id">{source.id}</div>
           <div className="tns-name">{source.tns_name}</div>
         </div>
-        <IonIcon className="icon" icon={starOutline} />
+        <IonIcon className={`icon ${favorite ? "toggle" : ""}`}
+                 icon={favorite ? star : starOutline}
+                 onClick={() => handleToggleFavorite()} />
       </div>
       <div className="created">
         <div className="label">Created:</div>
