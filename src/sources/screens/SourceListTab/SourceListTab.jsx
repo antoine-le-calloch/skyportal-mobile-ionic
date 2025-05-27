@@ -32,7 +32,7 @@ export const SourceListTab = () => {
           <IonSearchbar
             debounce={500}
             value={searchName}
-            onIonInput={(e) => setSearchName(e.target.value)}
+            onIonInput={(e) => setSearchName(e.detail.value)}
             placeholder="Search by name"
           />
         </IonToolbar>
