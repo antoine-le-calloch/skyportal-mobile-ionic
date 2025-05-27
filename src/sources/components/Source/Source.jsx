@@ -1,7 +1,7 @@
 import "./Source.scss";
 import { IonBackButton, IonButtons, IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from "@ionic/react";
 import { useParams } from "react-router";
-// import { useFetchSource } from "../../sources.hooks.js";
+import { useFetchSource } from "../../sources.hooks.js";
 import React from "react";
 
 /**
@@ -12,7 +12,7 @@ import React from "react";
 export function Source() {
   /** @type {RouteParams} */
   const { sourceId } = useParams();
-  // const { source } = useFetchSource({ sourceId });
+  const { source } = useFetchSource({ sourceId });
 
   return (
     <IonPage>

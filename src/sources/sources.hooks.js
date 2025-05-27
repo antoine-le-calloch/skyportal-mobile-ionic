@@ -5,6 +5,7 @@ import { QUERY_KEYS } from "../common/common.lib.js";
 import {
   addToFavorites,
   fetchFavorites,
+  fetchSource,
   fetchSourceSpectra,
   removeFromFavorites,
   submitFollowupRequest
@@ -47,6 +48,36 @@ export const useFetchSources = ({ page, numPerPage, params = {}}) => {
     error,
   };
 };
+
+/**
+ * Fetch a single source by its ID
+ * @param {Object} props
+ * @param {string} props.sourceId - The ID of the source to fetch
+ * @param {Object.<string, string>} [props.params] - additional parameters to pass to the API
+ * @returns {{source: import("../sources/sources.lib.js").Source|undefined, status: QueryStatus, error: any|undefined}}
+ */
+export const useFetchSource = ({ sourceId, params = {} }) => {
+  const { userInfo } = useContext(UserContext);
+  const {
+    data: source,
+    status,
+    error,
+  } = useQuery({
+    queryKey: [QUERY_KEYS.SOURCE, sourceId, params],
+    queryFn: () =>
+      fetchSource({
+        userInfo,
+        sourceId,
+        params
+      }),
+    enabled: !!sourceId,
+  });
+  return {
+    source,
+    status,
+    error,
+  };
+}
 
 /**
  * @param {string} sourceId

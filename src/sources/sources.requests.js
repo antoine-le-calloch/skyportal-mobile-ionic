@@ -25,6 +25,27 @@ export async function fetchSources({ userInfo, page, numPerPage, params = {} }) 
 }
 
 /**
+ * Fetch one source by its ID
+ * @param {Object} props
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} props.userInfo - User info
+ * @param {string} props.sourceId - The source ID
+ * @param {Object.<string, string>} [props.params] - additional parameters to pass to the API
+ * @returns {Promise<import("./sources.lib.js").Source>}
+ */
+export async function fetchSource({ userInfo, sourceId, params = {} }) {
+  let response = await CapacitorHttp.get({
+    url: `${userInfo.instance.url}/api/sources/${sourceId}`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+    },
+    params: {
+      ...params,
+    },
+  });
+  return response.data.data;
+}
+
+/**
  * @param {Object} params
  * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo
  * @param {string} params.sourceId
