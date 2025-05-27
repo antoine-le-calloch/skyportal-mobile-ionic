@@ -13,7 +13,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useEmblaCarousel from "embla-carousel-react";
 import { checkmarkCircleOutline, warningOutline } from "ionicons/icons";
-import { useUserAccessibleGroups } from "../../../../common/common.hooks.js";
+import { useErrorToast, useUserAccessibleGroups } from "../../../../common/common.hooks.js";
 import { CandidateAnnotationsViewer } from "../CandidateAnnotationsViewer/CandidateAnnotationsViewer.jsx";
 import { ScanningCard } from "../ScanningCard/ScanningCard.jsx";
 import { ScanningCardSkeleton } from "../ScanningCard/ScanningCardSkeleton.jsx";
@@ -97,6 +97,7 @@ export const CandidateList = () => {
 
   const [presentToast] = useIonToast();
   const [presentAlert] = useIonAlert();
+  const errorToast = useErrorToast();
 
   useEffect(() => {
     if (emblaApi) {
@@ -164,13 +165,7 @@ export const CandidateList = () => {
         icon: checkmarkCircleOutline,
       }),
     onError: () =>
-      presentToast({
-        message: "Failed to save source",
-        duration: 2000,
-        position: "top",
-        color: "danger",
-        icon: warningOutline,
-      }),
+      errorToast("Failed to save source"),
   });
 
   const discardSourceMutation = useMutation({
@@ -220,13 +215,7 @@ export const CandidateList = () => {
         icon: checkmarkCircleOutline,
       }),
     onError: () =>
-      presentToast({
-        message: "Failed to discard source",
-        duration: 2000,
-        position: "top",
-        color: "danger",
-        icon: warningOutline,
-      }),
+      errorToast("Failed to discard source"),
   });
 
   const promptUserForGroupSelection = useCallback(

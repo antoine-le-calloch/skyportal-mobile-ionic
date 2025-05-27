@@ -1,20 +1,30 @@
 import "./SourceList.scss";
 import { SourceListItem } from "../SourceListItem/SourceListItem.jsx";
 import { useState } from "react";
-import { useFetchSources } from "../../sources.hooks.js";
+import { useFetchFavoriteSourceIds, useFetchFavoriteSources, useFetchSources } from "../../sources.hooks.js";
 
-export const SourceList = () => {
-  const [page, setPage] = useState(1);
-  const [numPerPage, setNumPerPage] = useState(10);
-  const { sources, status, error } = useFetchSources({
+/**
+ * @param {Object} props
+ * @param {string} props.filter - filter for the source list (all or favorites)
+ * @returns {JSX.Element}
+ */
+export const SourceList = ({ filter }) => {
+  const [page] = useState(1);
+  const [numPerPage] = useState(10);
+  const { favoriteSourceIds } = useFetchFavoriteSourceIds()
+  const { favoriteSources } = useFetchFavoriteSources()
+  const { sources } = useFetchSources({
     page,
     numPerPage,
   });
 
   return (
     <div className="source-list">
-      {sources?.map((source) => (
-        <SourceListItem key={source.id} source={source} />
+      {(filter === "favorites" ? favoriteSources : sources)?.map((source) => (
+        <SourceListItem
+          key={source.id}
+          source={source}
+          isFavorite={favoriteSourceIds?.includes(source.id)} />
       ))}
     </div>
   );

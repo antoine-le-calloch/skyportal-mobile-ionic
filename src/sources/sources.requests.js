@@ -98,7 +98,10 @@ export const fetchSourcePhotometry = async ({
   return response.data.data;
 };
 
+// Followup requests related functions
+
 /**
+ * Fetch the followup requests for a source
  * @param {Object} params
  * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo
  * @param {string} params.sourceId
@@ -117,6 +120,7 @@ export const fetchFollowupRequest = async ({ userInfo, sourceId }) => {
 }
 
 /**
+ * Submit a followup request
  * @param {Object} params
  * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo
  * @param {string} params.sourceId
@@ -144,3 +148,89 @@ export const submitFollowupRequest = async ({ userInfo,
     },
   });
 };
+
+// Favorite sources related functions
+
+/**
+ * Fetch the favorites list
+ * @param {Object} params
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo - The user info
+ * @return {Promise<{ obj_id: string }[]>} - The favorites list
+ */
+export const fetchFavorites = async ({ userInfo }) => {
+  let response = await CapacitorHttp.get({
+    url: `${userInfo.instance.url}/api/listing`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+    },
+    params: {
+      listName: "favorites",
+    },
+  });
+  return response.data.data;
+}
+
+/**
+ * Fetch the favorite sources
+ * @param {Object} params
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo - The user info
+ */
+export const fetchFavoriteSources = async ({ userInfo }) => {
+  let response = await CapacitorHttp.get({
+    url: `${userInfo.instance.url}/api/sources`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+    },
+    params: {
+      listName: "favorites",
+      includeColorMagnitude: "true",
+      includeThumbnails: "true",
+      includeDetectionStats: "true",
+      includeLabellers: "true",
+      includeHosts: "true",
+    },
+  });
+  return response.data.data.sources;
+}
+
+/**
+ * Add a source to the favorites list
+ * @param {Object} params
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo - The user info
+ * @param {string} params.sourceId - The source ID
+ * @returns {Promise<any>}
+ */
+export const addToFavorites = async ({ userInfo, sourceId }) => {
+  return CapacitorHttp.post({
+    url: `${userInfo.instance.url}/api/listing`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+      "Content-Type": "application/json",
+    },
+    data: {
+      list_name: "favorites",
+      obj_id: sourceId,
+    },
+  });
+}
+
+/**
+ * Remove a source from the favorites list
+ * @param {Object} params
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo - The user info
+ * @param {string} params.sourceId - The source ID
+ * @returns {Promise<any>}
+ */
+export const removeFromFavorites = async ({ userInfo, sourceId }) => {
+  return CapacitorHttp.delete({
+    url: `${userInfo.instance.url}/api/listing`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+      "Content-Type": "application/json",
+    },
+    data: {
+      list_name: "favorites",
+      obj_id: sourceId,
+    },
+  });
+}
