@@ -6,9 +6,10 @@ import { CapacitorHttp } from "@capacitor/core";
  * @param {import("../onboarding/onboarding.lib.js").UserInfo} props.userInfo - User info
  * @param {number} props.page - page number
  * @param {number} props.numPerPage - number of sources per page
+ * @param {Object.<string, string>} [props.params] - additional parameters to pass to the API
  * @returns {Promise<import("./sources.lib.js").Source[]>}
  */
-export async function fetchSources({ userInfo, page, numPerPage }) {
+export async function fetchSources({ userInfo, page, numPerPage, params = {} }) {
   let response = await CapacitorHttp.get({
     url: `${userInfo.instance.url}/api/sources`,
     headers: {
@@ -17,11 +18,7 @@ export async function fetchSources({ userInfo, page, numPerPage }) {
     params: {
       pageNumber: `${page}`,
       numPerPage: `${numPerPage}`,
-      includeColorMagnitude: "true",
-      includeThumbnails: "true",
-      includeDetectionStats: "true",
-      includeLabellers: "true",
-      includeHosts: "true",
+      ...params,
     },
   });
   return response.data.data.sources;
@@ -168,29 +165,6 @@ export const fetchFavorites = async ({ userInfo }) => {
     },
   });
   return response.data.data;
-}
-
-/**
- * Fetch the favorite sources
- * @param {Object} params
- * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo - The user info
- */
-export const fetchFavoriteSources = async ({ userInfo }) => {
-  let response = await CapacitorHttp.get({
-    url: `${userInfo.instance.url}/api/sources`,
-    headers: {
-      Authorization: `token ${userInfo.token}`,
-    },
-    params: {
-      listName: "favorites",
-      includeColorMagnitude: "true",
-      includeThumbnails: "true",
-      includeDetectionStats: "true",
-      includeLabellers: "true",
-      includeHosts: "true",
-    },
-  });
-  return response.data.data.sources;
 }
 
 /**

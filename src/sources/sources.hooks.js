@@ -5,7 +5,6 @@ import { QUERY_KEYS } from "../common/common.lib.js";
 import {
   addToFavorites,
   fetchFavorites,
-  fetchFavoriteSources,
   fetchSourceSpectra,
   removeFromFavorites,
   submitFollowupRequest
@@ -21,21 +20,23 @@ import { useErrorToast } from "../common/common.hooks.js";
  * @param {Object} props
  * @param {number} props.page
  * @param {number} props.numPerPage
+ * @param {Object.<string, string>} [props.params] - additional parameters to pass to the API
  * @returns {{sources: import("../sources/sources.lib.js").Source[]|undefined, status: QueryStatus, error: any|undefined}}
  */
-export const useFetchSources = ({ page, numPerPage }) => {
+export const useFetchSources = ({ page, numPerPage, params = {}}) => {
   const { userInfo } = useContext(UserContext);
   const {
     /** @type {import("../sources/sources.lib.js").Source[]} */ data: sources,
     status,
     error,
   } = useQuery({
-    queryKey: [QUERY_KEYS.SOURCES, page, numPerPage],
+    queryKey: [QUERY_KEYS.SOURCES, page, numPerPage, params],
     queryFn: () =>
       fetchSources({
         userInfo,
         page,
         numPerPage,
+        params
       }),
     // @ts-ignore
     suspense: true,
@@ -132,31 +133,6 @@ export const useFetchFavoriteSourceIds = () => {
 
   return {
     favoriteSourceIds,
-    status,
-    error,
-  };
-}
-
-/**
- * @returns {{favoriteSources: import("../sources/sources.lib.js").Source[]|undefined, status: QueryStatus, error: any|undefined}}
- */
-export const useFetchFavoriteSources = () => {
-  const { userInfo } = useContext(UserContext);
-  const {
-    data: favoriteSources,
-    status,
-    error,
-  } = useQuery({
-    queryKey: [QUERY_KEYS.FAVORITE_SOURCES],
-    queryFn: () =>
-      fetchFavoriteSources({
-        userInfo,
-      }),
-    // @ts-ignore
-    suspense: true,
-  });
-  return {
-    favoriteSources,
     status,
     error,
   };
