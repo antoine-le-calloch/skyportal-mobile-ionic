@@ -4,6 +4,7 @@ import { IonIcon } from "@ionic/react";
 import { starOutline, star } from "ionicons/icons";
 import { useState } from "react";
 import { useAddSourceToFavorites, useRemoveSourceFromFavorites } from "../../sources.hooks.js";
+import { useHistory } from "react-router";
 
 /**
  * @param {Object} props
@@ -12,6 +13,7 @@ import { useAddSourceToFavorites, useRemoveSourceFromFavorites } from "../../sou
  * @returns {JSX.Element}
  */
 export const SourceListItem = ({ source, isFavorite }) => {
+  const history = useHistory();
   const [favorite, setFavorite] = useState(isFavorite);
   const useAddToFavorites = useAddSourceToFavorites();
   const useRemoveFromFavorites = useRemoveSourceFromFavorites();
@@ -26,8 +28,13 @@ export const SourceListItem = ({ source, isFavorite }) => {
     }
   }
 
+  const handleClickOnSource = () => {
+    history.push(`/source/${source.id}`);
+  };
+
+
   return (
-    <div className="source-list-item">
+    <div className="source-list-item" onClick={() => handleClickOnSource()}>
       <div className="header">
         <div className="ids">
           <div className="sky-id">{source.id}</div>
