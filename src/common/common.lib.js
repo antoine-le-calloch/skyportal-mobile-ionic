@@ -99,7 +99,6 @@ export const QUERY_KEYS = {
   ALLOCATIONS_API_CLASSNAME: "allocationsApiClassname",
   FOLLOWUP_APIS: "followupApis",
   INSTRUMENT_FORMS: "instrumentForms",
-  FAVORITE_SOURCES: "favoriteSources",
   FAVORITE_SOURCE_IDS: "favoriteSourceIds",
 };
 /**

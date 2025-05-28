@@ -186,7 +186,7 @@ export const useAddSourceToFavorites = () => {
         errorToast("Failed to add this source to favorites");
       }else{
         queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FAVORITE_SOURCE_IDS] });
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FAVORITE_SOURCES] });
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SOURCES] });
       }
     },
     onError: () =>
@@ -211,7 +211,7 @@ export const useRemoveSourceFromFavorites = () => {
         errorToast("Failed to remove this source from favorites");
       }else{
         queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FAVORITE_SOURCE_IDS] });
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FAVORITE_SOURCES] });
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SOURCES] });
       }
     },
     onError: () =>
