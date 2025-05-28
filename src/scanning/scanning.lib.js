@@ -6,6 +6,7 @@
 /** @typedef {import("../sources/sources.lib.js").Spectra} Spectra */
 /** @typedef {import("../sources/sources.lib.js").Photometry} Photometry */
 /** @typedef {import("../sources/sources.lib.js").Classification} Classification */
+/** @typedef {import("../sources/sources.lib.js").Annotation} Annotation */
 
 /**
  * @typedef {Object} Candidate
@@ -13,7 +14,7 @@
  * @property {number} dec - Declination
  * @property {string} id - Source id
  * @property {Thumbnail[]} thumbnails - Thumbnails of the candidate
- * @property {CandidateAnnotation[]} annotations - Annotations of the candidate
+ * @property {Annotation[]} annotations - Annotations of the candidate
  * @property {boolean} is_source - Is the candidate has been saved
  * @property {Group[]} saved_groups - Groups the candidate has been saved to
  * @property {Classification[]} classifications - Classifications of the candidate
@@ -21,16 +22,6 @@
  * @property {Comment[]} comments - Comments on the follow-up request
  * @property {string} tns_name - TNS name
  * @property {Spectra[]} spectra - Spectra of the candidate
- */
-
-/**
- * @typedef {Object} CandidateAnnotation
- * @property {number} id - Annotation ID
- * @property {string} origin - Annotation origin
- * @property {string} obj_id - Object ID
- * @property {{[key: string]: string|number|Array<any>|undefined}} data - Annotation data
- * @property {number} author_id - Author ID
- * @property {Group[]} groups - Groups the annotation belongs to
  */
 
 /**
@@ -61,9 +52,6 @@
  */
 
 import config from "../config.js";
-import { Clipboard } from "@capacitor/clipboard";
-import { useIonToast } from "@ionic/react";
-import { useCallback } from "react";
 import moment from "moment-timezone";
 
 import { SAVED_STATUS } from "../common/common.lib.js";
@@ -298,29 +286,6 @@ export const getVegaPlotSpec = ({
   });
 };
 
-export const useCopyAnnotationLineOnClick = () => {
-  const [present] = useIonToast();
-  return useCallback(
-    /**
-     * @param {string} key
-     * @param {string|number|undefined} value
-     */
-    async (key, value) => {
-      if (value === undefined) {
-        return;
-      }
-      await Clipboard.write({
-        string: `${key}: ${value}`,
-      });
-      await present({
-        message: "Annotation copied to clipboard!",
-        duration: 2000,
-      });
-    },
-    [present],
-  );
-};
-
 /**
  * Parse a string of integers separated by commas
  * @param {string} intListString
@@ -449,49 +414,3 @@ export const SCANNING_TOOLBAR_ACTION = {
   DISCARD: "DISCARD",
   EXIT: "EXIT",
 };
-
-/**
- * @param {string} group
- * @param {string} annotationKey
- * @returns {`${string}/${string}`}
- */
-export const getAnnotationId = (group, annotationKey) =>
-  `${group}/${annotationKey}`;
-
-/**
- * @param {string} annotationId
- * @returns {{key: string, origin: string}}
- */
-export const extractAnnotationOriginAndKey = (annotationId) => {
-  const lastIndexOfSlash = annotationId.lastIndexOf("/");
-  const origin = annotationId.slice(0, lastIndexOfSlash);
-  const key = annotationId.slice(lastIndexOfSlash + 1);
-  return { origin, key };
-};
-
-
-/**
- * @param {string|number|undefined} value
- * @param {number} length
- * @returns {string|number|undefined}
- */
-export const concat = (value, length) => {
-  if (typeof value === "string" && value.length > length) {
-    value = value.slice(0, length) + ".."
-  }
-  return value;
-}
-
-/**
- * @param {string|number|Array<any>|undefined} data
- * @param {boolean} withIndentation
- * @returns {string|number|undefined}
- */
-export const sanitizeAnnotationData = (data, withIndentation) => {
-  if (Array.isArray(data)) {
-    data = JSON.stringify(data, null, withIndentation ? 2 : 0);
-  }else if (typeof data === "boolean") {
-    data = data ? "true" : "false";
-  }
-  return data;
-}

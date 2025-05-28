@@ -1,4 +1,3 @@
-import "../PinnedAnnotations/PinnedAnnotations.scss";
 import { IonSkeletonText } from "@ionic/react";
 
 /**

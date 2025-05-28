@@ -84,6 +84,7 @@ export const QUERY_KEYS = {
   CANDIDATES: "candidates",
   SOURCES: "sources",
   SOURCE: "source",
+  FAVORITE_SOURCE_IDS: "favoriteSourceIds",
   USER_PROFILE: "user",
   USER_INFO: "userInfo",
   GROUPS: "groups",
@@ -99,7 +100,7 @@ export const QUERY_KEYS = {
   ALLOCATIONS_API_CLASSNAME: "allocationsApiClassname",
   FOLLOWUP_APIS: "followupApis",
   INSTRUMENT_FORMS: "instrumentForms",
-  FAVORITE_SOURCE_IDS: "favoriteSourceIds",
+  INSTRUMENTS: "instruments",
 };
 /**
  * @type {Object.<SavedStatus, string>}

@@ -14,7 +14,7 @@ import {
   IonToolbar
 } from "@ionic/react";
 import { useCallback, useState } from "react";
-import { getAnnotationId } from "../../../scanning.lib.js";
+import { getAnnotationId } from "../../../../sources/sources.lib.js";
 
 /**
  * @param {Object} props

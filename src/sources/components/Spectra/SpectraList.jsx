@@ -43,7 +43,7 @@ export const SpectraList = ({sourceId}) => {
                      color="light">
               <div className="spectra">
                 <div className="instrument-name">
-                  {spectra.instrument?.name}
+                  {spectra.instrument_name}
                 </div>
                 <div className="observed-at">
                   {formatDateTime(spectra.observed_at)}

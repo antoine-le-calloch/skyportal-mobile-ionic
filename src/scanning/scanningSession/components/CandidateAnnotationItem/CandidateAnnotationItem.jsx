@@ -1,11 +1,11 @@
 import "./CandidateAnnotationItem.scss";
 import { IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonText } from "@ionic/react";
-import { sanitizeAnnotationData, useCopyAnnotationLineOnClick } from "../../../scanning.lib.js";
+import { sanitizeAnnotationData, useCopyAnnotationLineOnClick } from "../../../../sources/sources.lib.js";
 import { copyOutline } from "ionicons/icons";
 
 /**
  * @param {Object} props
- * @param {import("../../../scanning.lib.js").CandidateAnnotation} props.annotation
+ * @param {import("../../../scanning.lib.js").Annotation} props.annotation
  * @returns {JSX.Element}
  */
 export const CandidateAnnotationItem = ({ annotation }) => {

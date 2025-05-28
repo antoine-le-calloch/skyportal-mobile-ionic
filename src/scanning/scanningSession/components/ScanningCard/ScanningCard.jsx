@@ -1,7 +1,7 @@
 import "./ScanningCard.scss";
 import { THUMBNAIL_TYPES } from "../../../../sources/sources.lib.js";
 import { Thumbnail } from "../../../../sources/components/Thumbnail/Thumbnail.jsx";
-import { PinnedAnnotations } from "../PinnedAnnotations/PinnedAnnotations.jsx";
+import { PinnedAnnotations } from "../../../../sources/components/PinnedAnnotations/PinnedAnnotations.jsx";
 import { PhotometryChart } from "../../../../sources/components/PhotometryChart/PhotometryChart.jsx";
 import { memo, useState } from "react";
 import { ScanningCardSkeleton } from "./ScanningCardSkeleton.jsx";
@@ -66,7 +66,7 @@ const ScanningCardBase = ({
           ))}
         </div>
         <PinnedAnnotations
-          candidate={candidate}
+          source={candidate}
           onButtonClick={() => modal.current?.present()}
           pinnedAnnotationIds={pinnedAnnotations}
         />

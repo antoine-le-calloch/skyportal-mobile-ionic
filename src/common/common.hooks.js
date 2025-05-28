@@ -25,6 +25,37 @@ import { useIonToast } from "@ionic/react";
  */
 
 /**
+ * Custom hook to show error toast with optional infinite duration.
+ * @returns {(message: string, isInfinite?: boolean) => void}
+ */
+export const useErrorToast = () => {
+  const [presentToast] = useIonToast();
+
+  /**
+   * Display an error toast message
+   * @param {string} message - The error message to display.
+   * @param {boolean} [isInfinite=false] - Whether the toast should stay until manually dismissed.
+   */
+  return (message, isInfinite = false) => {
+    presentToast({
+      message,
+      position: "top",
+      color: "danger",
+      icon: warningOutline,
+      duration: isInfinite ? 0 : 2000,
+      buttons: isInfinite
+        ? [
+          {
+            text: "Close",
+            role: "cancel",
+          },
+        ]
+        : undefined,
+    }).then();
+  };
+};
+
+/**
  * @returns {{data: {userInfo: import("../onboarding/onboarding.lib.js").UserInfo|null, userProfile: import("../onboarding/onboarding.lib.js").UserProfile|null}, status: QueryStatus, error: any|undefined}}
  */
 export const useAppStart = () => {
@@ -198,33 +229,15 @@ export const useInstrumentForms = () => {
   };
 }
 
-/**
- * Custom hook to show error toast with optional infinite duration.
- * @returns {(message: string, isInfinite?: boolean) => void}
- */
-export const useErrorToast = () => {
-  const [presentToast] = useIonToast();
-
-  /**
-   * Display an error toast message
-   * @param {string} message - The error message to display.
-   * @param {boolean} [isInfinite=false] - Whether the toast should stay until manually dismissed.
-   */
-  return (message, isInfinite = false) => {
-    presentToast({
-      message,
-      position: "top",
-      color: "danger",
-      icon: warningOutline,
-      duration: isInfinite ? 0 : 2000,
-      buttons: isInfinite
-        ? [
-          {
-            text: "Close",
-            role: "cancel",
-          },
-        ]
-        : undefined,
-    }).then();
+export const useInstruments = () => {
+  const { userInfo } = useContext(UserContext);
+  const { data, status, error } = useQuery({
+    queryKey: [QUERY_KEYS.INSTRUMENTS],
+    queryFn: () => fetchInstrumentForms(userInfo),
+  });
+  return {
+    instruments: data,
+    status,
+    error,
   };
-};
+}
