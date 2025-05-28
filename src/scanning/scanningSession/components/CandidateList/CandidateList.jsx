@@ -28,7 +28,6 @@ import { useLocation } from "react-router";
 import { UserContext } from "../../../../common/common.context.js";
 import { CANDIDATES_PER_PAGE, QUERY_KEYS } from "../../../../common/common.lib.js";
 import { RequestFollowup } from "../../../../sources/components/RequestFollowup/RequestFollowup.jsx";
-import { AnnotationsViewerModal } from "../../../../sources/components/PinnedAnnotations/AnnotationsViewerModal.jsx";
 
 export const CandidateList = () => {
   const { userInfo } = useContext(UserContext);
@@ -73,8 +72,6 @@ export const CandidateList = () => {
   // @ts-ignore
   const [slidesInView, setSlidesInView] = useState([]);
 
-  /** @type {React.MutableRefObject<any>} */
-  const annotationsModal = useRef(null);
   /** @type {React.MutableRefObject<any>} */
   const requestFollowupModal = useRef(null);
 
@@ -437,7 +434,6 @@ export const CandidateList = () => {
                 <div key={candidate.id} className="embla__slide">
                   <ScanningCard
                     candidate={candidate}
-                    modal={annotationsModal}
                     currentIndex={index}
                     isInView={slidesInView.includes(index)}
                     // @ts-ignore
@@ -467,9 +463,6 @@ export const CandidateList = () => {
           onAction={handleToolbarAction}
           isDiscardingEnabled={isDiscardingEnabled}
         />
-      )}
-      { currentCandidate && (
-        <AnnotationsViewerModal source={currentCandidate} modal={annotationsModal}/>
       )}
       <IonModal ref={requestFollowupModal} isOpen={false} onDidDismiss={() => requestFollowupModal.current?.dismiss()} keepContentsMounted={true}>
         <IonHeader>
