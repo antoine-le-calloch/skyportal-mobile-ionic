@@ -154,12 +154,12 @@ export const getThumbnailHeader = (type) => {
 /**
  * Get the URL of the thumbnail image
  * @param {string} instanceUrl
- * @param {Candidate} candidate
+ * @param {Candidate | Source} source
  * @param {string} type
  * @returns {string|null}
  */
-export function getThumbnailImageUrl(instanceUrl, candidate, type) {
-  let thumbnail = candidate.thumbnails.find((t) => t.type === type);
+export function getThumbnailImageUrl(instanceUrl, source, type) {
+  let thumbnail = source.thumbnails.find((t) => t.type === type);
   if (!thumbnail) {
     return null;
   }
