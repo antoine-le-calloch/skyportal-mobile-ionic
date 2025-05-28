@@ -14,7 +14,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useEmblaCarousel from "embla-carousel-react";
 import { checkmarkCircleOutline, warningOutline } from "ionicons/icons";
 import { useErrorToast, useUserAccessibleGroups } from "../../../../common/common.hooks.js";
-import { CandidateAnnotationsViewer } from "../CandidateAnnotationsViewer/CandidateAnnotationsViewer.jsx";
 import { ScanningCard } from "../ScanningCard/ScanningCard.jsx";
 import { ScanningCardSkeleton } from "../ScanningCard/ScanningCardSkeleton.jsx";
 import { useSearchCandidates } from "../../../scanning.hooks.js";
@@ -29,6 +28,7 @@ import { useLocation } from "react-router";
 import { UserContext } from "../../../../common/common.context.js";
 import { CANDIDATES_PER_PAGE, QUERY_KEYS } from "../../../../common/common.lib.js";
 import { RequestFollowup } from "../../../../sources/components/RequestFollowup/RequestFollowup.jsx";
+import { AnnotationsViewerModal } from "../../../../sources/components/PinnedAnnotations/AnnotationsViewerModal.jsx";
 
 export const CandidateList = () => {
   const { userInfo } = useContext(UserContext);
@@ -468,17 +468,9 @@ export const CandidateList = () => {
           isDiscardingEnabled={isDiscardingEnabled}
         />
       )}
-      <IonModal
-        ref={annotationsModal}
-        isOpen={false}
-        initialBreakpoint={0.75}
-        breakpoints={[0, 0.25, 0.5, 0.75]}
-      >
-        <CandidateAnnotationsViewer
-          // @ts-ignore
-          candidate={currentCandidate}
-        />
-      </IonModal>
+      { currentCandidate && (
+        <AnnotationsViewerModal source={currentCandidate} modal={annotationsModal}/>
+      )}
       <IonModal ref={requestFollowupModal} isOpen={false} onDidDismiss={() => requestFollowupModal.current?.dismiss()} keepContentsMounted={true}>
         <IonHeader>
           <IonToolbar>

@@ -11,7 +11,7 @@ import { UserContext } from "../../../common/common.context.js";
 /**
  * @param {Object} props
  * @param {string} props.sourceId
- * @param {boolean} props.isInView
+ * @param {boolean} [props.isInView]
  * @returns {JSX.Element}
  */
 const PhotometryChartBase = ({ sourceId, isInView= true }) => {
