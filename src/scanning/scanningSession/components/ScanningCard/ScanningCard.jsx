@@ -14,7 +14,7 @@ import {
   IonTitle,
   IonToolbar
 } from "@ionic/react";
-import { CandidateSourceInfo } from "../CandidateSourceInfo/CandidateSourceInfo.jsx";
+import { SourceInfo } from "../../../../sources/components/SourceInfo/SourceInfo.jsx";
 import { FollowupRequests } from "../../../../sources/components/FollowupRequests/FollowupRequests.jsx";
 import { Comments } from "../../../../sources/components/Comments/Comments.jsx";
 import { SpectraList } from "../../../../sources/components/Spectra/SpectraList.jsx";
@@ -76,7 +76,7 @@ const ScanningCardBase = ({
             isInView={isInView}
           />
         </div>
-        <CandidateSourceInfo candidate={candidate} />
+        <SourceInfo source={candidate} />
         <Comments comments={candidate.comments} />
         <SpectraList candidate={candidate} />
         <FollowupRequests candidate={candidate} requestType={"triggered"} />

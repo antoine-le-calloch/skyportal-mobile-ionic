@@ -1,18 +1,18 @@
-import "./CandidateSourceInfo.scss";
+import "./SourceInfo.scss";
 import { IonButton, IonChip, IonItem, IonLabel, IonList } from "@ionic/react";
 
 /**
  * @param {Object} props
- * @param {import("../../../scanning.lib.js").Candidate} props.candidate
+ * @param {import("../../../scanning/scanning.lib.js").Candidate | import("../../sources.lib.js").Source} props.source
  * @returns {JSX.Element | null}
  */
-export const CandidateSourceInfo = ({candidate}) => {
+export const SourceInfo = ({source}) => {
   const mostRecentHumanClassification =
-    candidate.classifications?.filter((c) => (c?.ml === false || c?.ml === null) && c.probability > 0)
+    source.classifications?.filter((c) => (c?.ml === false || c?.ml === null) && c.probability > 0)
       ?.sort((a, b) => b.modified.localeCompare(a.modified))[0]?.classification || null;
 
   return (
-    <div className="section candidate-source-info">
+    <div className="section source-info">
       <div className="section-title section-padding">
         Source Info
       </div>
@@ -29,15 +29,15 @@ export const CandidateSourceInfo = ({candidate}) => {
           <IonLabel className="name">
             TNS Name:
           </IonLabel>
-          { candidate.tns_name && (
+          { source.tns_name && (
             <IonButton
               fill="outline"
               color="secondary"
-              href={`https://www.wis-tns.org/object/${candidate.tns_name.split(" ").pop()}`}
+              href={`https://www.wis-tns.org/object/${source.tns_name.split(" ").pop()}`}
               target="_blank"
               className="tns-name"
               >
-              {candidate.tns_name}
+              {source.tns_name}
             </IonButton>
           )}
         </IonItem>

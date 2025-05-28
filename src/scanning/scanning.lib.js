@@ -5,6 +5,7 @@
 /** @typedef {import("../sources/sources.lib.js").Thumbnail} Thumbnail */
 /** @typedef {import("../sources/sources.lib.js").Spectra} Spectra */
 /** @typedef {import("../sources/sources.lib.js").Photometry} Photometry */
+/** @typedef {import("../sources/sources.lib.js").Classification} Classification */
 
 /**
  * @typedef {Object} Candidate
@@ -15,7 +16,7 @@
  * @property {CandidateAnnotation[]} annotations - Annotations of the candidate
  * @property {boolean} is_source - Is the candidate has been saved
  * @property {Group[]} saved_groups - Groups the candidate has been saved to
- * @property {CandidateClassification[]} classifications - Classifications of the candidate
+ * @property {Classification[]} classifications - Classifications of the candidate
  * @property {FollowupRequest[]} followup_requests - Follow-up requests
  * @property {Comment[]} comments - Comments on the follow-up request
  * @property {string} tns_name - TNS name
@@ -30,14 +31,6 @@
  * @property {{[key: string]: string|number|Array<any>|undefined}} data - Annotation data
  * @property {number} author_id - Author ID
  * @property {Group[]} groups - Groups the annotation belongs to
- */
-
-/**
- * @typedef {Object} CandidateClassification
- * @property {string} modified - Modified date
- * @property {boolean} ml - Is the classification from machine learning
- * @property {number} probability - Probability of the classification
- * @property {string} classification - Classification
  */
 
 /**

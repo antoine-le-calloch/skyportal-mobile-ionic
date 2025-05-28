@@ -13,8 +13,12 @@
  * @property {string} id - Source ID
  * @property {number} ra - Right ascension
  * @property {number} dec - Declination
- * @property {string} tns_name
- * @property {string} created_at
+ * @property {string} tns_name - TNS name
+ * @property {string} created_at - Created date
+ * @property {Thumbnail[]} thumbnails - Thumbnails of the source
+ * @property {Comment[]} comments - Comments on the source
+ * @property {Group[]} groups - Groups the source belongs to
+ * @property {Classification[]} classifications - Classifications of the source
  */
 
 /**
@@ -81,6 +85,14 @@
  * @property {string|null} altdata - Alternative data
  * @property {string|null} ra_unc - Right ascension uncertainty
  * @property {string|null} dec_unc - Declination uncertainty
+ */
+
+/**
+ * @typedef {Object} Classification
+ * @property {string} modified - Modified date
+ * @property {boolean} ml - Is the classification from machine learning
+ * @property {number} probability - Probability of the classification
+ * @property {string} classification - Classification
  */
 
 /**
