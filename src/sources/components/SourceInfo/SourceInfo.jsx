@@ -1,5 +1,5 @@
 import "./SourceInfo.scss";
-import { IonButton, IonChip, IonItem, IonLabel, IonList } from "@ionic/react";
+import { IonButton, IonChip, IonItem, IonLabel, IonList, IonText } from "@ionic/react";
 
 /**
  * @param {Object} props
@@ -21,15 +21,15 @@ export const SourceInfo = ({source}) => {
           <IonLabel className="classification">
             Latest classification:
           </IonLabel>
-          {mostRecentHumanClassification && (
+          {mostRecentHumanClassification ? (
             <IonChip>{mostRecentHumanClassification}</IonChip>
-          )}
+          ) : (<IonText>...</IonText>)}
         </IonItem>
         <IonItem color="light" lines="none">
           <IonLabel className="name">
             TNS Name:
           </IonLabel>
-          { source.tns_name && (
+          { source.tns_name ? (
             <IonButton
               fill="outline"
               color="secondary"
@@ -39,7 +39,7 @@ export const SourceInfo = ({source}) => {
               >
               {source.tns_name}
             </IonButton>
-          )}
+          ) : (<IonText>...</IonText>)}
         </IonItem>
       </IonList>
     </div>
