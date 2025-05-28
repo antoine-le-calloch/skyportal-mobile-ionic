@@ -39,6 +39,12 @@ export async function fetchSource({ userInfo, sourceId, params = {} }) {
       Authorization: `token ${userInfo.token}`,
     },
     params: {
+      includeColorMagnitude: "true",
+      includeThumbnails: "true",
+      includeDetectionStats: "true",
+      includeLabellers: "true",
+      includeHosts: "true",
+      includeComments: "true",
       ...params,
     },
   });

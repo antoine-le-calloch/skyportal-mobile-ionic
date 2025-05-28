@@ -18,7 +18,11 @@ export const SourceListItem = ({ source, isFavorite }) => {
   const useAddToFavorites = useAddSourceToFavorites();
   const useRemoveFromFavorites = useRemoveSourceFromFavorites();
 
-  const handleToggleFavorite = () => {
+  /**
+   * @param {React.MouseEvent} e
+   */
+  const handleToggleFavorite = (e) => {
+    e.stopPropagation(); // Prevent the click event from bubbling up to the source item
     if (isFavorite) {
       useRemoveFromFavorites.mutate({ sourceId: source.id });
       setFavorite(false);
@@ -34,7 +38,7 @@ export const SourceListItem = ({ source, isFavorite }) => {
 
 
   return (
-    <div className="source-list-item" onClick={() => handleClickOnSource()}>
+    <div className="source-list-item" onClick={handleClickOnSource}>
       <div className="header">
         <div className="ids">
           <div className="sky-id">{source.id}</div>
@@ -42,7 +46,7 @@ export const SourceListItem = ({ source, isFavorite }) => {
         </div>
         <IonIcon className={`icon ${favorite ? "toggle" : ""}`}
                  icon={favorite ? star : starOutline}
-                 onClick={() => handleToggleFavorite()} />
+                 onClick={handleToggleFavorite} />
       </div>
       <div className="created">
         <div className="label">Created:</div>
