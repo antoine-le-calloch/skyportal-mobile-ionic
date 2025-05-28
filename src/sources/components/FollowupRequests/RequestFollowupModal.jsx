@@ -43,11 +43,11 @@ import { formatIsoDateString } from "../../../common/common.lib.js";
 
 /**
  * @param {object} props - The component props.
- * @param {string | undefined} props.obj_id - The object ID.
+ * @param {string | undefined} props.sourceId - The object ID.
  * @param {function} props.submitRequestCallback - The callback function to handle when the request is submitted.
  * @param {React.MutableRefObject<any>} props.modal - The modal reference.
  */
-export const RequestFollowupModal = ({ obj_id, submitRequestCallback, modal }) => {
+export const RequestFollowupModal = ({ sourceId, submitRequestCallback, modal }) => {
   const { allocationsApiClassname } = useAllocationsApiClassname();
   const { userAccessibleGroups } = useUserAccessibleGroups();
   const { instrumentForms } = useInstrumentForms();
@@ -173,9 +173,9 @@ export const RequestFollowupModal = ({ obj_id, submitRequestCallback, modal }) =
    */
   const handleSubmit = async ({ formData }) => {
     setLoading(true);
-    if (obj_id && selectedAllocationId) {
+    if (sourceId && selectedAllocationId) {
       await submitFollowupRequestMutation.mutateAsync({
-        sourceId: obj_id,
+        sourceId: sourceId,
         allocationId: selectedAllocationId,
         groupIds: selectedGroupIds,
         payload: formData,

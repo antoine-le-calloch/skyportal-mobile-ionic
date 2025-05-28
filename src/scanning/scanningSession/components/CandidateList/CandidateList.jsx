@@ -454,7 +454,7 @@ export const CandidateList = () => {
           isDiscardingEnabled={isDiscardingEnabled}
         />
       )}
-      <RequestFollowupModal obj_id={currentCandidate?.id} submitRequestCallback={handleFollowupRequestSubmitted} modal={requestFollowupModal} />
+      <RequestFollowupModal sourceId={currentCandidate?.id} submitRequestCallback={handleFollowupRequestSubmitted} modal={requestFollowupModal} />
     </div>
   );
 };
