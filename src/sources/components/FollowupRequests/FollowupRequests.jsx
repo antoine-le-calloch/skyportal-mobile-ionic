@@ -10,22 +10,23 @@ import { formatDateTime } from "../../../common/common.lib.js";
 import { FollowupRequestModal } from "./FollowupRequestModal.jsx";
 import { useState } from "react";
 
-/** @typedef {import("../../sources.lib.js").FollowupRequest} FollowupRequest */
 /** @typedef {import("../../../scanning/scanning.lib.js").Candidate} Candidate */
+/** @typedef {import("../../sources.lib.js").FollowupRequest} FollowupRequest */
+/** @typedef {import("../../sources.lib.js").Source} Source */
 
 
 /**
  * @param {Object} props
- * @param {Candidate} props.candidate
+ * @param {Candidate | Source} props.source
  * @param {string} [props.requestType="triggered"]
  * @returns {JSX.Element | null}
  */
-export const FollowupRequests = ({candidate, requestType = "triggered"}) => {
+export const FollowupRequests = ({source, requestType = "triggered"}) => {
   /** @type {[FollowupRequest | null, React.Dispatch<React.SetStateAction<FollowupRequest | null>>]} */
   // @ts-ignore
   const [openFollowupRequest, setOpenFollowupRequest] = useState(null);
 
-  const requestsByInstrument = candidate.followup_requests?.reduce((
+  const requestsByInstrument = source.followup_requests?.reduce((
     /** @type {Record<string, FollowupRequest[]>} */ acc,
     followupRequest) => {
     const { payload, allocation, status } = followupRequest;

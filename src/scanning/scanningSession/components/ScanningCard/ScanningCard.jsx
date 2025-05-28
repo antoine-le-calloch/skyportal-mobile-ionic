@@ -78,9 +78,9 @@ const ScanningCardBase = ({
         </div>
         <SourceInfo source={candidate} />
         <Comments comments={candidate.comments} />
-        <SpectraList candidate={candidate} />
-        <FollowupRequests candidate={candidate} requestType={"triggered"} />
-        <FollowupRequests candidate={candidate} requestType={"forced_photometry"}/>
+        <SpectraList sourceId={candidate.id} />
+        <FollowupRequests source={candidate} requestType={"triggered"} />
+        <FollowupRequests source={candidate} requestType={"forced_photometry"}/>
       </div>
       <ScanningCardSkeleton visible={!isInView} />
       {/* Saved groups modal */}

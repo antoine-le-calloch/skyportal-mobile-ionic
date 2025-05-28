@@ -10,15 +10,16 @@ import { useSourceSpectra } from "../../sources.hooks.js";
 
 /** @typedef {import("../../sources.lib.js").Spectra} Spectra */
 /** @typedef {import("../../../scanning/scanning.lib.js").Candidate} Candidate */
+/** @typedef {import("../../sources.lib.js").Source} Source */
 
 
 /**
  * @param {Object} props
- * @param {Candidate} props.candidate
+ * @param {string} props.sourceId - The ID of the source to fetch spectra for
  * @returns {JSX.Element | null}
  */
-export const SpectraList = ({candidate}) => {
-  const { spectraList } = useSourceSpectra(candidate.id);
+export const SpectraList = ({sourceId}) => {
+  const { spectraList } = useSourceSpectra(sourceId);
   /** @type {[Spectra | null, React.Dispatch<React.SetStateAction<Spectra | null>>]} */
   // @ts-ignore
   const [openSpectra, setOpenSpectra] = useState(null);
@@ -34,9 +35,9 @@ export const SpectraList = ({candidate}) => {
       <div className="section-title section-padding">
         Spectra
       </div>
-      {candidate.spectra && candidate.spectra.length > 0 ? (
+      {spectraList && spectraList.length > 0 ? (
         <IonList lines="full" color="light">
-          {candidate.spectra.map((/** @type {Spectra} */ spectra) => (
+          {spectraList.map((/** @type {Spectra} */ spectra) => (
             <IonItem key={spectra.id}
                      onClick={() => handleSpectraClick(spectra.id)}
                      color="light">

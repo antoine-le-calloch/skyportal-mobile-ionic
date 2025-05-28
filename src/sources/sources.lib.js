@@ -19,6 +19,7 @@
  * @property {Comment[]} comments - Comments on the source
  * @property {Group[]} groups - Groups the source belongs to
  * @property {Classification[]} classifications - Classifications of the source
+ * @property {FollowupRequest[]} followup_requests - Follow-up requests of the source
  */
 
 /**
