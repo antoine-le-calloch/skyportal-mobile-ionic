@@ -58,7 +58,7 @@ import { ScanningNewProfileScreen } from "./scanning/scanningOptions/screens/Sca
 import { ScanningProfilesScreen } from "./scanning/scanningOptions/screens/ScanningProfilesScreen/ScanningProfilesScreen.jsx";
 import { UserProfileTab } from "./userProfile/screens/UserProfileScreen/UserProfileTab.jsx";
 import { setDarkModeInDocument } from "./common/common.lib.js";
-import { Source } from "./sources/components/Source/Source";
+import { Source } from "./sources/screens/Source/Source";
 
 setupIonicReact();
 
