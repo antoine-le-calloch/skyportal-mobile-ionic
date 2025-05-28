@@ -1,12 +1,6 @@
 import "./CandidateList.scss";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import {
-  IonButton,
-  IonButtons, IonContent,
-  IonHeader,
-  IonModal,
-  IonTitle,
-  IonToolbar,
   useIonAlert,
   useIonToast
 } from "@ionic/react";
@@ -27,7 +21,7 @@ import { ScanningToolbar } from "../ScanningToolbar/ScanningToolbar.jsx";
 import { useLocation } from "react-router";
 import { UserContext } from "../../../../common/common.context.js";
 import { CANDIDATES_PER_PAGE, QUERY_KEYS } from "../../../../common/common.lib.js";
-import { RequestFollowup } from "../../../../sources/components/RequestFollowup/RequestFollowup.jsx";
+import { RequestFollowupModal } from "../../../../sources/components/FollowupRequests/RequestFollowupModal.jsx";
 
 export const CandidateList = () => {
   const { userInfo } = useContext(UserContext);
@@ -74,8 +68,6 @@ export const CandidateList = () => {
 
   /** @type {React.MutableRefObject<any>} */
   const requestFollowupModal = useRef(null);
-
-  const [submitRequest, setSubmitRequest] = useState(false);
   const [isLastBatch, setIsLastBatch] = useState(false);
 
   /** @type {React.MutableRefObject<import("../../../scanning.lib.js").ScanningRecap>} */
@@ -360,8 +352,6 @@ export const CandidateList = () => {
    * @param {boolean} isSubmitted
    */
   const handleFollowupRequestSubmitted = async (isSubmitted) => {
-    setSubmitRequest(false);
-
     if (!isSubmitted || !state || !currentCandidate) return
 
     // Update the list of followup requests for the current candidate
@@ -464,30 +454,7 @@ export const CandidateList = () => {
           isDiscardingEnabled={isDiscardingEnabled}
         />
       )}
-      <IonModal ref={requestFollowupModal} isOpen={false} onDidDismiss={() => requestFollowupModal.current?.dismiss()} keepContentsMounted={true}>
-        <IonHeader>
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonButton color="secondary" onClick={() => requestFollowupModal.current?.dismiss()}>Close</IonButton>
-            </IonButtons>
-            <IonTitle slot="start">Request Follow-Up</IonTitle>
-            <IonButtons slot="primary">
-              <IonButton
-                fill="solid"
-                color="primary"
-                onClick={() => setSubmitRequest(true)}>
-                Submit
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent>
-          <RequestFollowup obj_id={currentCandidate?.id}
-                           submitRequest={submitRequest}
-                           submitRequestCallback={(/** @type {boolean} */ isSubmitted) => handleFollowupRequestSubmitted(isSubmitted)}
-          />
-        </IonContent>
-      </IonModal>
+      <RequestFollowupModal obj_id={currentCandidate?.id} submitRequestCallback={handleFollowupRequestSubmitted} modal={requestFollowupModal} />
     </div>
   );
 };
