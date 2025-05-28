@@ -2,7 +2,7 @@ import "./ScanningCard.scss";
 import { THUMBNAIL_TYPES } from "../../../../sources/sources.lib.js";
 import { Thumbnail } from "../../../../sources/components/Thumbnail/Thumbnail.jsx";
 import { PinnedAnnotations } from "../PinnedAnnotations/PinnedAnnotations.jsx";
-import { CandidatePhotometryChart } from "../CandidatePhotometryChart/CandidatePhotometryChart.jsx";
+import { PhotometryChart } from "../../../../sources/components/PhotometryChart/PhotometryChart.jsx";
 import { memo, useState } from "react";
 import { ScanningCardSkeleton } from "./ScanningCardSkeleton.jsx";
 import {
@@ -62,7 +62,7 @@ const ScanningCardBase = ({
         </div>
         <div className="thumbnails-container">
           {Object.keys(THUMBNAIL_TYPES).map((type) => (
-            <Thumbnail key={type} candidate={candidate} type={type} />
+            <Thumbnail key={type} source={candidate} type={type} />
           ))}
         </div>
         <PinnedAnnotations
@@ -71,8 +71,8 @@ const ScanningCardBase = ({
           pinnedAnnotationIds={pinnedAnnotations}
         />
         <div className="plot-container">
-          <CandidatePhotometryChart
-            candidateId={candidate.id}
+          <PhotometryChart
+            sourceId={candidate.id}
             isInView={isInView}
           />
         </div>
