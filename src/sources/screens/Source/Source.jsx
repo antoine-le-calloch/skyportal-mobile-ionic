@@ -1,6 +1,7 @@
 import "./Source.scss";
 import {
   IonBackButton,
+  IonButton,
   IonButtons,
   IonChip,
   IonContent,
@@ -31,6 +32,9 @@ import {
 } from "../../components/PinnedAnnotations/AnnotationsViewerModal.jsx";
 import { GroupsModal } from "../../components/GroupsModal/GroupsModal.jsx";
 import { SourceSkeleton } from "./SourceSkeleton.jsx";
+import { RequestFollowupModal } from "../../components/FollowupRequests/RequestFollowupModal.jsx";
+import { QUERY_KEYS } from "../../../common/common.lib.js";
+import { useQueryClient } from "@tanstack/react-query";
 
 /**
  * @typedef {Object} RouteParams
@@ -40,18 +44,35 @@ import { SourceSkeleton } from "./SourceSkeleton.jsx";
 export function Source() {
   /** @type {RouteParams} */
   const { sourceId } = useParams();
+  const queryClient = useQueryClient();
   const { source } = useFetchSource({ sourceId });
   const [loading, setLoading] = useState(true);
   /** @type {React.MutableRefObject<any>} */
   const annotationsModal = useRef(null);
   /** @type {React.MutableRefObject<any>} */
   const groupsModal = useRef(null);
+  /** @type {React.MutableRefObject<any>} */
+  const requestFollowupModal = useRef(null);
 
   useEffect(() => {
     if (source !== undefined) {
       setLoading(false);
     }
   }, [source]);
+
+  /**
+   * @param {boolean} isSubmitted
+   */
+  const handleFollowupRequestSubmitted = async (isSubmitted) => {
+    if (isSubmitted) {
+      queryClient.invalidateQueries({
+        queryKey: [
+          QUERY_KEYS.SOURCE,
+          sourceId
+        ],
+      });
+    }
+  };
 
   return (
     <IonPage>
@@ -102,10 +123,14 @@ export function Source() {
               <SpectraList sourceId={source.id} />
               <FollowupRequests source={source} requestType={"triggered"} />
               <FollowupRequests source={source} requestType={"forced_photometry"}/>
+              <IonButton fill="outline" onClick={() => requestFollowupModal.current?.present()}>
+                Request follow-up
+              </IonButton>
             </div>
             {/* Modals */}
             <GroupsModal groups={source.groups} title={`Saved to ${source.groups.length} groups`} modal={groupsModal} />
             <AnnotationsViewerModal source={source} modal={annotationsModal}/>
+            <RequestFollowupModal sourceId={source.id} submitRequestCallback={handleFollowupRequestSubmitted} modal={requestFollowupModal} />
           </div>
           ) :
           <div className="source-page">
