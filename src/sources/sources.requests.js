@@ -55,11 +55,12 @@ export async function fetchSource({ userInfo, sourceId, params = {} }) {
  * @param {Object} params
  * @param {import("../onboarding/onboarding.lib.js").UserInfo} params.userInfo
  * @param {string} params.sourceId
- * @param {number[]} params.groupIds
+ * @param {string[]} params.groupIdsToAdd
+ * @param {string[]} params.groupIdsToRemove
  * @returns {Promise<any>}
  */
-export const addSourceToGroups = async ({ userInfo, sourceId, groupIds }) => {
-  let response = await CapacitorHttp.post({
+export const updateSourceGroups = async ({ userInfo, sourceId, groupIdsToAdd, groupIdsToRemove }) => {
+  return await CapacitorHttp.post({
     url: `${userInfo.instance.url}/api/source_groups`,
     headers: {
       Authorization: `token ${userInfo.token}`,
@@ -67,10 +68,10 @@ export const addSourceToGroups = async ({ userInfo, sourceId, groupIds }) => {
     },
     data: {
       objId: sourceId,
-      inviteGroupIds: groupIds,
+      inviteGroupIds: groupIdsToAdd,
+      unsaveGroupIds: groupIdsToRemove,
     },
   });
-  return response.data.data;
 };
 
 /**

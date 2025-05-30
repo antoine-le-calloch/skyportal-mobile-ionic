@@ -8,12 +8,13 @@ import {
   fetchSource,
   fetchSourceSpectra,
   removeFromFavorites,
-  submitFollowupRequest
+  submitFollowupRequest,
+  updateSourceGroups
 } from "./sources.requests.js";
 import { fetchSources } from "./sources.requests.js";
 import { checkmarkCircleOutline } from "ionicons/icons";
 import { useIonToast } from "@ionic/react";
-import { useErrorToast } from "../common/common.hooks.js";
+import { useErrorToast, useUserAccessibleGroups } from "../common/common.hooks.js";
 
 /** @typedef {import("../common/common.hooks.js").QueryStatus} QueryStatus */
 
@@ -216,5 +217,48 @@ export const useRemoveSourceFromFavorites = () => {
     },
     onError: () =>
       errorToast("Failed to remove this source from favorites"),
+  });
+}
+
+export const useUpdateSourceGroups = () => {
+  const { userInfo } = useContext(UserContext);
+  const { userAccessibleGroups } = useUserAccessibleGroups();
+  const [presentToast] = useIonToast();
+  const errorToast = useErrorToast();
+
+  /** @param {string} groupId */
+  const groupName = (groupId) => {
+    return userAccessibleGroups?.find((g) => g.id === parseInt(groupId))?.name || groupId;
+  };
+
+  return useMutation({
+    /**
+     * @param {Object} params
+     * @param {string} params.sourceId
+     * @param {string[]} [params.groupIdsToAdd]
+     * @param {string[]} [params.groupIdsToRemove]
+     * @returns {Promise<*>}
+     */
+    mutationFn: ({ sourceId, groupIdsToAdd=[], groupIdsToRemove=[] }) =>
+      updateSourceGroups({ userInfo, sourceId, groupIdsToAdd, groupIdsToRemove }),
+    onSuccess: (response, { groupIdsToAdd = [], groupIdsToRemove = [] }) => {
+      if (response.status !== 200) {
+        errorToast("Failed to update source groups: " + response.data?.message || "Unknown error");
+        return;
+      }
+
+      const added = groupIdsToAdd.length > 0 ? `added to groups: ${groupIdsToAdd.map(groupName).join(", ")}`: "";
+      const removed = groupIdsToRemove.length > 0 ? `removed from groups: ${groupIdsToRemove.map(groupName).join(", ")}`: "";
+      const message = [added, removed].filter(Boolean).join(" and ");
+      presentToast({
+        message: `Source ${message}`,
+        duration: 2000,
+        position: "top",
+        color: "success",
+        icon: checkmarkCircleOutline,
+      });
+    },
+    onError: () =>
+      errorToast("Failed to update source groups"),
   });
 }
