@@ -19,12 +19,7 @@ export const SourceList = ({ filter, searchName }) => {
     params: {
       ...searchName.trim() !== "" ? { sourceID: searchName } : {},
       ...filter === "favorites" ? { listName: "favorites" } : {},
-      includeColorMagnitude: "true",
-      includeThumbnails: "true",
-      includeDetectionStats: "true",
-      includeLabellers: "true",
-      includeHosts: "true",
-    },
+    }
   });
 
   return (
