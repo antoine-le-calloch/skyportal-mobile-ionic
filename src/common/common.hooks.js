@@ -13,7 +13,7 @@ import { useContext } from "react";
 import { UserContext } from "./common.context.js";
 import { clearPreference, getPreference, QUERY_KEYS, setPreference } from "./common.lib.js";
 import { warningOutline } from "ionicons/icons";
-import { useIonToast } from "@ionic/react";
+import { useIonAlert, useIonToast } from "@ionic/react";
 
 /**
  * @typedef {"success" | "error" | "pending"} QueryStatus
@@ -30,7 +30,6 @@ import { useIonToast } from "@ionic/react";
  */
 export const useErrorToast = () => {
   const [presentToast] = useIonToast();
-
   /**
    * Display an error toast message
    * @param {string} message - The error message to display.
@@ -53,6 +52,38 @@ export const useErrorToast = () => {
         : undefined,
     }).then();
   };
+};
+
+/**
+ * Custom hook to show a confirmation alert
+ * @returns {(message: string) => Promise<boolean>}
+ */
+export const useConfirmAlert = () => {
+  const [presentAlert] = useIonAlert();
+
+  /**
+   * Prompt a confirmation alert
+   * @param {string} message - The message to display in the alert.
+   * @return {Promise<boolean>} - Resolves to true if confirmed, false if cancelled.
+   */
+  return (message) => new Promise((resolve) => {
+    presentAlert({
+      header: "Are you sure?",
+      message: message,
+      buttons: [
+        {
+          text: "Cancel",
+          role: "cancel",
+          handler: () => resolve(false),
+        },
+        {
+          text: "Confirm",
+          role: "destructive",
+          handler: () => resolve(true),
+        },
+      ],
+    });
+  });
 };
 
 /**
