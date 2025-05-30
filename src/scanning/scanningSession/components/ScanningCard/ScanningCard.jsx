@@ -47,7 +47,7 @@ const ScanningCardBase = ({
             className="is-saved"
             color={candidate.is_source ? "primary" : "secondary"}
             onClick={() => {
-              if (candidate.is_source) groupsModal.current.present();
+              if (candidate.is_source) groupsModal.current?.present();
             }}
           >
             {candidate.is_source ? "Previously Saved" : "Not saved"}
