@@ -130,6 +130,8 @@ export const ScanningOptionsForm = () => {
     const startDate = moment(data.startDate).format();
     const endDate = moment(data.endDate).format();
     const junkGroupIDs = data.junkGroups;
+    const discardBehavior = data.discardBehavior;
+    const discardGroup = data.discardGroup;
     const pinnedAnnotations = data.pinnedAnnotations;
 
     const response = await searchCandidatesMutation.mutateAsync({
@@ -143,7 +145,9 @@ export const ScanningOptionsForm = () => {
     history.push("/scanning/result", {
       ...response,
       junkGroupIDs,
-      pinnedAnnotations,
+      discardBehavior,
+      discardGroup,
+      pinnedAnnotations
     });
   };
 

@@ -8,7 +8,7 @@ import { Controller } from "react-hook-form";
  * @param {Omit<import("react-hook-form").RegisterOptions<any, string>, "setValueAs" | "disabled" | "valueAsNumber" | "valueAsDate"> | undefined} [props.rules]
  * @param {string} props.name
  * @param {React.MutableRefObject<import("@ionic/react").IonModal<any> | undefined>} props.modal
- * @param {Array<{text: string, value: string}>} props.items
+ * @param {Array<{text: string, value: string | number}>} props.items
  * @param {string} props.title
  * @returns {JSX.Element}
  */

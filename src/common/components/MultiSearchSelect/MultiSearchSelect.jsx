@@ -17,7 +17,7 @@ import {
  * @param {Object} props
  * @param {string} props.title
  * @param {React.MutableRefObject<any>} props.modal
- * @param {Array<{text: string, value: string}>} props.items
+ * @param {Array<{text: string, value: number | string}>} props.items
  * @param {Array<string>} props.selectedItems
  * @param {(selectedItems: Array<string>) => void} props.onSelectionChange
  * @param {() => any} [props.onSelectionCancel]
@@ -37,7 +37,7 @@ export const MultiSearchSelect = ({
   ]);
 
   /**
-   * @param {string} value
+   * @param {number | string} value
    * @returns {boolean}
    */
   const isChecked = (value) => {
