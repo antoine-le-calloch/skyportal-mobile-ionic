@@ -1,8 +1,11 @@
 import {
   IonContent,
+  IonFooter,
   IonHeader,
   IonLabel,
   IonLoading,
+  IonPage,
+  IonSearchbar,
   IonSegment,
   IonSegmentButton,
   IonTitle,
@@ -15,32 +18,43 @@ export const SourceListTab = () => {
   /** @type {import("react").useState<"all" | "favorites">} */
   // @ts-ignore
   const [segment, setSegment] = useState("all");
+  /** @type {import("react").useState<string | null | undefined>} */
+  // @ts-ignore
+  const [searchName, setSearchName] = useState("");
 
   return (
-    <>
+    <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonTitle>Sources</IonTitle>
         </IonToolbar>
+        <IonToolbar>
+          <IonSearchbar
+            debounce={500}
+            value={searchName}
+            onIonInput={(e) => setSearchName(e.detail.value)}
+            placeholder="Search by name"
+          />
+        </IonToolbar>
       </IonHeader>
-
-      <IonSegment
-        value={segment}
-        onIonChange={(e) => setSegment(e.detail.value)}
-      >
-        <IonSegmentButton value="all">
-          <IonLabel>All</IonLabel>
-        </IonSegmentButton>
-        <IonSegmentButton value="favorites">
-          <IonLabel>Favorites</IonLabel>
-        </IonSegmentButton>
-      </IonSegment>
-
       <IonContent>
         <Suspense fallback={<IonLoading isOpen={true} />}>
-          <SourceList filter={segment} />
+          <SourceList filter={segment} searchName={searchName} />
         </Suspense>
       </IonContent>
-    </>
+      <IonFooter>
+        <IonSegment
+          value={segment}
+          onIonChange={(e) => setSegment(e.detail.value)}
+        >
+          <IonSegmentButton value="all">
+            <IonLabel>All</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="favorites">
+            <IonLabel>Favorites</IonLabel>
+          </IonSegmentButton>
+        </IonSegment>
+      </IonFooter>
+    </IonPage>
   );
 };
