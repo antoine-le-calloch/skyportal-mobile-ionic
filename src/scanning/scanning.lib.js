@@ -33,11 +33,12 @@
  * @property {string} startDate
  * @property {string} endDate
  * @property {import("../common/common.lib.js").SavedStatus} savedStatus
- * @property {DiscardBehavior} discardBehavior
  * @property {number[]} saveGroupIds
  * @property {Group[]} saveGroups
  * @property {number[]} junkGroupIDs
  * @property {Group[]} junkGroups
+ * @property {DiscardBehavior} discardBehavior
+ * @property {number|null} discardGroup - Group to discard candidates to, if discardBehavior is "specific"
  * @property {string[]} pinnedAnnotations
  * @property {string} queryID
  * @property {number} totalMatches
