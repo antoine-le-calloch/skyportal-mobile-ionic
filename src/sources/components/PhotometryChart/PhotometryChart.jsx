@@ -1,20 +1,20 @@
-import "./CandidatePhotometryChart.scss";
+import "./PhotometryChart.scss";
 import { memo, useContext, useEffect, useRef, useState } from "react";
 import embed from "vega-embed";
-import { getVegaPlotSpec } from "../../../scanning.lib.js";
-import { useBandpassesColors } from "../../../../common/common.hooks.js";
+import { getVegaPlotSpec } from "../../../scanning/scanning.lib.js";
+import { useBandpassesColors } from "../../../common/common.hooks.js";
 import { IonSkeletonText } from "@ionic/react";
-import { fetchSourcePhotometry } from "../../../../sources/sources.requests.js";
+import { fetchSourcePhotometry } from "../../sources.requests.js";
 import { useMutation } from "@tanstack/react-query";
-import { UserContext } from "../../../../common/common.context.js";
+import { UserContext } from "../../../common/common.context.js";
 
 /**
  * @param {Object} props
- * @param {string} props.candidateId
- * @param {boolean} props.isInView
+ * @param {string} props.sourceId
+ * @param {boolean} [props.isInView]
  * @returns {JSX.Element}
  */
-const CandidatePhotometryChartBase = ({ candidateId, isInView }) => {
+const PhotometryChartBase = ({ sourceId, isInView= true }) => {
   const { userInfo } = useContext(UserContext);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [loaderIsHidden, setLoaderIsHidden] = useState(false);
@@ -28,7 +28,7 @@ const CandidatePhotometryChartBase = ({ candidateId, isInView }) => {
   const mountMutation = useMutation({
     mutationFn: async () => {
       const photometry = await fetchSourcePhotometry({
-        sourceId: candidateId,
+        sourceId: sourceId,
         userInfo,
       });
       if (!container.current || !bandpassesColors || !photometry) {
@@ -88,7 +88,7 @@ const CandidatePhotometryChartBase = ({ candidateId, isInView }) => {
   }, [hasLoaded, loaderIsHidden]);
 
   return (
-    <div className="candidate-photometry-chart">
+    <div className="photometry-chart">
       <div
         className="canvas-container"
         ref={container}
@@ -106,4 +106,4 @@ const CandidatePhotometryChartBase = ({ candidateId, isInView }) => {
   );
 };
 
-export const CandidatePhotometryChart = memo(CandidatePhotometryChartBase);
+export const PhotometryChart = memo(PhotometryChartBase);

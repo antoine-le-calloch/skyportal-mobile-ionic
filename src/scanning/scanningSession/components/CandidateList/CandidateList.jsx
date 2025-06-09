@@ -1,66 +1,49 @@
 import "./CandidateList.scss";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router";
 import {
-  IonButton,
-  IonButtons, IonContent,
-  IonHeader,
-  IonModal,
-  IonTitle,
-  IonToolbar,
   useIonAlert,
-  useIonToast
 } from "@ionic/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import useEmblaCarousel from "embla-carousel-react";
-import { checkmarkCircleOutline, warningOutline } from "ionicons/icons";
-import { useErrorToast, useUserAccessibleGroups } from "../../../../common/common.hooks.js";
-import { CandidateAnnotationsViewer } from "../CandidateAnnotationsViewer/CandidateAnnotationsViewer.jsx";
+import { useConfirmAlert, useErrorToast, useUserAccessibleGroups } from "../../../../common/common.hooks.js";
 import { ScanningCard } from "../ScanningCard/ScanningCard.jsx";
 import { ScanningCardSkeleton } from "../ScanningCard/ScanningCardSkeleton.jsx";
 import { useSearchCandidates } from "../../../scanning.hooks.js";
-import { addSourceToGroups, fetchFollowupRequest } from "../../../../sources/sources.requests.js";
-import {
-  parseIntList,
-  SCANNING_TOOLBAR_ACTION,
-} from "../../../scanning.lib.js";
+import { useUpdateSourceGroups } from "../../../../sources/sources.hooks.js";
+import { fetchFollowupRequest } from "../../../../sources/sources.requests.js";
+import { SCANNING_TOOLBAR_ACTION } from "../../../scanning.lib.js";
 import { ScanningEnd } from "../ScanningEnd/ScanningEnd.jsx";
 import { ScanningToolbar } from "../ScanningToolbar/ScanningToolbar.jsx";
-import { useLocation } from "react-router";
 import { UserContext } from "../../../../common/common.context.js";
 import { CANDIDATES_PER_PAGE, QUERY_KEYS } from "../../../../common/common.lib.js";
-import { RequestFollowup } from "../../../../sources/components/RequestFollowup/RequestFollowup.jsx";
+import { RequestFollowupModal } from "../../../../sources/components/FollowupRequests/RequestFollowupModal.jsx";
 
 export const CandidateList = () => {
   const { userInfo } = useContext(UserContext);
   const queryClient = useQueryClient();
   const { userAccessibleGroups } = useUserAccessibleGroups();
+  const updateSourceGroups = useUpdateSourceGroups();
 
   /** @type {{state: any}} */
   const { state } = useLocation();
+
+  /**
+   * @param {number[]|undefined} ids
+   * @param {import("../../../scanning.lib.js").Group[] | undefined} availableGroups
+   */
+  const resolveGroups = (ids, availableGroups) => {
+    return (ids ?? []).map((id) => availableGroups?.find((g) => g.id === id))
+      .filter((g) => g !== undefined);
+  }
 
   /** @type {import("../../../scanning.lib.js").ScanningConfig|undefined} */
   let scanningConfig = undefined;
   if (state) {
     scanningConfig = {
       ...state,
-      /** @type {import("../../../scanning.lib.js").Group[]} **/
-      saveGroups: userAccessibleGroups
-        ? state.saveGroupIds?.map((/** @type {number} */ id) =>
-              userAccessibleGroups.find((g) => g.id === id),
-            )
-            .filter(
-              (
-                /** @type {import("../../../scanning.lib.js").Group | undefined} */ g,
-              ) => g !== undefined,
-            )
-        : [],
-      /** @type {import("../../../scanning.lib.js").Group[]} **/
-      // @ts-ignore
-      junkGroups: userAccessibleGroups
-        ? parseIntList(state.junkGroupIDs)
-            .map((id) => userAccessibleGroups.find((g) => g.id === id))
-            .filter((g) => g !== undefined)
-        : [],
+      saveGroups: resolveGroups(state.saveGroupIds, userAccessibleGroups),
+      junkGroups: resolveGroups(state.junkGroupIDs, userAccessibleGroups),
       pinnedAnnotations: state.pinnedAnnotations,
       queryID: state.queryID,
       totalMatches: state.totalMatches,
@@ -74,11 +57,7 @@ export const CandidateList = () => {
   const [slidesInView, setSlidesInView] = useState([]);
 
   /** @type {React.MutableRefObject<any>} */
-  const annotationsModal = useRef(null);
-  /** @type {React.MutableRefObject<any>} */
   const requestFollowupModal = useRef(null);
-
-  const [submitRequest, setSubmitRequest] = useState(false);
   const [isLastBatch, setIsLastBatch] = useState(false);
 
   /** @type {React.MutableRefObject<import("../../../scanning.lib.js").ScanningRecap>} */
@@ -95,8 +74,8 @@ export const CandidateList = () => {
   const candidates = data?.pages.map((page) => page.candidates).flat(1);
   const currentCandidate = candidates?.at(currentIndex);
 
-  const [presentToast] = useIonToast();
   const [presentAlert] = useIonAlert();
+  const confirmAlert = useConfirmAlert();
   const errorToast = useErrorToast();
 
   useEffect(() => {
@@ -139,89 +118,10 @@ export const CandidateList = () => {
     };
   }, [emblaApi, currentIndex, isFetchingNextPage, fetchNextPage, data]);
 
-  const saveSourceMutation = useMutation({
-    /**
-     * @param {Object} params
-     * @param {string} params.sourceId
-     * @param {number[]} params.groupIds
-     * @returns {Promise<*>}
-     */
-    mutationFn: ({ sourceId, groupIds }) =>
-      addSourceToGroups({ userInfo, sourceId, groupIds }),
-    onSuccess: (_data, variables) =>
-      presentToast({
-        message:
-          `Source saved to group${variables.groupIds.length > 1 ? "s" : ""} ` +
-          variables.groupIds
-            .map(
-              (g) =>
-                userAccessibleGroups?.find((group) => group.id === g)?.name,
-            )
-            .filter((g) => g !== undefined)
-            .join(","),
-        duration: 2000,
-        position: "top",
-        color: "success",
-        icon: checkmarkCircleOutline,
-      }),
-    onError: () =>
-      errorToast("Failed to save source"),
-  });
-
-  const discardSourceMutation = useMutation({
-    /**
-     * @param {Object} params
-     * @param {string} params.sourceId
-     * @param {number[]} params.groupIds
-     * @returns {Promise<*>}
-     */
-    mutationFn: async ({ sourceId, groupIds }) => {
-      const areYouSure = await new Promise((resolve) => {
-        presentAlert({
-          header: "Are you sure?",
-          message: "Do you want to discard this source?",
-          buttons: [
-            {
-              text: "Cancel",
-              role: "cancel",
-            },
-            {
-              text: "Discard",
-              role: "destructive",
-              handler: () => resolve(true),
-            },
-          ],
-        });
-      });
-      if (!areYouSure) {
-        return;
-      }
-      return await addSourceToGroups({ userInfo, sourceId, groupIds });
-    },
-    onSuccess: (_data, variables) =>
-      presentToast({
-        message:
-          `Source discarded to group${variables.groupIds.length > 1 ? "s" : ""} ` +
-          variables.groupIds
-            .map(
-              (g) =>
-                userAccessibleGroups?.find((group) => group.id === g)?.name,
-            )
-            .filter((g) => g !== undefined)
-            .join(","),
-        duration: 2000,
-        position: "top",
-        color: "secondary",
-        icon: checkmarkCircleOutline,
-      }),
-    onError: () =>
-      errorToast("Failed to discard source"),
-  });
-
   const promptUserForGroupSelection = useCallback(
     /**
      * @param {"save"|"discard"} action
-     * @returns {Promise<number[]>}
+     * @returns {Promise<string[]>}
      */
     (action) =>
       new Promise((resolve, reject) => {
@@ -238,17 +138,19 @@ export const CandidateList = () => {
             ? scanningConfig.saveGroups
             : scanningConfig.junkGroups
           ).map((group) => ({
+            disabled: currentCandidate.saved_groups.some((g) => g.id === group.id),
             type: "checkbox",
             label: group.name,
             value: String(group.id),
           })),
           onDidDismiss: (/** @type {any} **/ e) => {
-            const groupIds = e.detail.data.values;
-            resolve(groupIds);
+            if (e.detail.data !== undefined) {
+              resolve(e.detail.data.values);
+            }
           },
-        }).then()
+        })
       }),
-    [state, currentCandidate, presentAlert],
+    [state, currentCandidate, presentAlert, scanningConfig, userAccessibleGroups],
   );
 
   const handleSave = useCallback(async () => {
@@ -256,45 +158,22 @@ export const CandidateList = () => {
       return;
     }
     if (scanningConfig.saveGroupIds.length > 1) {
-      let groupIds = await promptUserForGroupSelection("save");
-      if (groupIds.length > 0) {
-        saveSourceMutation.mutate({
+      const groupIdsToAdd = await promptUserForGroupSelection("save");
+      if (groupIdsToAdd.length > 0) {
+        updateSourceGroups.mutate({
           sourceId: currentCandidate.id,
-          groupIds,
+          groupIdsToAdd,
         });
       }else{
-        await presentToast({
-          message: "No group selected, please select at least one group",
-          duration: 2000,
-          position: "top",
-          color: "danger",
-          icon: warningOutline,
-        });
+        errorToast("No group selected, please select at least one group");
       }
     } else {
-      const areYouSure = await new Promise((resolve) => {
-        presentAlert({
-          header: "Are you sure?",
-          message: "Do you want to save this source?",
-          buttons: [
-            {
-              text: "Cancel",
-              role: "cancel",
-            },
-            {
-              text: "Save",
-              role: "confirm",
-              handler: () => resolve(true),
-            },
-          ],
-        });
-      });
-      if (!areYouSure) {
-        return;
-      }
-      saveSourceMutation.mutate({
+      const confirmed = await confirmAlert("Do you want to save this source?");
+      if (!confirmed)return;
+
+      updateSourceGroups.mutate({
         sourceId: currentCandidate.id,
-        groupIds: scanningConfig.saveGroupIds,
+        groupIdsToAdd: scanningConfig.saveGroupIds.map(String),
       });
     }
     scanningRecap.current = {
@@ -307,41 +186,36 @@ export const CandidateList = () => {
     if (!currentCandidate || !scanningConfig) {
       return;
     }
+    let groupIdsToAdd;
     if (scanningConfig.discardBehavior === "ask") {
-      let groupIds = await promptUserForGroupSelection("discard");
-      discardSourceMutation.mutate({
-        sourceId: currentCandidate.id,
-        groupIds,
-      });
+      groupIdsToAdd = await promptUserForGroupSelection("discard");
+      if (groupIdsToAdd.length === 0) {
+        errorToast("No group selected, please select at least one group");
+        return;
+      }
     } else {
-      discardSourceMutation.mutate({
-        sourceId: currentCandidate.id,
-        groupIds: scanningConfig.junkGroupIDs,
-      });
+      groupIdsToAdd = (scanningConfig.discardBehavior === "specific" && scanningConfig.discardGroup ?
+        [scanningConfig.discardGroup] : scanningConfig.junkGroupIDs.map(String))
+        .filter((id) => !currentCandidate.saved_groups.some((g) => g.id === id),
+      ).map(String);
+      if (groupIdsToAdd.length === 0) {
+        errorToast("This candidate is already in the selected junk groups");
+        return;
+      }
     }
+
+    const confirmed = await confirmAlert("Do you want to discard this source?");
+    if (!confirmed) return;
+
+    updateSourceGroups.mutate({
+      sourceId: currentCandidate.id,
+      groupIdsToAdd,
+    });
   }, [currentCandidate, state]);
 
   const handleExit = useCallback(async () => {
-    const areYouSure = await new Promise((resolve) => {
-      presentAlert({
-        header: "Are you sure?",
-        message: "Do you want to exit the scanning session?",
-        buttons: [
-          {
-            text: "Cancel",
-            role: "cancel",
-          },
-          {
-            text: "Exit",
-            role: "destructive",
-            handler: () => resolve(true),
-          },
-        ],
-      });
-    });
-    if (areYouSure) {
-      history.back();
-    }
+    const confirmed = await confirmAlert("Do you want to exit the scanning session?");
+    if (confirmed) history.back();
   }, [presentAlert]);
 
   const isDiscardingEnabled = (scanningConfig?.junkGroupIDs?.length ?? 0) > 0;
@@ -363,8 +237,6 @@ export const CandidateList = () => {
    * @param {boolean} isSubmitted
    */
   const handleFollowupRequestSubmitted = async (isSubmitted) => {
-    setSubmitRequest(false);
-
     if (!isSubmitted || !state || !currentCandidate) return
 
     // Update the list of followup requests for the current candidate
@@ -437,7 +309,6 @@ export const CandidateList = () => {
                 <div key={candidate.id} className="embla__slide">
                   <ScanningCard
                     candidate={candidate}
-                    modal={annotationsModal}
                     currentIndex={index}
                     isInView={slidesInView.includes(index)}
                     // @ts-ignore
@@ -468,41 +339,7 @@ export const CandidateList = () => {
           isDiscardingEnabled={isDiscardingEnabled}
         />
       )}
-      <IonModal
-        ref={annotationsModal}
-        isOpen={false}
-        initialBreakpoint={0.75}
-        breakpoints={[0, 0.25, 0.5, 0.75]}
-      >
-        <CandidateAnnotationsViewer
-          // @ts-ignore
-          candidate={currentCandidate}
-        />
-      </IonModal>
-      <IonModal ref={requestFollowupModal} isOpen={false} onDidDismiss={() => requestFollowupModal.current?.dismiss()} keepContentsMounted={true}>
-        <IonHeader>
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonButton color="secondary" onClick={() => requestFollowupModal.current?.dismiss()}>Close</IonButton>
-            </IonButtons>
-            <IonTitle slot="start">Request Follow-Up</IonTitle>
-            <IonButtons slot="primary">
-              <IonButton
-                fill="solid"
-                color="primary"
-                onClick={() => setSubmitRequest(true)}>
-                Submit
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent>
-          <RequestFollowup obj_id={currentCandidate?.id}
-                           submitRequest={submitRequest}
-                           submitRequestCallback={(/** @type {boolean} */ isSubmitted) => handleFollowupRequestSubmitted(isSubmitted)}
-          />
-        </IonContent>
-      </IonModal>
+      <RequestFollowupModal sourceId={currentCandidate?.id} submitRequestCallback={handleFollowupRequestSubmitted} modal={requestFollowupModal} />
     </div>
   );
 };

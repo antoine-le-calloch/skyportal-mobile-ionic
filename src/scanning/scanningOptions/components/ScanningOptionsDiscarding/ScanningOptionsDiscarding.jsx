@@ -14,6 +14,7 @@ import {
 } from "../../../../common/components/MultiSearchSelect/ControlledMultiSearchSelect.jsx";
 import { pencil } from "ionicons/icons";
 import { ErrorMessageContainer } from "../../../../common/components/ErrorMessageContainer/ErrorMessageContainer.jsx";
+import { Controller, useWatch } from "react-hook-form";
 
 /**
  * Discarding section of the scanning options
@@ -35,10 +36,10 @@ export const ScanningOptionsDiscarding = ({
   modal,
 }) => {
   /** @type {import("../../../scanning.lib.js").Group[]} */
-  const junkGroups = watch("junkGroups").map(
-    (/** @type {string[]} */ groupId) =>
-      userAccessibleGroups.find((group) => group.id === +groupId),
-  );
+  const junkGroups = watch("junkGroups")?.map((/** @type {number} */ groupId) =>
+      userAccessibleGroups.find((group) => group.id === groupId),
+  ) ?? [];
+  const discardBehavior = useWatch({ control, name: "discardBehavior" });
   return (
     <div className="form-section">
       <IonList inset>
@@ -46,8 +47,7 @@ export const ScanningOptionsDiscarding = ({
           <IonLabel>
             Junk groups
             <p>
-              {junkGroups.length ?? 0} junk group
-              {junkGroups.length > 1 && "s"} selected
+              {junkGroups.length} junk group{junkGroups.length > 1 && "s"} selected
             </p>
           </IonLabel>
           <IonButton id="add-junk" fill="clear">
@@ -65,25 +65,30 @@ export const ScanningOptionsDiscarding = ({
             )}
           </IonItem>
         )}
-        {watch("junkGroups").length > 0 && (
+        {watch("junkGroups").length > 1 && (
           <>
             <IonItem>
-              <IonSelect
-                {...register("discardBehavior")}
-                aria-label="discard behavior"
-                value="specific"
-                label="Save to"
-                disabled={junkGroups.length < 2}
-              >
-                <IonSelectOption value="specific">
-                  Specific junk group
-                </IonSelectOption>
-                <IonSelectOption value="all">All junk groups</IonSelectOption>
-                <IonSelectOption value="ask">Always ask</IonSelectOption>
-              </IonSelect>
+              <Controller
+                name="discardBehavior"
+                control={control}
+                defaultValue="specific"
+                render={({ field }) => (
+                <IonSelect
+                  {...field}
+                  aria-label="discard behavior"
+                  label="Save to"
+                  onIonChange={(e) => field.onChange(e.detail.value)}
+                  value={field.value}
+                >
+                  <IonSelectOption value="specific">
+                    Specific junk group
+                  </IonSelectOption>
+                  <IonSelectOption value="all">All junk groups</IonSelectOption>
+                  <IonSelectOption value="ask">Always ask</IonSelectOption>
+                </IonSelect>
+                )}/>
             </IonItem>
-            {junkGroups.length >= 2 &&
-              watch("discardBehavior") === "specific" && (
+            {discardBehavior === "specific" && (
                 <IonItem className="discard-group-selection">
                   <IonSelect
                     justify="end"
@@ -113,8 +118,6 @@ export const ScanningOptionsDiscarding = ({
       <IonModal
         ref={modal}
         trigger="add-junk"
-        isOpen={false}
-        onDidDismiss={() => {}}
       >
         <ControlledMultiSearchSelect
           name="junkGroups"
@@ -123,7 +126,7 @@ export const ScanningOptionsDiscarding = ({
           title="Select junk groups"
           items={userAccessibleGroups.map((group) => ({
             text: group.name,
-            value: `${group.id}`,
+            value: group.id,
           }))}
         />
       </IonModal>

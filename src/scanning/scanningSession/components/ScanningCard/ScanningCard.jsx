@@ -1,29 +1,22 @@
 import "./ScanningCard.scss";
 import { THUMBNAIL_TYPES } from "../../../../sources/sources.lib.js";
 import { Thumbnail } from "../../../../sources/components/Thumbnail/Thumbnail.jsx";
-import { PinnedAnnotations } from "../PinnedAnnotations/PinnedAnnotations.jsx";
-import { CandidatePhotometryChart } from "../CandidatePhotometryChart/CandidatePhotometryChart.jsx";
-import { memo, useState } from "react";
+import { PinnedAnnotations } from "../../../../sources/components/PinnedAnnotations/PinnedAnnotations.jsx";
+import { PhotometryChart } from "../../../../sources/components/PhotometryChart/PhotometryChart.jsx";
+import { memo, useRef } from "react";
 import { ScanningCardSkeleton } from "./ScanningCardSkeleton.jsx";
-import {
-  IonButton, IonButtons,
-  IonChip,
-  IonContent,
-  IonHeader,
-  IonModal,
-  IonTitle,
-  IonToolbar
-} from "@ionic/react";
-import { CandidateSourceInfo } from "../CandidateSourceInfo/CandidateSourceInfo.jsx";
+import { IonChip } from "@ionic/react";
+import { SourceInfo } from "../../../../sources/components/SourceInfo/SourceInfo.jsx";
 import { FollowupRequests } from "../../../../sources/components/FollowupRequests/FollowupRequests.jsx";
 import { Comments } from "../../../../sources/components/Comments/Comments.jsx";
 import { SpectraList } from "../../../../sources/components/Spectra/SpectraList.jsx";
+import { GroupsModal } from "../../../../sources/components/GroupsModal/GroupsModal.jsx";
+import { AnnotationsViewerModal } from "../../../../sources/components/PinnedAnnotations/AnnotationsViewerModal.jsx";
 
 /**
  * Scanning card component
  * @param {Object} props
  * @param {import("../../../scanning.lib.js").Candidate} props.candidate
- * @param {React.MutableRefObject<any>} props.modal
  * @param {number} props.currentIndex
  * @param {number} props.nbCandidates
  * @param {boolean} props.isInView
@@ -32,13 +25,16 @@ import { SpectraList } from "../../../../sources/components/Spectra/SpectraList.
  */
 const ScanningCardBase = ({
   candidate,
-  modal,
   currentIndex,
   nbCandidates,
   isInView,
   pinnedAnnotations,
 }) => {
-  const [showGroupsSaveTo, setShowGroupsSaveTo] = useState(false);
+  /** @type {React.MutableRefObject<any>} */
+  const groupsModal = useRef(null);
+  /** @type {React.MutableRefObject<any>} */
+  const annotationsModal = useRef(null);
+
   return (
     <div className="scanning-card-container">
       <div
@@ -51,7 +47,7 @@ const ScanningCardBase = ({
             className="is-saved"
             color={candidate.is_source ? "primary" : "secondary"}
             onClick={() => {
-              if (candidate.is_source) setShowGroupsSaveTo(true);
+              if (candidate.is_source) groupsModal.current?.present();
             }}
           >
             {candidate.is_source ? "Previously Saved" : "Not saved"}
@@ -62,49 +58,30 @@ const ScanningCardBase = ({
         </div>
         <div className="thumbnails-container">
           {Object.keys(THUMBNAIL_TYPES).map((type) => (
-            <Thumbnail key={type} candidate={candidate} type={type} />
+            <Thumbnail key={type} source={candidate} type={type} />
           ))}
         </div>
         <PinnedAnnotations
-          candidate={candidate}
-          onButtonClick={() => modal.current?.present()}
+          source={candidate}
+          onButtonClick={() => annotationsModal.current?.present()}
           pinnedAnnotationIds={pinnedAnnotations}
         />
         <div className="plot-container">
-          <CandidatePhotometryChart
-            candidateId={candidate.id}
+          <PhotometryChart
+            sourceId={candidate.id}
             isInView={isInView}
           />
         </div>
-        <CandidateSourceInfo candidate={candidate} />
+        <SourceInfo source={candidate} />
         <Comments comments={candidate.comments} />
-        <SpectraList candidate={candidate} />
-        <FollowupRequests candidate={candidate} requestType={"triggered"} />
-        <FollowupRequests candidate={candidate} requestType={"forced_photometry"}/>
+        <SpectraList sourceId={candidate.id} />
+        <FollowupRequests source={candidate} requestType={"triggered"} />
+        <FollowupRequests source={candidate} requestType={"forced_photometry"}/>
       </div>
       <ScanningCardSkeleton visible={!isInView} />
-      {/* Saved groups modal */}
-      <IonModal isOpen={showGroupsSaveTo} onDidDismiss={() => setShowGroupsSaveTo(false)}>
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>Saved Groups</IonTitle>
-            <IonButtons slot="end">
-              <IonButton onClick={() => setShowGroupsSaveTo(false)}>Close</IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
-          {candidate.saved_groups?.length ? (
-            candidate.saved_groups.map((group) => (
-              <IonChip key={group.name} color="secondary">
-                {group.name}
-              </IonChip>
-            ))
-          ) : (
-            <p>No saved groups</p>
-          )}
-        </IonContent>
-      </IonModal>
+      {/* Modals */}
+      <GroupsModal title="Saved Groups" groups={candidate.saved_groups} modal={groupsModal} />
+      <AnnotationsViewerModal source={candidate} modal={annotationsModal}/>
     </div>
   );
 };

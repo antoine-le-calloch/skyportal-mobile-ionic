@@ -11,14 +11,14 @@ import { useFetchFavoriteSourceIds, useFetchSources } from "../../sources.hooks.
  */
 export const SourceList = ({ filter, searchName }) => {
   const [page] = useState(1);
-  const [numPerPage] = useState(10);
+  const [numPerPage] = useState(25);
   const { favoriteSourceIds } = useFetchFavoriteSourceIds()
   const { sources } = useFetchSources({
     page,
     numPerPage,
     params: {
       ...searchName.trim() !== "" ? { sourceID: searchName } : {},
-      ...filter === "favorites" ? { listName: "favorites" } : {}
+      ...filter === "favorites" ? { listName: "favorites" } : {},
     }
   });
 

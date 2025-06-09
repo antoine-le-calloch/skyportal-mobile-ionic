@@ -13,7 +13,7 @@ import { useContext } from "react";
 import { UserContext } from "./common.context.js";
 import { clearPreference, getPreference, QUERY_KEYS, setPreference } from "./common.lib.js";
 import { warningOutline } from "ionicons/icons";
-import { useIonToast } from "@ionic/react";
+import { useIonAlert, useIonToast } from "@ionic/react";
 
 /**
  * @typedef {"success" | "error" | "pending"} QueryStatus
@@ -23,6 +23,68 @@ import { useIonToast } from "@ionic/react";
  * @typedef {Object} AppPreferences
  * @property {"auto"|"light"|"dark"} darkMode
  */
+
+/**
+ * Custom hook to show error toast with optional infinite duration.
+ * @returns {(message: string, isInfinite?: boolean) => void}
+ */
+export const useErrorToast = () => {
+  const [presentToast] = useIonToast();
+  /**
+   * Display an error toast message
+   * @param {string} message - The error message to display.
+   * @param {boolean} [isInfinite=false] - Whether the toast should stay until manually dismissed.
+   */
+  return (message, isInfinite = false) => {
+    presentToast({
+      message,
+      position: "top",
+      color: "danger",
+      icon: warningOutline,
+      duration: isInfinite ? 0 : 2000,
+      buttons: isInfinite
+        ? [
+          {
+            text: "Close",
+            role: "cancel",
+          },
+        ]
+        : undefined,
+    }).then();
+  };
+};
+
+/**
+ * Custom hook to show a confirmation alert
+ * @returns {(message: string) => Promise<boolean>}
+ */
+export const useConfirmAlert = () => {
+  const [presentAlert] = useIonAlert();
+
+  /**
+   * Prompt a confirmation alert
+   * @param {string} message - The message to display in the alert.
+   * @return {Promise<boolean>} - Resolves to true if confirmed, false if cancelled.
+   */
+  return (message) => new Promise((resolve) => {
+    presentAlert({
+      header: "Are you sure?",
+      message: message,
+      buttons: [
+        {
+          text: "Cancel",
+          role: "cancel",
+          handler: () => resolve(false),
+        },
+        {
+          text: "Confirm",
+          role: "destructive",
+          handler: () => resolve(true),
+        },
+      ],
+    });
+  });
+};
 
 /**
  * @returns {{data: {userInfo: import("../onboarding/onboarding.lib.js").UserInfo|null, userProfile: import("../onboarding/onboarding.lib.js").UserProfile|null}, status: QueryStatus, error: any|undefined}}
@@ -198,33 +260,15 @@ export const useInstrumentForms = () => {
   };
 }
 
-/**
- * Custom hook to show error toast with optional infinite duration.
- * @returns {(message: string, isInfinite?: boolean) => void}
- */
-export const useErrorToast = () => {
-  const [presentToast] = useIonToast();
-
-  /**
-   * Display an error toast message
-   * @param {string} message - The error message to display.
-   * @param {boolean} [isInfinite=false] - Whether the toast should stay until manually dismissed.
-   */
-  return (message, isInfinite = false) => {
-    presentToast({
-      message,
-      position: "top",
-      color: "danger",
-      icon: warningOutline,
-      duration: isInfinite ? 0 : 2000,
-      buttons: isInfinite
-        ? [
-          {
-            text: "Close",
-            role: "cancel",
-          },
-        ]
-        : undefined,
-    }).then();
+export const useInstruments = () => {
+  const { userInfo } = useContext(UserContext);
+  const { data, status, error } = useQuery({
+    queryKey: [QUERY_KEYS.INSTRUMENTS],
+    queryFn: () => fetchInstrumentForms(userInfo),
+  });
+  return {
+    instruments: data,
+    status,
+    error,
   };
-};
+}

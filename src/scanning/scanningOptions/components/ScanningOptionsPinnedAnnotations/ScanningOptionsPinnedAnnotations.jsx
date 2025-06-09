@@ -3,7 +3,7 @@ import { useAnnotationsInfo } from "../../../scanning.hooks.js";
 import { pencil } from "ionicons/icons";
 import { PinnedAnnotationsPicker } from "../PinnedAnnotationsPicker/PinnedAnnotationsPicker.jsx";
 import { Controller } from "react-hook-form";
-import { extractAnnotationOriginAndKey } from "../../../scanning.lib.js";
+import { extractAnnotationOriginAndKey } from "../../../../sources/sources.lib.js";
 
 /**
  * @param {Object} props

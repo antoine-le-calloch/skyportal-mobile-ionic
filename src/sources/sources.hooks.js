@@ -5,14 +5,16 @@ import { QUERY_KEYS } from "../common/common.lib.js";
 import {
   addToFavorites,
   fetchFavorites,
+  fetchSource,
   fetchSourceSpectra,
   removeFromFavorites,
-  submitFollowupRequest
+  submitFollowupRequest,
+  updateSourceGroups
 } from "./sources.requests.js";
 import { fetchSources } from "./sources.requests.js";
 import { checkmarkCircleOutline } from "ionicons/icons";
 import { useIonToast } from "@ionic/react";
-import { useErrorToast } from "../common/common.hooks.js";
+import { useErrorToast, useUserAccessibleGroups } from "../common/common.hooks.js";
 
 /** @typedef {import("../common/common.hooks.js").QueryStatus} QueryStatus */
 
@@ -47,6 +49,36 @@ export const useFetchSources = ({ page, numPerPage, params = {}}) => {
     error,
   };
 };
+
+/**
+ * Fetch a single source by its ID
+ * @param {Object} props
+ * @param {string} props.sourceId - The ID of the source to fetch
+ * @param {Object.<string, string>} [props.params] - additional parameters to pass to the API
+ * @returns {{source: import("../sources/sources.lib.js").Source|undefined, status: QueryStatus, error: any|undefined}}
+ */
+export const useFetchSource = ({ sourceId, params = {} }) => {
+  const { userInfo } = useContext(UserContext);
+  const {
+    data: source,
+    status,
+    error,
+  } = useQuery({
+    queryKey: [QUERY_KEYS.SOURCE, sourceId, params],
+    queryFn: () =>
+      fetchSource({
+        userInfo,
+        sourceId,
+        params
+      }),
+    enabled: !!sourceId,
+  });
+  return {
+    source,
+    status,
+    error,
+  };
+}
 
 /**
  * @param {string} sourceId
@@ -155,7 +187,7 @@ export const useAddSourceToFavorites = () => {
         errorToast("Failed to add this source to favorites");
       }else{
         queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FAVORITE_SOURCE_IDS] });
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FAVORITE_SOURCES] });
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SOURCES] });
       }
     },
     onError: () =>
@@ -180,10 +212,53 @@ export const useRemoveSourceFromFavorites = () => {
         errorToast("Failed to remove this source from favorites");
       }else{
         queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FAVORITE_SOURCE_IDS] });
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.FAVORITE_SOURCES] });
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SOURCES] });
       }
     },
     onError: () =>
       errorToast("Failed to remove this source from favorites"),
+  });
+}
+
+export const useUpdateSourceGroups = () => {
+  const { userInfo } = useContext(UserContext);
+  const { userAccessibleGroups } = useUserAccessibleGroups();
+  const [presentToast] = useIonToast();
+  const errorToast = useErrorToast();
+
+  /** @param {string} groupId */
+  const groupName = (groupId) => {
+    return userAccessibleGroups?.find((g) => g.id === parseInt(groupId))?.name || groupId;
+  };
+
+  return useMutation({
+    /**
+     * @param {Object} params
+     * @param {string} params.sourceId
+     * @param {string[]} [params.groupIdsToAdd]
+     * @param {string[]} [params.groupIdsToRemove]
+     * @returns {Promise<*>}
+     */
+    mutationFn: ({ sourceId, groupIdsToAdd=[], groupIdsToRemove=[] }) =>
+      updateSourceGroups({ userInfo, sourceId, groupIdsToAdd, groupIdsToRemove }),
+    onSuccess: (response, { groupIdsToAdd = [], groupIdsToRemove = [] }) => {
+      if (response.status !== 200) {
+        errorToast("Failed to update source groups: " + response.data?.message || "Unknown error");
+        return;
+      }
+
+      const added = groupIdsToAdd.length > 0 ? `added to groups: ${groupIdsToAdd.map(groupName).join(", ")}`: "";
+      const removed = groupIdsToRemove.length > 0 ? `removed from groups: ${groupIdsToRemove.map(groupName).join(", ")}`: "";
+      const message = [added, removed].filter(Boolean).join(" and ");
+      presentToast({
+        message: `Source ${message}`,
+        duration: 2000,
+        position: "top",
+        color: "success",
+        icon: checkmarkCircleOutline,
+      });
+    },
+    onError: () =>
+      errorToast("Failed to update source groups"),
   });
 }

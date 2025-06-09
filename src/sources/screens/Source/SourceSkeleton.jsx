@@ -1,8 +1,8 @@
-import "./ScanningCard.scss";
+import "./Source.scss";
 import { IonSkeletonText } from "@ionic/react";
-import { THUMBNAIL_TYPES } from "../../../../sources/sources.lib.js";
-import { ThumbnailSkeleton } from "../../../../sources/components/Thumbnail/ThumbnailSkeleton.jsx";
-import { PinnedAnnotationsSkeleton } from "../../../../sources/components/PinnedAnnotations/PinnedAnnotationsSkeleton.jsx";
+import { THUMBNAIL_TYPES } from "../../sources.lib.js";
+import { ThumbnailSkeleton } from "../../components/Thumbnail/ThumbnailSkeleton.jsx";
+import { PinnedAnnotationsSkeleton } from "../../components/PinnedAnnotations/PinnedAnnotationsSkeleton.jsx";
 
 /**
  * @param {Object} props
@@ -10,22 +10,22 @@ import { PinnedAnnotationsSkeleton } from "../../../../sources/components/Pinned
  * @param {boolean} [props.visible=true]
  * @returns {JSX.Element}
  */
-export const ScanningCardSkeleton = ({ animated = false, visible = true }) => {
+export const SourceSkeleton = ({ animated = false, visible = true }) => {
   return (
     <div
-      className="scanning-card skeleton"
+      className="source skeleton"
       style={{ visibility: visible ? "visible" : "hidden" }}
     >
-      <div className="candidate-name">
+      <div className="header">
         <h1>
           <IonSkeletonText
             style={{ width: "8rem", height: "1.2rem" }}
             animated={animated}
           />
         </h1>
-        <div className="pagination-indicator">
+        <div className="source-groups-chip">
           <IonSkeletonText
-            style={{ width: "2rem", height: ".8rem" }}
+            style={{ width: "6rem", height: "1.2rem" }}
             animated={animated}
           />
         </div>

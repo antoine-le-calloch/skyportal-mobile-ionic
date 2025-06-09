@@ -7,6 +7,25 @@ import { getDateDiff } from "../../../common/common.lib.js";
  * @param {import("../../sources.lib.js").Comment[]} props.comments
  */
 export const Comments = ({comments}) => {
+  /**
+   * Formats the text to highlight mentions and hashtags.
+   * @param {string} text - The text to format.
+   */
+  const formattedText = (text) =>{
+    const parts = text.split(/(?<!\w)([@#][\w-@]+)/g);
+
+    return parts.map((part, index) => {
+      if (part.match(/(?<!\w)([@#][\w-@]+)/)) {
+        return (
+          <span key={index} className="highlight">
+          {part}
+        </span>
+        );
+      }
+      return part;
+    });
+  }
+
   return (
     <div className="comments section">
       <div className="section-title section-padding">
@@ -23,7 +42,7 @@ export const Comments = ({comments}) => {
                     <span className="date">{" - " + getDateDiff(comment.created_at)}</span>
                   </IonLabel>
                   <div className="text">
-                    {comment.text}
+                    {formattedText(comment.text)}
                   </div>
                 </div>
               </IonItem>

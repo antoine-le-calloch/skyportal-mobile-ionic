@@ -4,6 +4,7 @@ import { IonIcon } from "@ionic/react";
 import { starOutline, star } from "ionicons/icons";
 import { useState } from "react";
 import { useAddSourceToFavorites, useRemoveSourceFromFavorites } from "../../sources.hooks.js";
+import { useHistory } from "react-router";
 
 /**
  * @param {Object} props
@@ -12,11 +13,16 @@ import { useAddSourceToFavorites, useRemoveSourceFromFavorites } from "../../sou
  * @returns {JSX.Element}
  */
 export const SourceListItem = ({ source, isFavorite }) => {
+  const history = useHistory();
   const [favorite, setFavorite] = useState(isFavorite);
   const useAddToFavorites = useAddSourceToFavorites();
   const useRemoveFromFavorites = useRemoveSourceFromFavorites();
 
-  const handleToggleFavorite = () => {
+  /**
+   * @param {React.MouseEvent} e
+   */
+  const handleToggleFavorite = (e) => {
+    e.stopPropagation(); // Prevent the click event from bubbling up to the source item
     if (isFavorite) {
       useRemoveFromFavorites.mutate({ sourceId: source.id });
       setFavorite(false);
@@ -26,8 +32,13 @@ export const SourceListItem = ({ source, isFavorite }) => {
     }
   }
 
+  const handleClickOnSource = () => {
+    history.push(`/source/${source.id}`);
+  };
+
+
   return (
-    <div className="source-list-item">
+    <div className="source-list-item" onClick={handleClickOnSource}>
       <div className="header">
         <div className="ids">
           <div className="sky-id">{source.id}</div>
@@ -35,7 +46,7 @@ export const SourceListItem = ({ source, isFavorite }) => {
         </div>
         <IonIcon className={`icon ${favorite ? "toggle" : ""}`}
                  icon={favorite ? star : starOutline}
-                 onClick={() => handleToggleFavorite()} />
+                 onClick={handleToggleFavorite} />
       </div>
       <div className="created">
         <div className="label">Created:</div>

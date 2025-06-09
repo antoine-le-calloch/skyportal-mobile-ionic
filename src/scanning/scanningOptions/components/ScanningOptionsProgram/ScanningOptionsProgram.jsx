@@ -103,13 +103,13 @@ export const ScanningOptionsProgram = ({
         onDidDismiss={() => {}}
       >
         <ControlledMultiSearchSelect
-          control={control}
           name="selectedGroups"
+          control={control}
           modal={modal}
           title="Select groups"
           items={userAccessibleGroups.map((group) => ({
-            value: `${group.id}`,
             text: group.name,
+            value: group.id,
           }))}
           rules={{
             required: true,

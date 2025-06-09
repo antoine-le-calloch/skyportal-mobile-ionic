@@ -6,19 +6,19 @@ import {
   useCopyAnnotationLineOnClick,
   sanitizeAnnotationData,
   concat,
-} from "../../../scanning.lib.js";
+} from "../../sources.lib.js";
 import { copyOutline } from "ionicons/icons";
 import { useEffect, useState } from "react";
 
 /**
  * @param {Object} props
- * @param {import("../../../scanning.lib.js").Candidate} props.candidate
+ * @param {import("../../../scanning/scanning.lib.js").Candidate | import("../../sources.lib.js").Source} props.source
  * @param {() => void} props.onButtonClick
  * @param {string[]} [props.pinnedAnnotationIds]
  * @returns {JSX.Element}
  */
 export const PinnedAnnotations = ({
-  candidate,
+  source,
   onButtonClick,
   pinnedAnnotationIds = [],
 }) => {
@@ -36,7 +36,7 @@ export const PinnedAnnotations = ({
         return {
           id: key,
           origin,
-          value: candidate.annotations.find(
+          value: source.annotations.find(
             (annotation) => annotation.origin === origin
           )?.data[key],
         };
@@ -48,7 +48,7 @@ export const PinnedAnnotations = ({
       return;
     }
 
-    for (const annotation of candidate.annotations) {
+    for (const annotation of source.annotations) {
       for (const [key, value] of Object.entries(annotation.data)) {
         if (annotations.length >= 3) {
           break;
@@ -63,11 +63,11 @@ export const PinnedAnnotations = ({
       }
     }
     setPinnedAnnotations([...annotations].slice(0, 3));
-  }, [candidate.annotations]);
+  }, [source.annotations]);
 
   return (
     <div className="pinned-annotations section">
-      <div className="annotations">
+      <div className="annotation-list">
         <IonList>
           {pinnedAnnotations.map((annotationLine) => (
             <IonItem

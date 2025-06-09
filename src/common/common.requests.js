@@ -100,3 +100,16 @@ export async function fetchInstrumentForms(userInfo, apiType= "api_classname") {
   });
   return response.data.data;
 }
+
+/**
+ * @param {import("../onboarding/onboarding.lib.js").UserInfo} userInfo
+ */
+export async function fetchInstruments( userInfo ) {
+  let response = await CapacitorHttp.get({
+    url: `${userInfo.instance.url}/api/instruments`,
+    headers: {
+      Authorization: `token ${userInfo.token}`,
+    },
+  });
+  return response.data.data;
+}

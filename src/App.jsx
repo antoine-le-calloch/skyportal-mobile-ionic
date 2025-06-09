@@ -58,6 +58,7 @@ import { ScanningNewProfileScreen } from "./scanning/scanningOptions/screens/Sca
 import { ScanningProfilesScreen } from "./scanning/scanningOptions/screens/ScanningProfilesScreen/ScanningProfilesScreen.jsx";
 import { UserProfileTab } from "./userProfile/screens/UserProfileScreen/UserProfileTab.jsx";
 import { setDarkModeInDocument } from "./common/common.lib.js";
+import { Source } from "./sources/screens/Source/Source";
 
 setupIonicReact();
 
@@ -124,6 +125,7 @@ const App = ({ darkMode: initialDarkMode }) => {
               <Route path="/check-creds" component={CheckQRCodeScreen} />
               <Route path="/login-ok" component={LoginOkScreen} />
 
+              {/* Scanning routes */}
               <PrivateRoute path="/scanning">
                 <IonPage>
                   <IonRouterOutlet>
@@ -137,6 +139,12 @@ const App = ({ darkMode: initialDarkMode }) => {
                 </IonPage>
               </PrivateRoute>
 
+              {/* Source details route */}
+              <PrivateRoute path="/source">
+                <Route path="/source/:sourceId" component={Source} />
+              </PrivateRoute>
+
+              {/* Main app route, containing the tabs */}
               <PrivateRoute path="/app">
                 <IonTabs>
                   <IonRouterOutlet>

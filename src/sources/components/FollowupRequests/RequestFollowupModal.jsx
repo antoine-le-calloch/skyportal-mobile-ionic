@@ -1,4 +1,4 @@
-import "./RequestFollowup.scss";
+import "./RequestFollowupModal.scss";
 
 import React, { useEffect, useRef, useState } from "react";
 
@@ -12,12 +12,20 @@ import {
   useUserProfile
 } from "../../../common/common.hooks.js";
 import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
   IonItem,
   IonLabel,
   IonList,
   IonLoading,
+  IonModal,
   IonSelect,
-  IonSelectOption, useIonToast
+  IonSelectOption,
+  IonTitle,
+  IonToolbar,
+  useIonToast
 } from "@ionic/react";
 import {
   TextWidget,
@@ -35,17 +43,16 @@ import { formatIsoDateString } from "../../../common/common.lib.js";
 
 /**
  * @param {object} props - The component props.
- * @param {string | undefined} props.obj_id - The object ID.
- * @param {boolean} props.submitRequest - The flag to submit the request.
+ * @param {string | undefined} props.sourceId - The object ID.
  * @param {function} props.submitRequestCallback - The callback function to handle when the request is submitted.
+ * @param {React.MutableRefObject<any>} props.modal - The modal reference.
  */
-export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }) => {
+export const RequestFollowupModal = ({ sourceId, submitRequestCallback, modal }) => {
   const { allocationsApiClassname } = useAllocationsApiClassname();
   const { userAccessibleGroups } = useUserAccessibleGroups();
   const { instrumentForms } = useInstrumentForms();
   const { userProfile } = useUserProfile();
   const defaultAllocationId = userProfile?.preferences?.followupDefault;
-
 
   const [selectedRequestType, setSelectedRequestType] = useState("triggered");
   /** @type {[number | undefined, React.Dispatch<React.SetStateAction<number | undefined>>]} */
@@ -55,7 +62,6 @@ export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }
   // @ts-ignore
   const [selectedGroupIds, setSelectedGroupIds] = useState([]);
   const [loading, setLoading] = useState(false);
-
   /** @type {[import("../../../common/common.lib.js").AllocationApiClassname[], React.Dispatch<React.SetStateAction<import("../../../common/common.lib.js").AllocationApiClassname[]>>]} */
   // @ts-ignore
   const [filteredAllocations, setFilteredAllocations] = useState([]);
@@ -78,17 +84,6 @@ export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }
       icon: warningOutline,
     });
   };
-
-  useEffect(() => {
-    if (submitRequest) {
-      if (selectedAllocationId === null) {
-        noAllocationToast().then();
-        submitRequestCallback(false);
-      } else {
-        formRef.current?.submit();
-      }
-    }
-  }, [submitRequest]);
 
   // Set default group ids based on the selected allocation
   useEffect(() => {
@@ -148,23 +143,6 @@ export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }
     }
   }, [allocationsApiClassname, instrumentForms, settingFilteredList, selectedRequestType]);
 
-  if (filteredAllocations.length === 0) {
-    return (
-      <IonList>
-        <IonItem lines="none">
-          <IonLabel color="secondary">
-            {`No allocations with an API class ${
-              selectedRequestType === "forced_photometry"
-                ? "(forced photometry) "
-                : ""
-            } where found..`}
-            .
-          </IonLabel>
-        </IonItem>
-      </IonList>
-    );
-  }
-
   /** @type {Record<string, import("../../../common/common.lib.js").Group>} */
   const groupLookUp = {};
   userAccessibleGroups?.forEach((group) => {
@@ -195,9 +173,9 @@ export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }
    */
   const handleSubmit = async ({ formData }) => {
     setLoading(true);
-    if (obj_id && selectedAllocationId) {
+    if (sourceId && selectedAllocationId) {
       await submitFollowupRequestMutation.mutateAsync({
-        sourceId: obj_id,
+        sourceId: sourceId,
         allocationId: selectedAllocationId,
         groupIds: selectedGroupIds,
         payload: formData,
@@ -267,7 +245,22 @@ export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }
     }
   }
 
-  return (
+  const noAllocations = (
+    <IonList>
+      <IonItem lines="none">
+        <IonLabel color="secondary">
+          {`No allocations with an API class ${
+            selectedRequestType === "forced_photometry"
+              ? "(forced photometry) "
+              : ""
+          } where found..`}
+          .
+        </IonLabel>
+      </IonItem>
+    </IonList>
+  );
+
+  const requestFollowupForm = (
     <div className="request-followup">
       <IonList>
         <IonItem color="light">
@@ -281,7 +274,7 @@ export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }
               setSelectedAllocationId(defaultAllocationId);
               setFilteredAllocations([]);
             }}
-            >
+          >
             <IonSelectOption value="triggered">Followup</IonSelectOption>
             <IonSelectOption value="forced_photometry">
               Forced Photometry
@@ -419,5 +412,40 @@ export const RequestFollowup = ({ obj_id, submitRequest, submitRequestCallback }
       ))}
       <IonLoading isOpen={loading} message={"Submitting..."} />
     </div>
+  );
+
+  return (
+    <IonModal
+      ref={modal}
+      isOpen={false}
+      onDidDismiss={() => modal.current?.dismiss()}
+      keepContentsMounted={true}>
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton color="secondary" onClick={() => modal.current?.dismiss()}>Close</IonButton>
+          </IonButtons>
+          <IonTitle slot="start">Request Follow-Up</IonTitle>
+          <IonButtons slot="primary">
+            <IonButton
+              fill="solid"
+              color="primary"
+              onClick={() => {
+                if (selectedAllocationId) {
+                  formRef.current?.submit();
+                } else {
+                  noAllocationToast().then();
+                  submitRequestCallback(false);
+                }
+              }}>
+              Submit
+            </IonButton>
+          </IonButtons>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        {filteredAllocations.length > 0 ? requestFollowupForm : noAllocations}
+      </IonContent>
+    </IonModal>
   );
 };
