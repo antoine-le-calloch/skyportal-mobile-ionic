@@ -6,10 +6,11 @@ import {
   addToFavorites,
   fetchFavorites,
   fetchSource,
+  fetchSourcePhotometry,
   fetchSourceSpectra,
   removeFromFavorites,
   submitFollowupRequest,
-  updateSourceGroups
+  updateSourceGroups,
 } from "./sources.requests.js";
 import { fetchSources } from "./sources.requests.js";
 import { checkmarkCircleOutline } from "ionicons/icons";
@@ -82,9 +83,10 @@ export const useFetchSource = ({ sourceId, params = {} }) => {
 
 /**
  * @param {string} sourceId
+ * @param {boolean} [enableFetch=true] - If false, the query will not be executed
  * @returns {{spectraList: import("./sources.lib.js").Spectra[] | undefined, status: import("@tanstack/react-query").QueryStatus, error: any | undefined }}
  */
-export const useSourceSpectra = (sourceId) => {
+export const useSourceSpectra = (sourceId, enableFetch = true) => {
   const { userInfo } = useContext(UserContext);
   const {
     data: spectraList,
@@ -98,10 +100,38 @@ export const useSourceSpectra = (sourceId) => {
       }
       return await fetchSourceSpectra({ userInfo, sourceId });
     },
-    enabled: !!sourceId,
+    enabled: enableFetch && !!sourceId,
   });
   return {
     spectraList,
+    status,
+    error,
+  };
+}
+
+/**
+ * @param {string} sourceId
+ * @param {boolean} [enableFetch=true] - If false, the query will not be executed
+ * @returns {{photometry: import("./sources.lib.js").Photometry[] | undefined, status: import("@tanstack/react-query").QueryStatus, error: any | undefined }}
+ */
+export const useSourcePhotometry = (sourceId, enableFetch = true) => {
+  const { userInfo } = useContext(UserContext);
+  const {
+    data: photometry,
+    status,
+    error,
+  } = useQuery({
+    queryKey: [QUERY_KEYS.SOURCE_PHOTOMETRY, sourceId],
+    queryFn: async () => {
+      if (!sourceId) {
+        throw new Error("Missing sourceId");
+      }
+      return await fetchSourcePhotometry({ userInfo, sourceId });
+    },
+    enabled: enableFetch && !!sourceId,
+  });
+  return {
+    photometry,
     status,
     error,
   };

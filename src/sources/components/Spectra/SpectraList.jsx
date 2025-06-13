@@ -16,10 +16,11 @@ import { useSourceSpectra } from "../../sources.hooks.js";
 /**
  * @param {Object} props
  * @param {string} props.sourceId - The ID of the source to fetch spectra for
+ * @param {boolean} [props.isInView] - Whether the component is currently in view
  * @returns {JSX.Element | null}
  */
-export const SpectraList = ({sourceId}) => {
-  const { spectraList } = useSourceSpectra(sourceId);
+export const SpectraList = ({sourceId, isInView = true}) => {
+  const { spectraList } = useSourceSpectra(sourceId, isInView);
   /** @type {[Spectra | null, React.Dispatch<React.SetStateAction<Spectra | null>>]} */
   // @ts-ignore
   const [openSpectra, setOpenSpectra] = useState(null);
