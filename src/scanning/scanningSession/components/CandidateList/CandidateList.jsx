@@ -16,45 +16,35 @@ import { SCANNING_TOOLBAR_ACTION } from "../../../scanning.lib.js";
 import { ScanningEnd } from "../ScanningEnd/ScanningEnd.jsx";
 import { ScanningToolbar } from "../ScanningToolbar/ScanningToolbar.jsx";
 import { UserContext } from "../../../../common/common.context.js";
-import { CANDIDATES_PER_PAGE, QUERY_KEYS } from "../../../../common/common.lib.js";
+import { CANDIDATES_PER_PAGE } from "../../../scanning.lib.js";
+import { QUERY_KEYS } from "../../../../common/common.lib.js";
 import { RequestFollowupModal } from "../../../../sources/components/FollowupRequests/RequestFollowupModal.jsx";
 
 export const CandidateList = () => {
+  /** @type {{state: import("../../../scanning.lib.js").ScanningConfig|undefined}} */
+  const { state } = useLocation();
+  const {
+    startDate,
+    endDate,
+    savedStatus,
+    saveGroupIds: groupIDs,
+    queryID,
+  } = state ?? {};
+  if (!startDate || !savedStatus || !groupIDs?.length) {
+    return null;
+  }
   const { userInfo } = useContext(UserContext);
   const queryClient = useQueryClient();
   const { userAccessibleGroups } = useUserAccessibleGroups();
   const updateSourceGroups = useUpdateSourceGroups();
-
-  /** @type {{state: any}} */
-  const { state } = useLocation();
-
-  /**
-   * @param {number[]|undefined} ids
-   * @param {import("../../../scanning.lib.js").Group[] | undefined} availableGroups
-   */
-  const resolveGroups = (ids, availableGroups) => {
-    return (ids ?? []).map((id) => availableGroups?.find((g) => g.id === id))
-      .filter((g) => g !== undefined);
-  }
-
-  /** @type {import("../../../scanning.lib.js").ScanningConfig|undefined} */
-  let scanningConfig = undefined;
-  if (state) {
-    scanningConfig = {
-      ...state,
-      saveGroups: resolveGroups(state.saveGroupIds, userAccessibleGroups),
-      junkGroups: resolveGroups(state.junkGroupIDs, userAccessibleGroups),
-      pinnedAnnotations: state.pinnedAnnotations,
-      queryID: state.queryID,
-      totalMatches: state.totalMatches,
-    };
-  }
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [emblaRef, emblaApi] = useEmblaCarousel();
   /** @type {[number[], React.Dispatch<number[]>]} */
   // @ts-ignore
   const [slidesInView, setSlidesInView] = useState([]);
+  const [presentAlert] = useIonAlert();
+  const confirmAlert = useConfirmAlert();
+  const errorToast = useErrorToast();
 
   /** @type {React.MutableRefObject<any>} */
   const requestFollowupModal = useRef(null);
@@ -68,15 +58,45 @@ export const CandidateList = () => {
     notAssigned: [],
     totalMatches: 0,
   });
-  const { data, fetchNextPage, isFetchingNextPage } = useSearchCandidates();
+  const { data, isError, isFetched, fetchNextPage, isFetchingNextPage } = useSearchCandidates({
+    startDate,
+    endDate,
+    savedStatus,
+    groupIDs,
+    queryID,
+  });
   const totalMatches = data?.pages[0].totalMatches;
+  useEffect(() => {
+    if (isFetched && (isError || totalMatches === 0)) {
+      presentAlert({
+        header: isError ? "Error" : "No candidates found",
+        message:
+          isError ?
+            "An error occurred while searching for candidates. Please try again." :
+            "No candidates were found with the selected options. Please try again.",
+        buttons: [
+          {
+            text: "OK",
+            handler: () => {
+              history.back();
+            },
+          },
+        ],
+      })
+    }
+  }, [isFetched, isError, totalMatches, presentAlert]);
   /** @type {import("../../../scanning.lib.js").Candidate[]|undefined} */
   const candidates = data?.pages.map((page) => page.candidates).flat(1);
   const currentCandidate = candidates?.at(currentIndex);
 
-  const [presentAlert] = useIonAlert();
-  const confirmAlert = useConfirmAlert();
-  const errorToast = useErrorToast();
+  /**
+   * @param {number[]|undefined} ids
+   * @param {import("../../../scanning.lib.js").Group[] | undefined} availableGroups
+   */
+  const resolveGroups = (ids, availableGroups) => {
+    return (ids ?? []).map((id) => availableGroups?.find((g) => g.id === id))
+      .filter((g) => g !== undefined);
+  }
 
   useEffect(() => {
     if (emblaApi) {
@@ -91,7 +111,7 @@ export const CandidateList = () => {
 
   const slidesInViewCallback = useCallback(
     async (/** @type {import("embla-carousel").EmblaCarouselType} */ e) => {
-      if (!scanningConfig) return;
+      if (!state) return;
       if (
         !isFetchingNextPage &&
         e.selectedScrollSnap() >= e.slideNodes().length - 4 &&
@@ -125,7 +145,7 @@ export const CandidateList = () => {
      */
     (action) =>
       new Promise((resolve, reject) => {
-        if (!scanningConfig || !currentCandidate) {
+        if (!state || !currentCandidate) {
           reject();
           return;
         }
@@ -134,10 +154,9 @@ export const CandidateList = () => {
             action === "save" ? "Select a program" : "Select a junk group",
           buttons: [action === "save" ? "Save" : "Discard"],
           /** @type {import("@ionic/react").AlertInput[]} */
-          inputs: (action === "save"
-            ? scanningConfig.saveGroups
-            : scanningConfig.junkGroups
-          ).map((group) => ({
+          inputs: resolveGroups(
+            action === "save" ? state.saveGroupIds : state.junkGroupIDs,
+              userAccessibleGroups).map((group) => ({
             disabled: currentCandidate.saved_groups.some((g) => g.id === group.id),
             type: "checkbox",
             label: group.name,
@@ -150,14 +169,14 @@ export const CandidateList = () => {
           },
         })
       }),
-    [state, currentCandidate, presentAlert, scanningConfig, userAccessibleGroups],
+    [state, currentCandidate, presentAlert, userAccessibleGroups],
   );
 
   const handleSave = useCallback(async () => {
-    if (!currentCandidate || !scanningConfig) {
+    if (!currentCandidate || !state) {
       return;
     }
-    if (scanningConfig.saveGroupIds.length > 1) {
+    if (state.saveGroupIds.length > 1) {
       const groupIdsToAdd = await promptUserForGroupSelection("save");
       if (groupIdsToAdd.length > 0) {
         updateSourceGroups.mutate({
@@ -173,7 +192,7 @@ export const CandidateList = () => {
 
       updateSourceGroups.mutate({
         sourceId: currentCandidate.id,
-        groupIdsToAdd: scanningConfig.saveGroupIds.map(String),
+        groupIdsToAdd: state.saveGroupIds.map(String),
       });
     }
     scanningRecap.current = {
@@ -183,19 +202,19 @@ export const CandidateList = () => {
   }, [currentCandidate, state]);
 
   const handleDiscard = useCallback(async () => {
-    if (!currentCandidate || !scanningConfig) {
+    if (!currentCandidate || !state) {
       return;
     }
     let groupIdsToAdd;
-    if (scanningConfig.discardBehavior === "ask") {
+    if (state.discardBehavior === "ask") {
       groupIdsToAdd = await promptUserForGroupSelection("discard");
       if (groupIdsToAdd.length === 0) {
         errorToast("No group selected, please select at least one group");
         return;
       }
     } else {
-      groupIdsToAdd = (scanningConfig.discardBehavior === "specific" && scanningConfig.discardGroup ?
-        [scanningConfig.discardGroup] : scanningConfig.junkGroupIDs.map(String))
+      groupIdsToAdd = (state.discardBehavior === "specific" && state.discardGroup ?
+        [state.discardGroup] : state.junkGroupIDs.map(String))
         .filter((id) => !currentCandidate.saved_groups.some((g) => g.id === id),
       ).map(String);
       if (groupIdsToAdd.length === 0) {
@@ -218,12 +237,12 @@ export const CandidateList = () => {
     if (confirmed) history.back();
   }, [presentAlert]);
 
-  const isDiscardingEnabled = (scanningConfig?.junkGroupIDs?.length ?? 0) > 0;
+  const isDiscardingEnabled = (state?.junkGroupIDs?.length ?? 0) > 0;
 
-  scanningRecap.current.queryId = scanningConfig?.queryID ?? "";
+  scanningRecap.current.queryId = state?.queryID ?? "";
   scanningRecap.current.totalMatches = totalMatches ?? 0;
 
-  if (candidates && candidates.length === totalMatches && !isLastBatch) {
+  if (candidates?.length === totalMatches && !isLastBatch) {
     setIsLastBatch(true);
   }
 
@@ -303,9 +322,9 @@ export const CandidateList = () => {
     <div className="candidate-list">
       <div className="embla" ref={emblaRef}>
         <div className="embla__container">
-          {scanningConfig && candidates ? (
+          {state && candidates ? (
             <>
-              {scanningConfig && candidates.map((candidate, index) => (
+              {candidates.map((candidate, index) => (
                 <div key={candidate.id} className="embla__slide">
                   <ScanningCard
                     candidate={candidate}
@@ -314,11 +333,11 @@ export const CandidateList = () => {
                     // @ts-ignore
                     nbCandidates={data.pages[0].totalMatches}
                     // @ts-ignore
-                    pinnedAnnotations={scanningConfig.pinnedAnnotations}
+                    pinnedAnnotations={state.pinnedAnnotations}
                   />
                 </div>
               ))}
-              {isLastBatch && (
+              {totalMatches && isLastBatch && (
                 <div className="embla__slide">
                   <ScanningEnd recap={scanningRecap} />
                 </div>

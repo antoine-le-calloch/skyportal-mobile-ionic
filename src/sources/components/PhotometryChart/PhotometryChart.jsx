@@ -1,12 +1,10 @@
 import "./PhotometryChart.scss";
-import { memo, useContext, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import embed from "vega-embed";
 import { getVegaPlotSpec } from "../../../scanning/scanning.lib.js";
 import { useBandpassesColors } from "../../../common/common.hooks.js";
 import { IonSkeletonText } from "@ionic/react";
-import { fetchSourcePhotometry } from "../../sources.requests.js";
-import { useMutation } from "@tanstack/react-query";
-import { UserContext } from "../../../common/common.context.js";
+import { useSourcePhotometry } from "../../sources.hooks.js";
 
 /**
  * @param {Object} props
@@ -14,10 +12,9 @@ import { UserContext } from "../../../common/common.context.js";
  * @param {boolean} [props.isInView]
  * @returns {JSX.Element}
  */
-const PhotometryChartBase = ({ sourceId, isInView= true }) => {
-  const { userInfo } = useContext(UserContext);
+const PhotometryChartBase = ({ sourceId, isInView = true }) => {
+  const { photometry, status } = useSourcePhotometry(sourceId, isInView);
   const [hasLoaded, setHasLoaded] = useState(false);
-  const [loaderIsHidden, setLoaderIsHidden] = useState(false);
   /** @type {React.MutableRefObject<HTMLDivElement|null>} */
   const container = useRef(null);
   const unmountVega = useRef(() => {});
@@ -25,67 +22,44 @@ const PhotometryChartBase = ({ sourceId, isInView= true }) => {
   /** @type {React.MutableRefObject<NodeJS.Timeout|undefined>} */
   const revealTimeout = useRef(undefined);
 
-  const mountMutation = useMutation({
-    mutationFn: async () => {
-      const photometry = await fetchSourcePhotometry({
-        sourceId: sourceId,
-        userInfo,
-      });
-      if (!container.current || !bandpassesColors || !photometry) {
-        throw new Error("Missing parameters");
-      }
-      const response = await embed(
+  const renderVega = useCallback(async () => {
+    if (!photometry || !container.current || !bandpassesColors) return;
+
+    const result = await embed(
+      // @ts-ignore
+      container.current,
+      getVegaPlotSpec({
+        photometry,
+        titleFontSize: 13,
+        labelFontSize: 11,
         // @ts-ignore
-        container.current,
-        getVegaPlotSpec({
-          photometry,
-          titleFontSize: 13,
-          labelFontSize: 11,
-          // @ts-ignore
-          bandpassesColors,
-        }),
-        {
-          actions: false,
-        },
-      );
-      unmountVega.current = response.finalize;
-    },
-    onSuccess: () => {
-      revealTimeout.current = setTimeout(() => {
-        setHasLoaded(true);
-      }, 300);
-    },
-  });
+        bandpassesColors,
+      }),
+      { actions: false }
+    );
+
+    unmountVega.current = result.finalize;
+    revealTimeout.current = setTimeout(() => setHasLoaded(true), 300);
+  }, [photometry, bandpassesColors]);
 
   useEffect(() => {
     if (!isInView) {
+      if (unmountVega.current) unmountVega.current();
+      setHasLoaded(false);
       if (container.current) {
         const canvas = container.current.getElementsByTagName("canvas")[0];
         if (canvas) {
           canvas.height = 0;
           canvas.width = 0;
-          unmountVega.current();
-          setHasLoaded(false);
         }
       }
-    } else {
-      mountMutation.mutate();
+    } else if (status === "success" && !hasLoaded) {
+      renderVega();
     }
     return () => {
       clearTimeout(revealTimeout.current);
     };
-  }, [isInView, bandpassesColors]);
-
-  useEffect(() => {
-    /**@type {any} */
-    let hideTimeout;
-    if (hasLoaded && !loaderIsHidden) {
-      hideTimeout = setTimeout(() => setLoaderIsHidden(true), 300);
-    }
-    return () => {
-      clearTimeout(hideTimeout);
-    };
-  }, [hasLoaded, loaderIsHidden]);
+  }, [isInView, status, renderVega]);
 
   return (
     <div className="photometry-chart">
@@ -97,7 +71,7 @@ const PhotometryChartBase = ({ sourceId, isInView= true }) => {
       <div
         className={`canvas-loading ${hasLoaded ? "loaded" : "loading"}`}
         style={{
-          visibility: loaderIsHidden ? "hidden" : "visible",
+          visibility: hasLoaded ? "hidden" : "visible",
         }}
       >
         <IonSkeletonText animated />

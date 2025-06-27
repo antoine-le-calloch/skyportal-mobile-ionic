@@ -9,6 +9,21 @@
 /** @typedef {import("../sources/sources.lib.js").Annotation} Annotation */
 
 /**
+ * @typedef {Object} ScanningProfile
+ * @property {string} name - The name of the scanning profile
+ * @property {boolean} default - Whether the profile is the default one
+ * @property {number[]} groupIDs - The IDs of the groups that the profile is associated with
+ * @property {string} timeRange - The time range of the profile
+ * @property {string} [sortingKey] - The key to use to sort the profile
+ * @property {SavedStatus} savedStatus - The status of the profile
+ * @property {string} [sortingOrder] - The order to use to sort the profile
+ * @property {string} [sortingOrigin] - The origin of the sorting
+ * @property {string} rejectedStatus - The status of the rejected
+ * @property {string} [redshiftMaximum] - The maximum redshift
+ * @property {string} [redshiftMinimum] - The minimum redshift
+ */
+
+/**
  * @typedef {Object} Candidate
  * @property {number} ra - Right ascension
  * @property {number} dec - Declination
@@ -32,7 +47,7 @@
  * @typedef {Object} ScanningConfig
  * @property {string} startDate
  * @property {string} endDate
- * @property {import("../common/common.lib.js").SavedStatus} savedStatus
+ * @property {SavedStatus} savedStatus
  * @property {number[]} saveGroupIds
  * @property {Group[]} saveGroups
  * @property {number[]} junkGroupIDs
@@ -52,10 +67,26 @@
  * @property {Candidate[]} notAssigned
  */
 
+/**
+ * @typedef {"all" | "savedToAllSelected" | "savedToAnySelected" | "savedToAnyAccessible" | "notSavedToAnyAccessible" | "notSavedToAnySelected" | "notSavedToAllSelected"} SavedStatus
+ */
+
 import config from "../config.js";
 import moment from "moment-timezone";
 
-import { SAVED_STATUS } from "../common/common.lib.js";
+/**
+ * @type {Object.<SavedStatus, string>}
+ */
+export const SAVED_STATUS = {
+  ALL: "all",
+  SAVED_TO_ALL_SELECTED: "savedToAllSelected",
+  SAVED_TO_ANY_SELECTED: "savedToAnySelected",
+  SAVED_TO_ANY_ACCESSIBLE: "savedToAnyAccessible",
+  NOT_SAVED_TO_ANY_ACCESSIBLE: "notSavedToAnyAccessible",
+  NOT_SAVED_TO_ANY_SELECTED: "notSavedToAnySelected",
+  NOT_SAVED_TO_ALL_SELECTED: "notSavedToAllSelected",
+};
+export const CANDIDATES_PER_PAGE = 10;
 
 /**
  * @param {Object} params
@@ -305,7 +336,7 @@ export const parseIntList = (intListString) => {
 
 /**
  *
- * @param {import("../onboarding/onboarding.lib.js").ScanningProfile} scanningProfile
+ * @param {import("./scanning.lib.js").ScanningProfile} scanningProfile
  * @returns {string}
  */
 export const getStartDate = (scanningProfile) => {
@@ -315,7 +346,7 @@ export const getStartDate = (scanningProfile) => {
 };
 
 /**
- * @param {import("../onboarding/onboarding.lib.js").ScanningProfile} scanningProfile
+ * @param {import("./scanning.lib.js").ScanningProfile} scanningProfile
  */
 export const getFiltering = (scanningProfile) => {
   switch (scanningProfile.savedStatus) {
@@ -359,7 +390,7 @@ export const getFiltering = (scanningProfile) => {
  * @param {boolean} data.filterCandidates
  * @param {string} data.filteringType
  * @param {string} data.filteringAnyOrAll
- * @returns {import("../common/common.lib.js").SavedStatus}
+ * @returns {SavedStatus}
  */
 export const computeSavedStatus = ({
   filterCandidates,
