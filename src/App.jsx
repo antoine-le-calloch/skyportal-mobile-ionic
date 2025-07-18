@@ -40,7 +40,6 @@ import { IonReactRouter } from "@ionic/react-router";
 import { Redirect, Route } from "react-router";
 import OnboardingScreen from "./onboarding/screens/OnboardingScreen/OnboardingScreen.jsx";
 import React, { useEffect, useState } from "react";
-import CheckQRCodeScreen from "./onboarding/screens/CheckQRCodeScreen/CheckQRCodeScreen.jsx";
 import { LoginOkScreen } from "./onboarding/screens/LoginOkScreen/LoginOkScreen.jsx";
 import { useAppStart } from "./common/common.hooks.js";
 import { ScanningOptionsScreen } from "./scanning/scanningOptions/screens/ScanningOptionsScreen/ScanningOptionsScreen.jsx";
@@ -122,7 +121,7 @@ const App = ({ darkMode: initialDarkMode }) => {
               } />
               <Redirect exact from="/" to="/onboarding" />
 
-              <Route path="/check-creds" component={CheckQRCodeScreen} />
+              {/* Login success route */}
               <Route path="/login-ok" component={LoginOkScreen} />
 
               {/* Scanning routes */}
