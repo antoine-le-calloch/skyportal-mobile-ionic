@@ -16,7 +16,7 @@ export const ScanningNewProfileScreen = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons>
+          <IonButtons slot="secondary">
             <IonButton onClick={() => history.replace("/app/scanning")}>
               Cancel
             </IonButton>
