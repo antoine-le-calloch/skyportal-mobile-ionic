@@ -94,7 +94,6 @@ export const CANDIDATES_PER_PAGE = 10;
  * @param {number} params.titleFontSize
  * @param {number} params.labelFontSize
  * @param {import("../common/common.requests.js").BandpassesColors} params.bandpassesColors
- * @returns {import("vega-embed").VisualizationSpec}
  */
 export const getVegaPlotSpec = ({
   photometry,
@@ -113,7 +112,7 @@ export const getVegaPlotSpec = ({
     window.matchMedia("(prefers-color-scheme: dark)").matches;
   const mjdNow = Date.now() / 86400000.0 + 40587.0;
   return /** @type {any} */ ({
-    $schema: "https://vega.github.io/schema/vega-lite/v5.2.0.json",
+    $schema: "https://vega.github.io/schema/vega-lite/v6.json",
     background: "transparent",
     width: "container",
     height: "container",
