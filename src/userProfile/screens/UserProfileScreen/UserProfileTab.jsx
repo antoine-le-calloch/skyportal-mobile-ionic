@@ -112,6 +112,8 @@ export const UserProfileTab = () => {
                     slot="end"
                     fill="clear"
                     onClick={() => instanceSwitchMutation.mutate()}
+                    className="ion-text-capitalize"
+                    style={{ fontSize: "17px" }}
                   >
                     {userInfo.instance.name}
                     <IonIcon slot="end" icon={swapHorizontal}/>
@@ -123,7 +125,7 @@ export const UserProfileTab = () => {
               <IonList inset>
                 <IonItem color="light">
                   <IonSelect
-                    label="Dark theme"
+                    label="Dark Mode"
                     value={darkMode}
                     interface="popover"
                     onIonChange={onDarkModeChange}
@@ -136,7 +138,7 @@ export const UserProfileTab = () => {
               </IonList>
             </div>
           </form>
-        ) : <IonLoading isOpen={true} />}
+        ) : <IonLoading isOpen />}
       </IonContent>
     </IonPage>
   );
