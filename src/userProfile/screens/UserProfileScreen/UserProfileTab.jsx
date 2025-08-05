@@ -99,70 +99,64 @@ export const UserProfileTab = () => {
       </IonHeader>
       <IonContent>
         {userProfile ? (
-          <>
-            <div className="profile-top">
-              <IonAvatar
-                slot="start"
-                style={{ width: `${avatarSize}px`, height: `${avatarSize}px` }}
-              >
-                <img
-                  alt={`${userProfile.first_name} ${userProfile.last_name}`}
-                  src={`${userProfile.gravatar_url}&s=${avatarSize}`}
-                />
-                <IonIcon
-                  icon={personCircle}
-                  className="placeholder-avatar"
-                  style={{ color: bgColor(), fontSize: `${avatarSize}px` }}
-                />
-              </IonAvatar>
-              <IonItem>
-                <IonLabel>
-                  <h1>
-                    {`${userProfile.first_name} ${userProfile.last_name}`}
-                  </h1>
-                </IonLabel>
-              </IonItem>
+          <div className="profile-container">
+            <div>
+              <div className="profile-top">
+                <IonAvatar
+                  slot="start"
+                  style={{ width: `${avatarSize}px`, height: `${avatarSize}px` }}
+                >
+                  <img
+                    alt={`${userProfile.first_name} ${userProfile.last_name}`}
+                    src={`${userProfile.gravatar_url}&s=${avatarSize}`}
+                  />
+                  <IonIcon
+                    icon={personCircle}
+                    className="placeholder-avatar"
+                    style={{ color: bgColor(), fontSize: `${avatarSize}px` }}
+                  />
+                </IonAvatar>
+                <IonItem className="profile-name">
+                  <IonLabel>
+                    <h1>
+                      {`${userProfile.first_name} ${userProfile.last_name}`}
+                    </h1>
+                  </IonLabel>
+                </IonItem>
+              </div>
+              <IonList inset>
+                <IonItem color="light">
+                  <IonLabel>Instance</IonLabel>
+                  <IonButton
+                    slot="end"
+                    fill="clear"
+                    onClick={() => handleDisconnect()}
+                    className="ion-text-capitalize"
+                    style={{ fontSize: "17px" }}
+                  >
+                    {userInfo.instance.name}
+                    <IonIcon slot="end" icon={swapHorizontal} />
+                  </IonButton>
+                </IonItem>
+                <IonItem color="light">
+                  <IonSelect
+                    label="Dark Mode"
+                    value={darkMode}
+                    interface="popover"
+                    onIonChange={onDarkModeChange}
+                  >
+                    <IonSelectOption value="auto">Auto</IonSelectOption>
+                    <IonSelectOption value="light">Light</IonSelectOption>
+                    <IonSelectOption value="dark">Dark</IonSelectOption>
+                  </IonSelect>
+                </IonItem>
+              </IonList>
             </div>
-            <form>
-              <div className="form-section">
-                <IonList inset>
-                  <IonItem color="light">
-                    <IonLabel>Instance</IonLabel>
-                    <IonButton
-                      slot="end"
-                      fill="clear"
-                      onClick={() => handleDisconnect()}
-                      className="ion-text-capitalize"
-                      style={{ fontSize: "17px" }}
-                    >
-                      {userInfo.instance.name}
-                      <IonIcon slot="end" icon={swapHorizontal} />
-                    </IonButton>
-                  </IonItem>
-                </IonList>
-              </div>
-              <div className="form-section">
-                <IonList inset>
-                  <IonItem color="light">
-                    <IonSelect
-                      label="Dark Mode"
-                      value={darkMode}
-                      interface="popover"
-                      onIonChange={onDarkModeChange}
-                    >
-                      <IonSelectOption value="auto">Auto</IonSelectOption>
-                      <IonSelectOption value="light">Light</IonSelectOption>
-                      <IonSelectOption value="dark">Dark</IonSelectOption>
-                    </IonSelect>
-                  </IonItem>
-                </IonList>
-              </div>
-            </form>
             <IonButton color="danger" onClick={handleDisconnect} className="disconnect-button">
               <IonIcon icon={logOutOutline} slot="start" />
               Disconnect
             </IonButton>
-          </>
+          </div>
         ) : <IonLoading isOpen />}
       </IonContent>
     </IonPage>
