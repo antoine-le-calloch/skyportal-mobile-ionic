@@ -13,14 +13,11 @@ export const LoginOkScreen = () => {
 
   useEffect(() => {
     /** @type {any} */
-    let timer;
-    if (userProfile) {
-      timer = setTimeout(() => {
-        history.replace("/app");
-      }, 2000);
-    }
+    const timer = setTimeout(() => {
+      history.replace("/app");
+    }, 2000);
     return () => clearTimeout(timer);
-  }, [userProfile]);
+  }, [userProfile, userInfo]);
 
   return (
     <IonPage>
