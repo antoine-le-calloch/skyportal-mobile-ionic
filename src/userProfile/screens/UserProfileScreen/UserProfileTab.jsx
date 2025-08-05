@@ -14,10 +14,11 @@ import {
   IonToolbar,
   useIonAlert
 } from "@ionic/react";
+import "./UserProfileTab.scss";
 import { useUserProfile } from "../../../common/common.hooks.js";
-import { useContext } from "react";
+import React, { useContext } from "react";
 import { AppContext, UserContext } from "../../../common/common.context.js";
-import { swapHorizontal } from "ionicons/icons";
+import { logOutOutline, personCircle, swapHorizontal } from "ionicons/icons";
 import { useMutation } from "@tanstack/react-query";
 import {
   clearPreference,
@@ -55,10 +56,23 @@ export const UserProfileTab = () => {
     darkModeMutation.mutate({ newDarkMode: e.target.value });
   };
 
-  const onInstanceSwitchButtonClick = async () => {
+  // use the hash of the username (which is in the gravatarUrl) to
+  // select a unique color for this user
+  const bgColor = () => {
+    if (userProfile && userProfile.gravatar_url) {
+      const splitUrl = userProfile.gravatar_url.split("/");
+      const hash = splitUrl[splitUrl.length - 1];
+      if (hash.length >= 6) {
+        return `#${hash.slice(0, 6)}aa`;
+      }
+    }
+    return "#aaaaaaaa";
+  };
+
+  const handleDisconnect = async () => {
     await presentAlert({
-      header: "Switch instance?",
-      message: "Do you want to switch to another SkyPortal instance?",
+      header: "Disconnect?",
+      message: "Do you want to disconnect from this instance?",
       buttons: [
         {
           text: "Cancel",
@@ -75,12 +89,9 @@ export const UserProfileTab = () => {
     });
   };
 
-  const instanceSwitchMutation = useMutation({
-    mutationFn: onInstanceSwitchButtonClick,
-  });
-
+  const avatarSize = "90";
   return (
-    <IonPage>
+    <IonPage className="profile-tab">
       <IonHeader>
         <IonToolbar>
           <IonTitle>Profile</IonTitle>
@@ -88,56 +99,70 @@ export const UserProfileTab = () => {
       </IonHeader>
       <IonContent>
         {userProfile ? (
-          <form className="ion-padding-top">
-            <div className="form-section">
-              <IonList inset>
-                <IonItem>
-                  <IonAvatar slot="start">
-                    <img
-                      src={`${userProfile.gravatar_url}&s=48`}
-                      alt="avatar"
-                    />
-                  </IonAvatar>
-                  <IonLabel>
-                    <h1>{`${userProfile.first_name} ${userProfile.last_name}`}</h1>
-                  </IonLabel>
-                </IonItem>
-              </IonList>
+          <>
+            <div className="profile-top">
+              <IonAvatar
+                slot="start"
+                style={{ width: `${avatarSize}px`, height: `${avatarSize}px` }}
+              >
+                <img
+                  alt={`${userProfile.first_name} ${userProfile.last_name}`}
+                  src={`${userProfile.gravatar_url}&s=${avatarSize}`}
+                />
+                <IonIcon
+                  icon={personCircle}
+                  className="placeholder-avatar"
+                  style={{ color: bgColor(), fontSize: `${avatarSize}px` }}
+                />
+              </IonAvatar>
+              <IonItem>
+                <IonLabel>
+                  <h1>
+                    {`${userProfile.first_name} ${userProfile.last_name}`}
+                  </h1>
+                </IonLabel>
+              </IonItem>
             </div>
-            <div className="form-section">
-              <IonList inset>
-                <IonItem color="light">
-                  <IonLabel>Instance</IonLabel>
-                  <IonButton
-                    slot="end"
-                    fill="clear"
-                    onClick={() => instanceSwitchMutation.mutate()}
-                    className="ion-text-capitalize"
-                    style={{ fontSize: "17px" }}
-                  >
-                    {userInfo.instance.name}
-                    <IonIcon slot="end" icon={swapHorizontal}/>
-                  </IonButton>
-                </IonItem>
-              </IonList>
-            </div>
-            <div className="form-section">
-              <IonList inset>
-                <IonItem color="light">
-                  <IonSelect
-                    label="Dark Mode"
-                    value={darkMode}
-                    interface="popover"
-                    onIonChange={onDarkModeChange}
-                  >
-                    <IonSelectOption value="auto">Auto</IonSelectOption>
-                    <IonSelectOption value="light">Light</IonSelectOption>
-                    <IonSelectOption value="dark">Dark</IonSelectOption>
-                  </IonSelect>
-                </IonItem>
-              </IonList>
-            </div>
-          </form>
+            <form>
+              <div className="form-section">
+                <IonList inset>
+                  <IonItem color="light">
+                    <IonLabel>Instance</IonLabel>
+                    <IonButton
+                      slot="end"
+                      fill="clear"
+                      onClick={() => handleDisconnect()}
+                      className="ion-text-capitalize"
+                      style={{ fontSize: "17px" }}
+                    >
+                      {userInfo.instance.name}
+                      <IonIcon slot="end" icon={swapHorizontal} />
+                    </IonButton>
+                  </IonItem>
+                </IonList>
+              </div>
+              <div className="form-section">
+                <IonList inset>
+                  <IonItem color="light">
+                    <IonSelect
+                      label="Dark Mode"
+                      value={darkMode}
+                      interface="popover"
+                      onIonChange={onDarkModeChange}
+                    >
+                      <IonSelectOption value="auto">Auto</IonSelectOption>
+                      <IonSelectOption value="light">Light</IonSelectOption>
+                      <IonSelectOption value="dark">Dark</IonSelectOption>
+                    </IonSelect>
+                  </IonItem>
+                </IonList>
+              </div>
+            </form>
+            <IonButton color="danger" onClick={handleDisconnect} className="disconnect-button">
+              <IonIcon icon={logOutOutline} slot="start" />
+              Disconnect
+            </IonButton>
+          </>
         ) : <IonLoading isOpen />}
       </IonContent>
     </IonPage>

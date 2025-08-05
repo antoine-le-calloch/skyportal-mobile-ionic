@@ -66,3 +66,36 @@ export const fetchUserProfile = async (userInfo) => {
 
   return response.data.data;
 };
+
+/** @typedef {import("../common/common.lib").SkyPortalInstance} SkyPortalInstance */
+
+/** @returns {SkyPortalInstance[]} */
+export const getInstancesFromLocalStorage = () =>
+  JSON.parse(localStorage.getItem("instances") || "[]");
+
+/**
+ * Save a new instance to the localStorage or update an existing one
+ * @param {SkyPortalInstance} instance - The instance to save
+ */
+export const saveInstanceToLocalStorage = (instance) => {
+  const instances = getInstancesFromLocalStorage().filter(i => i.name !== instance.name);
+  instances.push(instance);
+  localStorage.instances = JSON.stringify(instances);
+};
+
+/**
+ * Remove an instance from the localStorage
+ * @param {string} name - The name of the instance to remove
+ */
+export const removeInstanceFromLocalStorage = (name) => {
+  const instances = getInstancesFromLocalStorage().filter((i) => i.name !== name);
+  localStorage.setItem("instances", JSON.stringify(instances));
+};
+
+/**
+ * Save instance token to the localStorage
+ * @param {SkyPortalInstance} instance - The instance to save the token for
+ * @param {string} token - The token to save
+ */
+export const saveTokenToLocalStorage = (instance, token) =>
+  saveInstanceToLocalStorage({ ...instance, token });

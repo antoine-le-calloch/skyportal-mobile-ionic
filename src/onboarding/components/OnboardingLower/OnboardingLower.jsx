@@ -14,8 +14,18 @@ import { checkmarkCircleOutline, qrCode } from "ionicons/icons";
 import { CapacitorBarcodeScanner } from "@capacitor/barcode-scanner";
 import { Html5QrcodeSupportedFormats } from "html5-qrcode";
 import { useHistory } from "react-router";
-import { INSTANCES, QUERY_KEYS, setPreference } from "../../../common/common.lib.js";
-import { fetchUserProfile } from "../../onboarding.lib.js";
+import {
+  INSTANCES,
+  QUERY_KEYS,
+  setPreference
+} from "../../../common/common.lib.js";
+import {
+  fetchUserProfile,
+  getInstancesFromLocalStorage,
+  removeInstanceFromLocalStorage,
+  saveInstanceToLocalStorage,
+  saveTokenToLocalStorage,
+} from "../../onboarding.lib.js";
 import { UserContext } from "../../../common/common.context.js";
 import { useErrorToast } from "../../../common/common.hooks.js";
 
@@ -47,36 +57,18 @@ const OnboardingLower = ({ page, setPage }) => {
   const [segment, setSegment] = useState("add");
 
   /** @type {SkyPortalInstance[]} */
-  const storedInstances = JSON.parse(localStorage.getItem("instances") || "[]");
+  const storedInstances = getInstancesFromLocalStorage()
+  // Set instances using all local storage instances and the missing default instances sorted by name
   const [instances, setInstances] = useState([
-    ...INSTANCES,
-    ...storedInstances.filter((i) => !isDefaultInstance(i))
-  ]);
-
+    ...storedInstances,
+    ...INSTANCES.filter(
+      (defaultInstance) =>
+        !storedInstances.some((i) => i.name === defaultInstance.name)
+    ),
+  ].sort((a, b) => a.name.localeCompare(b.name)));
   /** @type {[SkyPortalInstance | null, React.Dispatch<SkyPortalInstance | null>]} */
   const [selectedInstance, setSelectedInstance] = useState(/** @type {SkyPortalInstance | null} */ (null));
   const [newInstance, setNewInstance] = useState({ name: "", url: "" });
-
-  /**
-   * Save a new instance to the local state and localStorage
-   * @param {SkyPortalInstance} instance - The instance to save
-   */
-  const saveInstance = (instance) => {
-    const updated = [...instances, instance];
-    setInstances(updated);
-    localStorage.setItem("instances", JSON.stringify(updated));
-  };
-
-  /**
-   * Remove an instance from the local state and localStorage
-   * @param {string} name - The name of the instance to remove
-   * @param {string} url - The URL of the instance to remove
-   */
-  const removeInstance = (name, url) => {
-    const updated = instances.filter((i) => i.name !== name || i.url !== url);
-    setInstances(updated);
-    localStorage.setItem("instances", JSON.stringify(updated));
-  };
 
   /**
    * Check the credentials by fetching the user profile
@@ -92,6 +84,7 @@ const OnboardingLower = ({ page, setPage }) => {
       await fetchUserProfile(userInfo);
       await setPreference(QUERY_KEYS.USER_INFO, userInfo);
       updateUserInfo(userInfo);
+      saveTokenToLocalStorage(selectedInstance, token);
       history.replace("/login-ok");
     } catch (error) {
       // @ts-ignore
@@ -113,6 +106,20 @@ const OnboardingLower = ({ page, setPage }) => {
   const handleTypeTokenSubmit = useCallback(() =>
       checkCredentials(typedToken), [typedToken, selectedInstance]);
 
+  /**
+   * Handle the selection of an instance
+   * @param {CustomEvent} e - The event
+   */
+  const handleSelectInstance = (e) => {
+    if (e.detail.value === "__add__") {
+      setShowModal(true);
+      setSelectedInstance(null);
+    } else {
+      setSelectedInstance(e.detail.value);
+      setTypedToken(e.detail.value?.token || "");
+    }
+  }
+
   const handleAddInstance = () => {
     const { name, url } = newInstance;
     if (!name || !url || instances.some((i) => i.name === name)) {
@@ -123,7 +130,8 @@ const OnboardingLower = ({ page, setPage }) => {
     const cleanUrl = url.replace(/\/+$/, "");
     const instance = { name, url: cleanUrl };
     setSelectedInstance(instance);
-    saveInstance(instance);
+    setInstances((prev) => [...prev, instance]);
+    saveInstanceToLocalStorage(instance);
     setNewInstance({ name: "", url: "" });
     presentToast({
       message: `Instance "${name}" added successfully!`,
@@ -134,6 +142,16 @@ const OnboardingLower = ({ page, setPage }) => {
     })
     setShowModal(false);
   };
+
+  /**
+   * Handle the deletion of an instance
+   * @param {SkyPortalInstance} instance - The instance to delete
+   */
+  const handleDeleteInstance = (instance) => {
+    setInstances((prev) => prev.filter((i) => i.name !== instance.name));
+    removeInstanceFromLocalStorage(instance.name);
+    if (selectedInstance?.name === instance.name) setSelectedInstance(null);
+  }
 
   switch (page) {
     case "welcome":
@@ -159,14 +177,7 @@ const OnboardingLower = ({ page, setPage }) => {
               placeholder="Select an instance"
               interface="action-sheet"
               value={selectedInstance}
-              onIonChange={(e) => {
-                if (e.detail.value === "__add__") {
-                  setShowModal(true);
-                  setSelectedInstance(null);
-                } else {
-                  setSelectedInstance(e.detail.value)
-                }
-              }}
+              onIonChange={(e) => handleSelectInstance(e)}
             >
               {instances.map((/** @type {SkyPortalInstance} */ option) => (
                 <IonSelectOption key={option.name} value={option}>
@@ -179,10 +190,20 @@ const OnboardingLower = ({ page, setPage }) => {
             </IonSelect>
           </div>
           <div className="login-methods">
+            {selectedInstance?.token && (
+              <IonButton
+                onClick={() => checkCredentials(selectedInstance.token || "")}
+                shape="round"
+                strong
+              >
+                Reconnect
+              </IonButton>
+            )}
             <IonButton
               onClick={handleScanQRCode}
               shape="round"
               disabled={!selectedInstance}
+              fill={selectedInstance?.token ? "outline" : "solid"}
               strong
             >
               <IonIcon slot="start" icon={qrCode}/>
@@ -228,10 +249,7 @@ const OnboardingLower = ({ page, setPage }) => {
                       <h2>{instance.name}</h2>
                       <p>{instance.url}</p>
                     </IonLabel>
-                    <IonButton fill="clear" color="danger" slot="end" onClick={() => {
-                      if (selectedInstance?.name === instance.name) setSelectedInstance(null);
-                      removeInstance(instance.name, instance.url);
-                    }}>
+                    <IonButton fill="clear" color="danger" slot="end" onClick={() => handleDeleteInstance(instance)}>
                       Delete
                     </IonButton>
                   </IonItem>

@@ -1,0 +1,22 @@
+.profile-tab{
+  .profile-top{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding-top: 1.5rem;
+
+    .placeholder-avatar{
+      position: relative;
+      top: -95px;
+    }
+
+    h1{
+      font-size: 1.7rem;
+    }
+  }
+  .disconnect-button{
+    width: 100%;
+    padding: 1rem;
+  }
+}
