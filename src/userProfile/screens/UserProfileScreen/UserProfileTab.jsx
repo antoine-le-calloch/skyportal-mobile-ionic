@@ -12,13 +12,14 @@ import {
   IonSelectOption,
   IonTitle,
   IonToolbar,
-  useIonAlert
+  useIonAlert,
+  useIonToast
 } from "@ionic/react";
 import "./UserProfileTab.scss";
-import { useUserProfile } from "../../../common/common.hooks.js";
+import { useErrorToast, useUserProfile } from "../../../common/common.hooks.js";
 import React, { useContext } from "react";
 import { AppContext, UserContext } from "../../../common/common.context.js";
-import { logOutOutline, personCircle, swapHorizontal } from "ionicons/icons";
+import { logOutOutline, personCircle, swapHorizontal, warningOutline } from "ionicons/icons";
 import { useMutation } from "@tanstack/react-query";
 import {
   clearPreference,
@@ -26,12 +27,19 @@ import {
   setDarkModeInDocument,
   setPreference,
 } from "../../../common/common.lib.js";
+import { getAllInstances, login } from "../../../onboarding/onboarding.lib.js";
+import { useHistory } from "react-router";
 
 export const UserProfileTab = () => {
+  const history = useHistory();
+  const errorToast = useErrorToast();
+  const { userProfile } = useUserProfile();
+  const [presentAlert] = useIonAlert();
+  const [presentToast] = useIonToast();
   const { darkMode, updateDarkMode } = useContext(AppContext);
   const { userInfo, updateUserInfo } = useContext(UserContext);
-  const [presentAlert] = useIonAlert();
-  const { userProfile } = useUserProfile();
+  const [loading, setLoading] = React.useState(false);
+  const instances = getAllInstances();
 
   const darkModeMutation = useMutation({
     mutationFn:
@@ -56,6 +64,29 @@ export const UserProfileTab = () => {
     darkModeMutation.mutate({ newDarkMode: e.target.value });
   };
 
+  const onInstanceChange = async (/** @type {any} */ e) => {
+    const instance = e.target.value;
+    if (!instance || !instance.token) {
+      presentToast({
+        header: "No token available for this instance",
+        message: "You need to disconnect from this instance to proceed.",
+        duration: 2000,
+        position: "top",
+        color: "warning",
+        icon: warningOutline,
+      }).then()
+      disconnect();
+    }else{
+      try {
+        setLoading(true);
+        await login(instance, instance.token, history, updateUserInfo);
+        setLoading(false);
+      } catch (/** @type {any} */ error) {
+        errorToast(error?.message || "Error trying to log in to the instance");
+      }
+    }
+  }
+
   // use the hash of the username (which is in the gravatarUrl) to
   // select a unique color for this user
   const bgColor = () => {
@@ -69,7 +100,7 @@ export const UserProfileTab = () => {
     return "#aaaaaaaa";
   };
 
-  const handleDisconnect = async () => {
+  const disconnect = async () => {
     await presentAlert({
       header: "Disconnect?",
       message: "Do you want to disconnect from this instance?",
@@ -98,6 +129,7 @@ export const UserProfileTab = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
+        <IonLoading isOpen={loading} />
         {userProfile ? (
           <div className="profile-container">
             <div>
@@ -126,17 +158,28 @@ export const UserProfileTab = () => {
               </div>
               <IonList inset>
                 <IonItem color="light">
-                  <IonLabel>Instance</IonLabel>
-                  <IonButton
-                    slot="end"
-                    fill="clear"
-                    onClick={() => handleDisconnect()}
-                    className="ion-text-capitalize"
-                    style={{ fontSize: "17px" }}
+                  <IonSelect
+                    className="instance-select"
+                    label="Instance"
+                    value={instances.find((instance) => instance.name === userInfo.instance.name)}
+                    interface="popover"
+                    onIonChange={onInstanceChange}
+                    toggleIcon={swapHorizontal}
+                    placeholder="Select Instance"
                   >
-                    {userInfo.instance.name}
-                    <IonIcon slot="end" icon={swapHorizontal} />
-                  </IonButton>
+                    {instances.map((instance) => (
+                      <IonSelectOption
+                        key={instance.name}
+                        value={instance}
+                        className={ instance.name === userInfo.instance.name ?
+                          "current-instance" :
+                          (instance.token ? "instance-already-connected" : "") }
+                      >
+                        {instance.name}
+                        {instance.name === userInfo.instance.name && " (Current)"}
+                      </IonSelectOption>
+                    ))}
+                  </IonSelect>
                 </IonItem>
                 <IonItem color="light">
                   <IonSelect
@@ -152,7 +195,7 @@ export const UserProfileTab = () => {
                 </IonItem>
               </IonList>
             </div>
-            <IonButton color="danger" onClick={handleDisconnect} className="disconnect-button">
+            <IonButton color="danger" onClick={disconnect} className="disconnect-button">
               <IonIcon icon={logOutOutline} slot="start" />
               Disconnect
             </IonButton>

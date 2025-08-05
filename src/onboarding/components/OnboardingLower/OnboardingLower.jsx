@@ -16,15 +16,12 @@ import { Html5QrcodeSupportedFormats } from "html5-qrcode";
 import { useHistory } from "react-router";
 import {
   INSTANCES,
-  QUERY_KEYS,
-  setPreference
 } from "../../../common/common.lib.js";
 import {
-  fetchUserProfile,
-  getInstancesFromLocalStorage,
+  login,
+  getAllInstances,
   removeInstanceFromLocalStorage,
   saveInstanceToLocalStorage,
-  saveTokenToLocalStorage,
 } from "../../onboarding.lib.js";
 import { UserContext } from "../../../common/common.context.js";
 import { useErrorToast } from "../../../common/common.hooks.js";
@@ -55,40 +52,24 @@ const OnboardingLower = ({ page, setPage }) => {
   const [typedToken, setTypedToken] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [segment, setSegment] = useState("add");
-
-  /** @type {SkyPortalInstance[]} */
-  const storedInstances = getInstancesFromLocalStorage()
-  // Set instances using all local storage instances and the missing default instances sorted by name
-  const [instances, setInstances] = useState([
-    ...storedInstances,
-    ...INSTANCES.filter(
-      (defaultInstance) =>
-        !storedInstances.some((i) => i.name === defaultInstance.name)
-    ),
-  ].sort((a, b) => a.name.localeCompare(b.name)));
+  const [instances, setInstances] = useState(getAllInstances());
   /** @type {[SkyPortalInstance | null, React.Dispatch<SkyPortalInstance | null>]} */
   const [selectedInstance, setSelectedInstance] = useState(/** @type {SkyPortalInstance | null} */ (null));
   const [newInstance, setNewInstance] = useState({ name: "", url: "" });
 
   /**
-   * Check the credentials by fetching the user profile
-   * @param {string} token - The token to check
+   * Log the user into the selected instance with the provided token
+   * @param {string} token - The token to use for login
    */
-  const checkCredentials = async (token) => {
+  const loginToTheSelectedInstance = async (token) => {
     if (!selectedInstance){
       setPage("login");
       return;
     }
-    const userInfo = {token, instance: selectedInstance};
     try {
-      await fetchUserProfile(userInfo);
-      await setPreference(QUERY_KEYS.USER_INFO, userInfo);
-      updateUserInfo(userInfo);
-      saveTokenToLocalStorage(selectedInstance, token);
-      history.replace("/login-ok");
-    } catch (error) {
-      // @ts-ignore
-      errorToast(error.message || "An error occurred while checking credentials", true);
+      await login(selectedInstance, token, history, updateUserInfo);
+    } catch (/** @type {any} */ error) {
+      errorToast(error?.message || "Error trying to log in to the instance");
     }
   }
 
@@ -97,14 +78,14 @@ const OnboardingLower = ({ page, setPage }) => {
       const result = await CapacitorBarcodeScanner.scanBarcode({
         hint: Html5QrcodeSupportedFormats.QR_CODE,
       });
-      await checkCredentials(result.ScanResult);
+      await loginToTheSelectedInstance(result.ScanResult);
     } catch (/** @type {any} */ error) {
       errorToast(error?.message || "Error scanning QR code. Please try again.");
     }
   };
 
   const handleTypeTokenSubmit = useCallback(() =>
-      checkCredentials(typedToken), [typedToken, selectedInstance]);
+      loginToTheSelectedInstance(typedToken), [typedToken, selectedInstance]);
 
   /**
    * Handle the selection of an instance
@@ -192,7 +173,7 @@ const OnboardingLower = ({ page, setPage }) => {
           <div className="login-methods">
             {selectedInstance?.token && (
               <IonButton
-                onClick={() => checkCredentials(selectedInstance.token || "")}
+                onClick={() => loginToTheSelectedInstance(selectedInstance.token || "")}
                 shape="round"
                 strong
               >

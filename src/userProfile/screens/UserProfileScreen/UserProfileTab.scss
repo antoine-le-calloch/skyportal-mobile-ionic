@@ -1,3 +1,10 @@
+.current-instance{
+  color: var(--ion-color-primary);
+}
+.instance-already-connected{
+  color: var(--ion-color-success);
+}
+
 .profile-tab{
   .profile-container{
     padding-top: 1rem;
@@ -24,7 +31,14 @@
           font-size: 1.7rem;
         }
       }
-
+    }
+    .instance-select{
+      &::part(icon) {
+        color: var(--ion-color-primary);
+      }
+      &::part(text) {
+        color: var(--ion-color-primary);
+      }
     }
     .disconnect-button{
       width: 100%;

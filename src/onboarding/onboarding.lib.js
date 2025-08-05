@@ -1,4 +1,5 @@
 import { CapacitorHttp } from "@capacitor/core";
+import { INSTANCES, QUERY_KEYS, setPreference } from "../common/common.lib.js";
 
 /**
  * @template T
@@ -33,6 +34,22 @@ import { CapacitorHttp } from "@capacitor/core";
 /**
  * @typedef {"welcome"|"login"|"type_token"} OnboardingPage
  */
+
+/**
+ * Try to log in to the SkyPortal instance with the provided token.
+ * @param {import("../common/common.lib.js").SkyPortalInstance} instance - The SkyPortal instance to log in to
+ * @param {string} token - The token to use for logging in
+ * @param {import("history").History} history - The history object to redirect after login
+ * @param {(userInfo: UserInfo) => void} updateUserInfo - Function to update the user info in context
+ */
+export const login = async (instance, token, history, updateUserInfo) => {
+  const userInfo = {token, instance: instance};
+  await fetchUserProfile(userInfo);
+  await setPreference(QUERY_KEYS.USER_INFO, userInfo);
+  saveTokenToLocalStorage(instance, token);
+  updateUserInfo(userInfo);
+  history.replace("/login-ok");
+}
 
 /**
  * Fetch the user from the API and throw an error if
@@ -72,6 +89,21 @@ export const fetchUserProfile = async (userInfo) => {
 /** @returns {SkyPortalInstance[]} */
 export const getInstancesFromLocalStorage = () =>
   JSON.parse(localStorage.getItem("instances") || "[]");
+
+/**
+ * Get all SkyPortal instances sorted, including those stored in localStorage and default ones.
+ * @returns {SkyPortalInstance[]}
+ */
+export const getAllInstances = () => {
+  const storedInstances = getInstancesFromLocalStorage()
+  return [
+    ...storedInstances,
+    ...INSTANCES.filter(
+      (defaultInstance) =>
+        !storedInstances.some((i) => i.name === defaultInstance.name)
+    ),
+  ].sort((a, b) => a.name.localeCompare(b.name));
+}
 
 /**
  * Save a new instance to the localStorage or update an existing one
