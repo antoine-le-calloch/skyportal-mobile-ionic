@@ -112,7 +112,7 @@ export const getAllInstances = () => {
 export const saveInstanceToLocalStorage = (instance) => {
   const instances = getInstancesFromLocalStorage().filter(i => i.name !== instance.name);
   instances.push(instance);
-  localStorage.instances = JSON.stringify(instances);
+  localStorage.setItem("instances", JSON.stringify(instances));
 };
 
 /**
