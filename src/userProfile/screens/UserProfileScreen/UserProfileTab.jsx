@@ -82,6 +82,7 @@ export const UserProfileTab = () => {
         await login(instance, instance.token, history, updateUserInfo);
         setLoading(false);
       } catch (/** @type {any} */ error) {
+        setLoading(false);
         errorToast(error?.message || "Error trying to log in to the instance");
       }
     }
