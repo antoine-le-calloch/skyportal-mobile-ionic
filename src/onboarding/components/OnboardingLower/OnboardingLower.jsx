@@ -97,7 +97,6 @@ const OnboardingLower = ({ page, setPage }) => {
       setSelectedInstance(null);
     } else {
       setSelectedInstance(e.detail.value);
-      setTypedToken(e.detail.value?.token || "");
     }
   }
 

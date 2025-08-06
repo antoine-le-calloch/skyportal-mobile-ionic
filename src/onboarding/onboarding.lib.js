@@ -25,10 +25,12 @@ import { INSTANCES, QUERY_KEYS, setPreference } from "../common/common.lib.js";
  * @property {UserPreferences} preferences - The preferences of the user
  */
 
+/** * @typedef {import("../common/common.lib.js").SkyPortalInstance} SkyPortalInstance */
+
 /**
  * @typedef {Object} UserInfo
  * @property {string} token - The token of the user
- * @property {import("../common/common.lib.js").SkyPortalInstance} instance - The instance of the user
+ * @property {SkyPortalInstance} instance - The instance of the user
  */
 
 /**
@@ -37,13 +39,13 @@ import { INSTANCES, QUERY_KEYS, setPreference } from "../common/common.lib.js";
 
 /**
  * Try to log in to the SkyPortal instance with the provided token.
- * @param {import("../common/common.lib.js").SkyPortalInstance} instance - The SkyPortal instance to log in to
+ * @param {SkyPortalInstance} instance - The SkyPortal instance to log in to
  * @param {string} token - The token to use for logging in
  * @param {import("history").History} history - The history object to redirect after login
  * @param {(userInfo: UserInfo) => void} updateUserInfo - Function to update the user info in context
  */
 export const login = async (instance, token, history, updateUserInfo) => {
-  const userInfo = {token, instance: instance};
+  const userInfo = {token, instance};
   await fetchUserProfile(userInfo);
   await setPreference(QUERY_KEYS.USER_INFO, userInfo);
   saveTokenToLocalStorage(instance, token);
@@ -83,8 +85,6 @@ export const fetchUserProfile = async (userInfo) => {
 
   return response.data.data;
 };
-
-/** @typedef {import("../common/common.lib").SkyPortalInstance} SkyPortalInstance */
 
 /** @returns {SkyPortalInstance[]} */
 export const getInstancesFromLocalStorage = () =>
