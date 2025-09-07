@@ -1,0 +1,48 @@
+.current-instance{
+  color: var(--ion-color-primary);
+}
+.instance-already-connected{
+  color: var(--ion-color-success);
+}
+
+.profile-tab{
+  .profile-container{
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+
+    .profile-top{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+
+      .placeholder-avatar{
+        position: relative;
+        top: -95px;
+      }
+
+      .profile-name{
+        width: 50%;
+        h1{
+          width: 100%;
+          font-size: 1.7rem;
+        }
+      }
+    }
+    .instance-select{
+      &::part(icon) {
+        color: var(--ion-color-primary);
+      }
+      &::part(text) {
+        color: var(--ion-color-primary);
+      }
+    }
+    .disconnect-button{
+      width: 100%;
+      padding: 1rem;
+    }
+  }
+}

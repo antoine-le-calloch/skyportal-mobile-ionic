@@ -5,6 +5,7 @@ import { Preferences } from "@capacitor/preferences";
  * @typedef {Object} SkyPortalInstance
  * @property {string} name - The name of the instance
  * @property {string} url - The URL of the instance
+ * @property {string} [token] - The token of the instance
  */
 
 /**
@@ -72,10 +73,6 @@ export const INSTANCES = [
   { name: "FRITZ", url: "https://fritz.science" },
   { name: "FRITZ preview", url: "https://preview.fritz.science" },
 ];
-export const QUERY_PARAMS = {
-  TOKEN: "token",
-  INSTANCE: "instance",
-};
 export const QUERY_KEYS = {
   CANDIDATES: "candidates",
   SOURCES: "sources",
